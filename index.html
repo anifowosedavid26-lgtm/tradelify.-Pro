@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradelify — The Operating System for Serious Traders</title>
+<meta name="description" content="Tradelify helps traders fix the real problem: no structure, no discipline, no data. Trading journal, risk calculator, AI coach, demo trading, and structured education in one platform — not signals.">
+<meta name="keywords" content="trading journal, risk calculator, forex trading platform, crypto trading education, demo trading, trading psychology, trading academy">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://tradelify.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tradelify — The Operating System for Serious Traders">
+<meta property="og:description" content="Most traders don't fail from bad markets. They fail from no structure. Journal, risk tools, education and AI coaching in one platform.">
+<meta property="og:url" content="https://tradelify.netlify.app/">
+<meta property="og:site_name" content="Tradelify">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tradelify — The Operating System for Serious Traders">
+<meta name="twitter:description" content="Trading journal, risk calculator, AI coach and structured education — built for traders who want discipline, not signals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0E14;
+    --panel:#11161F;
+    --panel-2:#161C28;
+    --line:#232B3A;
+    --text:#EDEFF3;
+    --muted:#8892A6;
+    --mint:#3DD68C;
+    --mint-dim:#1E4A38;
+    --amber:#F5A623;
+    --red:#F0556B;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; color-scheme:dark;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    color-scheme:dark;
+  }
+  input, select, textarea, button{
+    color-scheme:dark;
+    accent-color:var(--mint);
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.02em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--mint); color:var(--ink);}
+
+  /* layout helpers */
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+  .hide{display:none !important;}
+  button{font-family:inherit; cursor:pointer;}
+
+  /* ---- top nav ---- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,14,20,0.9);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:16px 24px; max-width:1180px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:20px;}
+  .brand .mark{width:30px; height:30px; border-radius:7px; background:linear-gradient(135deg,var(--mint),#1f8f5f); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700;}
+  .navlinks{display:flex; gap:28px; font-size:14px; color:var(--muted);}
+  .navlinks a:hover{color:var(--text);}
+  .nav-actions{display:flex; gap:12px; align-items:center;}
+  .btn{
+    padding:10px 18px; border-radius:8px; font-size:14px; font-weight:600; border:1px solid transparent; transition:.15s;
+  }
+  .btn-primary{background:var(--mint); color:var(--ink);}
+  .btn-primary:hover{background:#31c17e;}
+  .btn-ghost{color:var(--text); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--muted);}
+  @media(max-width:860px){.navlinks{display:none;}}
+
+  /* ---- hero ---- */
+  .hero{padding:100px 24px 80px; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+  .hero-grid{max-width:1180px; margin:0 auto; display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px; align-items:center;}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--mint); font-family:'JetBrains Mono'; border:1px solid var(--mint-dim); background:rgba(61,214,140,0.06); padding:6px 12px; border-radius:100px; margin-bottom:24px;}
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .hero h1{font-size:56px; line-height:1.05; font-weight:700; margin-bottom:22px;}
+  @media(max-width:600px){.hero h1{font-size:38px;}}
+  .hero h1 .accent{color:var(--mint);}
+  .hero p.lead{color:var(--muted); font-size:18px; max-width:520px; margin-bottom:32px;}
+  .hero-ctas{display:flex; gap:14px; margin-bottom:40px;}
+  .btn-lg{padding:14px 26px; font-size:15px;}
+  .problem-list{display:flex; flex-direction:column; gap:10px;}
+  .problem-item{display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--muted);}
+  .problem-item::before{content:"×"; color:var(--red); font-weight:700; font-family:'JetBrains Mono'; flex-shrink:0;}
+
+  /* hero visual: mini journal card */
+  .hero-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px; position:relative;
+  }
+  .hero-card .hc-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; font-size:13px; color:var(--muted);}
+  .hc-row{display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .hc-row:last-child{border-bottom:none;}
+  .tag{padding:3px 9px; border-radius:5px; font-size:11px; font-family:'JetBrains Mono'; font-weight:600;}
+  .tag-win{background:rgba(61,214,140,.12); color:var(--mint);}
+  .tag-loss{background:rgba(240,85,107,.12); color:var(--red);}
+  .streak-box{margin-top:16px; padding:16px; border-radius:8px; background:var(--panel-2); border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;}
+  .streak-num{font-family:'JetBrains Mono'; font-size:26px; font-weight:600; color:var(--mint);}
+
+  /* ---- section shell ---- */
+  section{padding:90px 0; border-bottom:1px solid var(--line);}
+  .section-head{max-width:640px; margin-bottom:56px;}
+  .section-head .eyebrow{margin-bottom:16px;}
+  .section-head h2{font-size:36px; font-weight:700; margin-bottom:14px;}
+  .section-head p{color:var(--muted); font-size:16px;}
+
+  /* problem grid */
+  .problem-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  @media(max-width:800px){.problem-grid{grid-template-columns:1fr;}}
+  .p-cell{background:var(--panel); padding:28px;}
+  .p-cell .num{font-family:'JetBrains Mono'; color:var(--muted); font-size:13px; margin-bottom:14px;}
+  .p-cell h3{font-size:17px; margin-bottom:8px;}
+  .p-cell p{color:var(--muted); font-size:14px;}
+
+  /* feature cards */
+  .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
+  .feat-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px; transition:.15s;}
+  .feat-card:hover{border-color:var(--mint-dim); transform:translateY(-2px);}
+  .feat-icon{width:38px; height:38px; border-radius:8px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-size:18px;}
+  .feat-card h3{font-size:16px; margin-bottom:8px;}
+  .feat-card p{color:var(--muted); font-size:13.5px;}
+
+  /* tools preview: calculator + journal live */
+  .tool-tabs{display:flex; gap:8px; margin-bottom:28px;}
+  .tool-tab{padding:9px 16px; border-radius:8px; font-size:13px; border:1px solid var(--line); color:var(--muted); background:transparent;}
+  .tool-tab.active{background:var(--panel-2); color:var(--text); border-color:var(--mint-dim);}
+  .tool-panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:32px;}
+  .calc-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px;}
+  @media(max-width:760px){.calc-grid{grid-template-columns:1fr;}}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono';}
+  .field input, .field select{
+    width:100%; background:var(--ink) !important; border:1px solid var(--line); border-radius:7px; padding:11px 12px; color:var(--text) !important; font-size:14px; font-family:'JetBrains Mono';
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--mint);}
+  .field input:-webkit-autofill,
+  .field input:-webkit-autofill:hover,
+  .field input:-webkit-autofill:focus{
+    -webkit-text-fill-color:var(--text);
+    -webkit-box-shadow:0 0 0px 1000px var(--ink) inset;
+    transition:background-color 9999s ease-in-out 0s;
+  }
+  .result-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:12px;}
+  .result-box .label{font-size:12px; color:var(--muted); font-family:'JetBrains Mono'; margin-bottom:6px;}
+  .result-box .val{font-size:26px; font-weight:600; font-family:'JetBrains Mono'; color:var(--mint);}
+  .rr-row{display:flex; gap:10px;}
+  .rr-item{flex:1; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center;}
+  .rr-item .rr-label{font-size:11px; color:var(--muted); font-family:'JetBrains Mono';}
+  .rr-item .rr-val{font-family:'JetBrains Mono'; font-weight:600; margin-top:4px;}
+
+  /* journal table */
+  .j-form{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:24px; align-items:end;}
+  @media(max-width:900px){.j-form{grid-template-columns:repeat(2,1fr);}}
+  .j-form .field{margin-bottom:0;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; color:var(--muted); font-family:'JetBrains Mono'; font-weight:500; font-size:11px; padding:10px 8px; border-bottom:1px solid var(--line);}
+  td{padding:12px 8px; border-bottom:1px solid var(--line);}
+  .empty-row td{color:var(--muted); text-align:center; padding:36px 0; font-size:13px;}
+  .stat-strip{display:flex; gap:12px; margin-top:24px;}
+  .stat-mini{flex:1; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:14px; text-align:center;}
+  .stat-mini .sv{font-family:'JetBrains Mono'; font-size:20px; font-weight:600;}
+  .stat-mini .sl{font-size:11px; color:var(--muted); margin-top:4px;}
+
+  /* pricing */
+  .price-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media(max-width:860px){.price-grid{grid-template-columns:1fr;}}
+  .price-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:30px;}
+  .price-card.featured{border-color:var(--mint); position:relative;}
+  .price-card.featured::before{content:"MOST POPULAR"; position:absolute; top:-11px; left:24px; background:var(--mint); color:var(--ink); font-size:10px; font-weight:700; padding:4px 10px; border-radius:5px; letter-spacing:.05em;}
+  .price-card h3{font-size:15px; color:var(--muted); font-weight:600; margin-bottom:10px;}
+  .price-amt{font-family:'JetBrains Mono'; font-size:38px; font-weight:600; margin-bottom:4px;}
+  .price-amt span{font-size:14px; color:var(--muted); font-weight:400;}
+  .price-list{list-style:none; margin:22px 0; display:flex; flex-direction:column; gap:10px;}
+  .price-list li{font-size:13.5px; color:var(--muted); display:flex; gap:8px;}
+  .price-list li::before{content:"✓"; color:var(--mint); flex-shrink:0;}
+
+  /* footer */
+  footer{padding:50px 0 30px; color:var(--muted); font-size:13px;}
+  .foot-inner{display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px;}
+
+  /* modal */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); z-index:100;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal{
+    background:var(--panel); border:1px solid var(--mint-dim); border-top:3px solid var(--mint);
+    border-radius:12px; padding:32px; width:100%; max-width:400px; position:relative;
+    box-shadow:0 0 0 1px rgba(61,214,140,0.05), 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(61,214,140,0.08);
+  }
+  .modal-close{position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:18px;}
+  .modal .mark-lg{width:40px; height:40px; border-radius:9px; background:linear-gradient(135deg,var(--mint),#1f8f5f); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-family:'Space Grotesk'; margin-bottom:18px;}
+  .modal h3{font-size:20px; margin-bottom:6px;}
+  .modal p.sub{color:var(--muted); font-size:13px; margin-bottom:24px;}
+  .modal .field{margin-bottom:14px;}
+  .modal-switch{text-align:center; margin-top:16px; font-size:13px; color:var(--muted);}
+  .modal-switch a{color:var(--mint); font-weight:600;}
+  .full-btn{width:100%; text-align:center; display:block;}
+
+  /* dashboard shell */
+  #dashboard{display:none; min-height:100vh;}
+  .dash-layout{display:grid; grid-template-columns:230px 1fr; min-height:100vh;}
+  @media(max-width:800px){.dash-layout{grid-template-columns:1fr;}}
+  .sidebar{border-right:1px solid var(--line); padding:20px 12px; display:flex; flex-direction:column; justify-content:space-between;}
+  @media(max-width:800px){.sidebar{display:none;}}
+  .side-top .brand{padding:0 10px; margin-bottom:26px;}
+  .side-link{display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:8px; color:var(--muted); font-size:14px; margin-bottom:2px; cursor:pointer;}
+  .side-link .ic{width:18px; text-align:center; font-size:14px;}
+  .side-link.active{background:var(--panel-2); color:var(--text); box-shadow:inset 2px 0 0 var(--mint);}
+  .side-link:hover{color:var(--text); background:var(--panel-2);}
+  .side-user{display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid var(--line); margin-top:10px;}
+  .side-avatar{width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#7C6CF0,#4B3FC0); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;}
+  .side-user .su-name{font-size:13px; font-weight:600;}
+  .side-user .su-plan{font-size:11px; color:var(--amber);}
+
+  /* ===== MOBILE DRAWER MENU ===== */
+  .drawer-overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:90; display:none;}
+  .drawer-overlay.open{display:block;}
+  .drawer{position:fixed; top:0; left:0; bottom:0; width:280px; max-width:82vw; background:var(--panel); border-right:1px solid var(--line); z-index:91; transform:translateX(-100%); transition:transform .25s ease; display:flex; flex-direction:column; padding:20px 14px;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 6px;}
+  .drawer-close{background:none; border:none; color:var(--muted); font-size:18px;}
+  .drawer-group-label{font-size:10.5px; color:#4d5567; text-transform:uppercase; letter-spacing:.06em; margin:16px 0 6px 12px;}
+  .drawer-link{display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:8px; color:var(--text); font-size:14px;}
+  .drawer-link:active{background:var(--panel-2);}
+  .drawer-scroll{flex:1; overflow-y:auto;}
+  .drawer-plan{margin-top:14px; padding:14px; border-radius:10px; border:1px solid var(--mint-dim); background:rgba(61,214,140,0.06);}
+  .drawer-plan .dp-label{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+  .drawer-plan .dp-val{font-weight:700; color:var(--mint); margin-top:4px;}
+  .drawer-user{display:flex; align-items:center; gap:10px; padding:12px 6px 0;}
+
+  /* ===== AI COACH CHAT ===== */
+  .coach-shell{background:var(--panel); border:1px solid var(--line); border-radius:14px; max-width:480px; margin:0 auto; overflow:hidden;}
+  .coach-msgs{padding:20px; display:flex; flex-direction:column; gap:14px; max-height:480px; overflow-y:auto;}
+  .msg{max-width:82%; padding:13px 15px; border-radius:14px; font-size:14px; line-height:1.5;}
+  .msg-bot{background:var(--panel-2); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .msg-user{background:#4B5CF0; color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .msg ul{margin:8px 0 0 18px;}
+  .msg li{margin-bottom:4px;}
+  .coach-quick{padding:0 20px 14px;}
+  .coach-quick button{width:100%; padding:11px; border-radius:10px; background:var(--panel-2); border:1px solid var(--line); color:var(--text); font-size:13px; margin-bottom:8px;}
+  .coach-input-row{display:flex; gap:8px; padding:14px 16px; border-top:1px solid var(--line);}
+  .coach-input-row input{flex:1; background:var(--ink); border:1px solid var(--line); border-radius:20px; padding:11px 16px; color:var(--text); font-size:13.5px;}
+  .coach-send{width:38px; height:38px; border-radius:50%; background:#4B5CF0; border:none; color:#fff; flex-shrink:0;}
+  .typing-dots{display:flex; gap:4px; padding:4px 0;}
+  .typing-dots span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:tdot 1.2s infinite;}
+  .typing-dots span:nth-child(2){animation-delay:.2s;} .typing-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes tdot{0%,60%,100%{opacity:.3;}30%{opacity:1;}}
+
+  /* ===== DEMO TRADING ===== */
+  .demo-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;}
+  .demo-balance{font-family:'JetBrains Mono'; font-size:30px; font-weight:700;}
+  .demo-balance-delta{color:var(--mint); font-size:13px; font-weight:600;}
+  .demo-stats{display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
+  .demo-stat{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; flex:1; min-width:120px;}
+  .demo-stat .ds-label{font-size:11px; color:var(--muted); margin-bottom:4px;}
+  .demo-stat .ds-val{font-family:'JetBrains Mono'; font-weight:600;}
+  .demo-tabs{display:flex; gap:6px; margin-bottom:14px;}
+  .demo-tab{padding:8px 16px; border-radius:8px; font-size:13px; border:1px solid var(--line); background:transparent; color:var(--muted);}
+  .demo-tab.active{background:var(--panel-2); color:var(--text); border-color:#4B5CF0;}
+  .pos-row{display:flex; justify-content:space-between; align-items:center; padding:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; margin-bottom:8px; flex-wrap:wrap; gap:8px;}
+  .pos-sym{font-weight:600; font-size:14px;}
+  .pos-dir{font-size:11px; padding:2px 8px; border-radius:5px; margin-left:6px;}
+  .pos-buy{background:rgba(61,214,140,.15); color:var(--mint);}
+  .pos-sell{background:rgba(240,85,107,.15); color:var(--red);}
+  .pos-close-btn{padding:6px 12px; border-radius:7px; background:var(--panel-2); border:1px solid var(--line); color:var(--muted); font-size:12px;}
+  .order-form{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px; max-width:380px;}
+  .dir-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .dir-btn{flex:1; padding:11px; border-radius:8px; border:1px solid var(--line); background:transparent; color:var(--muted); font-weight:600;}
+  .dir-btn.buy-active{background:rgba(61,214,140,.15); color:var(--mint); border-color:var(--mint);}
+  .dir-btn.sell-active{background:rgba(240,85,107,.15); color:var(--red); border-color:var(--red);}
+  #mobile-dash{display:none;}
+  @media(max-width:800px){
+    #mobile-dash{display:block;}
+    .dash-layout{display:none;}
+  }
+  .m-topbar{display:flex; align-items:center; justify-content:space-between; padding:16px 18px;}
+  .m-menu-btn{width:38px; height:38px; border-radius:9px; background:var(--panel); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:15px;}
+  .m-brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:17px;}
+  .m-avatar{width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#7C6CF0,#4B3FC0); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;}
+  .m-body{padding:6px 18px 90px;}
+  .m-body h1{font-size:26px; margin-bottom:4px;}
+  .m-body .m-sub{color:var(--muted); font-size:14px; margin-bottom:22px;}
+  .m-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:20px;}
+  .m-card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:14px; color:var(--muted);}
+  .m-progress-val{font-size:30px; font-weight:700; font-family:'JetBrains Mono';}
+  .m-progress-delta{color:var(--mint); font-size:13px; font-weight:600;}
+  .m-progress-row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;}
+  .m-bar{height:8px; border-radius:4px; background:var(--line); overflow:hidden;}
+  .m-bar-fill{height:100%; background:linear-gradient(90deg,#5B6CF0,#8C6CF0); border-radius:4px;}
+  .m-section-title{font-size:17px; font-weight:600; margin:22px 0 14px;}
+  .m-learn-card{display:flex; gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; align-items:center;}
+  .m-learn-thumb{width:78px; height:60px; border-radius:9px; background:linear-gradient(160deg,#132018,#0c1410); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:18px;}
+  .m-learn-info h4{font-size:14px; margin-bottom:4px;}
+  .m-learn-info p{font-size:11.5px; color:var(--muted); margin-bottom:8px;}
+  .qa-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px;}
+  .qa-tile{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .qa-icon{width:100%; aspect-ratio:1; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px;}
+  .qa-tile span{font-size:11.5px; color:var(--muted);}
+  .m-bottomnav{
+    position:fixed; bottom:0; left:0; right:0; background:rgba(17,22,31,0.96); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:10px 6px 18px; z-index:60;
+  }
+  .m-navitem{display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; color:var(--muted);}
+  .m-navitem.active{color:#7C6CF0;}
+  .m-navitem .ni-icon{font-size:18px;}
+  .dash-search{flex:1; max-width:420px; display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:9px 14px; color:var(--muted); font-size:13px;}
+  .dash-topbar-actions{display:flex; align-items:center; gap:16px;}
+  .icon-btn{position:relative; width:36px; height:36px; border-radius:8px; background:var(--panel); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:15px;}
+  .icon-btn .dot{position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:var(--red); border:1.5px solid var(--ink);}
+  .premium-badge{display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; background:linear-gradient(135deg,#F5A623,#D4881A); color:var(--ink); font-weight:700; font-size:12.5px;}
+
+  .dash-main{padding:28px;}
+  @media(max-width:800px){.dash-main{padding-bottom:100px;}}
+  .dash-view{display:none;}
+  .dash-view.active{display:block;}
+  .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:24px 0 32px;}
+  @media(max-width:800px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px;}
+  .stat-card .sc-label{font-size:12px; color:var(--muted); margin-bottom:10px;}
+  .stat-card .sc-val{font-family:'JetBrains Mono'; font-size:26px; font-weight:600;}
+  .stat-card .sc-delta{font-size:12px; color:var(--mint); margin-top:6px;}
+  .bar{height:5px; border-radius:3px; background:var(--line); margin-top:12px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--mint),#7C6CF0);}
+
+  .chart-panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:24px;}
+  .chart-topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:10px;}
+  .chart-pair-select{display:flex; align-items:center; gap:10px;}
+  .chart-pair-select select{background:var(--ink); border:1px solid var(--line); color:var(--text); padding:8px 12px; border-radius:7px; font-family:'JetBrains Mono'; font-size:13px;}
+  .chart-tf-group{display:flex; gap:4px;}
+  .chart-tf{padding:6px 11px; border-radius:6px; font-size:12px; color:var(--muted); border:1px solid transparent; background:transparent;}
+  .chart-tf.active{background:var(--panel-2); color:var(--text); border-color:var(--line);}
+  .chart-tools{display:flex; gap:8px;}
+  .chart-tools .icon-btn{width:32px; height:32px; font-size:13px;}
+  .chart-embed{height:520px; width:100%;}
+  @media(max-width:700px){.chart-embed{height:360px;}}
+  .chart-strip{display:flex; gap:20px; padding:12px 18px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); font-family:'JetBrains Mono'; overflow-x:auto;}
+  .chart-strip b{color:var(--text);}
+  .dash-section-title a{font-size:12.5px; color:var(--muted); font-weight:400;}
+  .learn-card{display:flex; gap:18px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:32px; align-items:center;}
+  @media(max-width:700px){.learn-card{flex-direction:column; align-items:flex-start;}}
+  .learn-thumb{width:130px; height:80px; border-radius:8px; background:linear-gradient(135deg,#1a2230,#0f1420); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px; font-family:'JetBrains Mono';}
+  .learn-info{flex:1;}
+  .learn-info h4{font-size:15px; margin-bottom:4px;}
+  .learn-info p{font-size:12.5px; color:var(--muted); margin-bottom:10px;}
+  .course-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media(max-width:900px){.course-grid{grid-template-columns:repeat(2,1fr);}}
+  .course-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; cursor:pointer; transition:.15s;}
+  .course-card:hover{border-color:#7C6CF0;}
+  .course-thumb{height:60px; border-radius:7px; margin-bottom:12px; display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .course-card h4{font-size:13.5px; margin-bottom:6px;}
+  .course-meta{font-size:11px; color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- ================= MARKETING SITE ================= -->
+<div id="site">
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><div class="mark">T</div>Tradelify</div>
+    <nav class="navlinks">
+      <a href="#problem">Problem</a>
+      <a href="#features">Features</a>
+      <a href="#tools">Tools</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="openModal('login')">Log In</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Get Started Free</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> FOUNDING COHORT NOW OPEN</div>
+      <h1>Most traders don't fail from bad markets.<br>They fail from <span class="accent">no structure.</span></h1>
+      <p class="lead">Tradelify is the workspace where you journal every trade, size every position correctly, and see the patterns costing you money — before they wipe your account.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Start Free — No Card Needed</button>
+        <button class="btn btn-ghost btn-lg" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Try the Risk Calculator</button>
+      </div>
+      <div class="problem-list">
+        <div class="problem-item">No idea why last month was a loss — no data to check</div>
+        <div class="problem-item">Position sizes guessed, not calculated</div>
+        <div class="problem-item">Trading advice scattered across YouTube, Telegram, Twitter</div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hc-head"><span>Recent Journal Entries</span><span class="mono">This week</span></div>
+      <div class="hc-row"><span>EUR/USD · London session</span><span class="tag tag-win">+2.1R</span></div>
+      <div class="hc-row"><span>XAU/USD · News trade</span><span class="tag tag-loss">-1.0R</span></div>
+      <div class="hc-row"><span>BTC/USD · Breakout</span><span class="tag tag-win">+1.4R</span></div>
+      <div class="streak-box">
+        <div><div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono';">DISCIPLINE STREAK</div><div style="font-size:12px;color:var(--muted);">No rule breaks</div></div>
+        <div class="streak-num">14 days</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> THE REAL PROBLEM</div>
+      <h2>It's never just "the market"</h2>
+      <p>Every trader hears "manage your risk" and "keep a journal." Almost nobody actually does it — because there's never been one place that makes it effortless. That gap is what Tradelify closes.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="p-cell"><div class="num">01</div><h3>No accountability</h3><p>Trades get placed and forgotten. Without a record, the same mistake repeats for months before it's ever noticed.</p></div>
+      <div class="p-cell"><div class="num">02</div><h3>Guessed position sizing</h3><p>Accounts get blown not by being wrong on direction, but by risking too much on a single idea.</p></div>
+      <div class="p-cell"><div class="num">03</div><h3>Emotion-driven decisions</h3><p>Revenge trades after a loss, oversized trades after a win — the pattern is invisible without tracking.</p></div>
+      <div class="p-cell"><div class="num">04</div><h3>Scattered education</h3><p>Learning is spread across free YouTube videos and paid signal groups, with no structured path.</p></div>
+      <div class="p-cell"><div class="num">05</div><h3>No feedback loop</h3><p>Without performance data, "improving" is just a feeling — not something you can actually measure.</p></div>
+      <div class="p-cell"><div class="num">06</div><h3>Isolation</h3><p>Trading alone means no one checks your reasoning, your discipline, or your blind spots.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> THE PLATFORM</div>
+      <h2>One workspace. Every tool that matters.</h2>
+      <p>Not signals. Not shortcuts. The actual infrastructure serious traders build for themselves — done for you.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">📓</div><h3>Trading Journal</h3><p>Log entries, exits, emotions and mistakes. Tradelify finds the patterns you can't see yourself.</p></div>
+      <div class="feat-card"><div class="feat-icon">🧮</div><h3>Risk Calculator</h3><p>Exact lot size and position size from your account balance and stop loss — every time.</p></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h3>Market Analysis</h3><p>Daily breakdowns with full reasoning and key levels — not calls to blindly follow.</p></div>
+      <div class="feat-card"><div class="feat-icon">🎓</div><h3>Structured Education</h3><p>Real courses from foundations to advanced price action, with quizzes that check retention.</p></div>
+      <div class="feat-card"><div class="feat-icon">🧠</div><h3>Psychology Tools</h3><p>Discipline streaks, emotional tagging and revenge-trade flags built into the journal itself.</p></div>
+      <div class="feat-card"><div class="feat-icon">👥</div><h3>Trader Community</h3><p>Post ideas, get feedback, join challenges — accountability that solo trading never gives you.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> TRY IT NOW — NO SIGNUP</div>
+      <h2>These aren't mockups. They work.</h2>
+      <p>Test the two core tools right here. Sign up to save your data permanently and unlock the rest of the platform.</p>
+    </div>
+    <div class="tool-tabs">
+      <button class="tool-tab active" onclick="switchTool('calc')">Risk Calculator</button>
+      <button class="tool-tab" onclick="switchTool('journal')">Trading Journal</button>
+    </div>
+
+    <div id="tool-calc" class="tool-panel">
+      <div class="calc-grid">
+        <div>
+          <div class="field"><label>ACCOUNT BALANCE (USD)</label><input type="number" id="calc-balance" value="1000" oninput="runCalc()"></div>
+          <div class="field"><label>RISK PERCENTAGE: <span id="risk-pct-label">1%</span></label><input type="range" id="calc-risk" min="0.25" max="5" step="0.25" value="1" oninput="runCalc()"></div>
+          <div class="field"><label>STOP LOSS (PIPS)</label><input type="number" id="calc-sl" value="20" oninput="runCalc()"></div>
+          <div class="field"><label>PAIR</label>
+            <select id="calc-pair" onchange="runCalc()">
+              <option value="0.1">EUR/USD · GBP/USD · AUD/USD ($10/pip per lot)</option>
+              <option value="0.091">USD/JPY (pip = 0.01)</option>
+              <option value="1">Gold (XAU/USD)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="result-box"><div class="label">LOT SIZE (STANDARD)</div><div class="val" id="out-lot">0.00</div></div>
+          <div class="result-box"><div class="label">RISK AMOUNT</div><div class="val" id="out-risk">$0.00</div></div>
+          <div class="rr-row">
+            <div class="rr-item"><div class="rr-label">1:1</div><div class="rr-val" id="rr1">$0</div></div>
+            <div class="rr-item"><div class="rr-label">1:2</div><div class="rr-val" id="rr2">$0</div></div>
+            <div class="rr-item"><div class="rr-label">1:3</div><div class="rr-val" id="rr3">$0</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tool-journal" class="tool-panel hide">
+      <div class="j-form">
+        <div class="field"><label>PAIR</label><input type="text" id="j-pair" placeholder="EUR/USD"></div>
+        <div class="field"><label>DIRECTION</label><select id="j-dir"><option>BUY</option><option>SELL</option></select></div>
+        <div class="field"><label>ENTRY</label><input type="number" id="j-entry" step="0.0001"></div>
+        <div class="field"><label>EXIT</label><input type="number" id="j-exit" step="0.0001"></div>
+        <div class="field"><label>RESULT ($)</label><input type="number" id="j-result"></div>
+        <button class="btn btn-primary" onclick="addTrade()">Log Trade</button>
+      </div>
+      <table>
+        <thead><tr><th>Pair</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Result</th></tr></thead>
+        <tbody id="journal-body">
+          <tr class="empty-row"><td colspan="5">No trades logged yet. Log your first trade above — sign up to save it permanently.</td></tr>
+        </tbody>
+      </table>
+      <div class="stat-strip">
+        <div class="stat-mini"><div class="sv" id="stat-total">0</div><div class="sl">TOTAL TRADES</div></div>
+        <div class="stat-mini"><div class="sv" id="stat-winrate">—</div><div class="sl">WIN RATE</div></div>
+        <div class="stat-mini"><div class="sv" id="stat-pnl">$0</div><div class="sl">TOTAL P&L</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> PRICING</div>
+      <h2>Start free. Upgrade when it's paying for itself.</h2>
+    </div>
+    <div class="price-grid">
+      <div class="price-card">
+        <h3>FREE</h3><div class="price-amt">$0<span>/forever</span></div>
+        <ul class="price-list"><li>Risk Calculator</li><li>3 analysis posts/week</li><li>Beginner course</li><li>Community read access</li></ul>
+        <button class="btn btn-ghost full-btn" onclick="openModal('signup')">Get Started Free</button>
+      </div>
+      <div class="price-card featured">
+        <h3>PRO</h3><div class="price-amt">$39<span>/month</span></div>
+        <ul class="price-list"><li>Unlimited daily analysis</li><li>Full Trading Journal</li><li>All 6 courses</li><li>Community posting</li><li>Demo trading</li></ul>
+        <button class="btn btn-primary full-btn" onclick="openModal('signup')">Subscribe to Pro</button>
+      </div>
+      <div class="price-card">
+        <h3>ELITE</h3><div class="price-amt">$99<span>/month</span></div>
+        <ul class="price-list"><li>Everything in Pro</li><li>2× monthly mentorship</li><li>Private chart reviews</li><li>Priority support</li></ul>
+        <button class="btn btn-ghost full-btn" onclick="openModal('signup')">Subscribe to Elite</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div><div class="brand" style="font-size:16px;">Tradelify</div><p style="margin-top:10px; max-width:280px;">The operating system for serious traders. Built for African traders, by a trader.</p></div>
+    <div>© 2026 Tradelify. Trading involves risk.</div>
+  </div>
+</footer>
+
+</div>
+<!-- ================= END MARKETING SITE ================= -->
+
+
+<!-- ================= AUTH MODAL ================= -->
+<div id="modal-overlay" class="modal-overlay hide">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div id="modal-login">
+      <div class="mark-lg">T</div>
+      <h3>Log In</h3>
+      <p class="sub">Welcome back to Tradelify.</p>
+      <div class="field"><label>EMAIL</label><input type="email" id="login-email" placeholder="you@email.com"></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <div id="login-error" style="color:var(--red); font-size:12.5px; margin-bottom:10px; display:none;"></div>
+      <button class="btn btn-primary full-btn" id="login-btn" onclick="handleLogin()">Log In</button>
+      <div class="modal-switch">New to Tradelify? <a onclick="switchModal('signup')">Create a free account</a></div>
+    </div>
+
+    <div id="modal-signup" class="hide">
+      <div class="mark-lg">T</div>
+      <h3>Create Your Account</h3>
+      <p class="sub">Free forever. Real email verification. 60 seconds.</p>
+      <div class="field"><label>FULL NAME</label><input type="text" id="signup-name" placeholder="Your name"></div>
+      <div class="field"><label>EMAIL</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="signup-password" placeholder="At least 6 characters"></div>
+      <div id="signup-error" style="color:var(--red); font-size:12.5px; margin-bottom:10px; display:none;"></div>
+      <button class="btn btn-primary full-btn" id="signup-btn" onclick="handleSignup()">Create My Free Account</button>
+      <div class="modal-switch">Already have an account? <a onclick="switchModal('login')">Log in</a></div>
+    </div>
+  </div>
+</div>
+<div id="verify-banner" class="hide" style="position:fixed; top:0; left:0; right:0; background:var(--amber); color:var(--ink); text-align:center; padding:10px; font-size:13px; font-weight:600; z-index:80;">
+  Verify your email to unlock all features — check your inbox. <a onclick="resendVerification()" style="text-decoration:underline; cursor:pointer;">Resend</a>
+</div>
+
+
+<!-- ================= DASHBOARD SHELL ================= -->
+<div id="dashboard">
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="brand" style="font-size:16px;"><div class="mark">T</div>Tradelify</div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-scroll">
+      <div class="drawer-group-label">Main Hub</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">🔔</span>Notifications</div>
+
+      <div class="drawer-group-label">Trading Operations</div>
+      <div class="drawer-link" onclick="drawerGo('demo')"><span class="ic">🕹️</span>Demo Trading</div>
+      <div class="drawer-link" onclick="drawerGo('charts')"><span class="ic">📈</span>Interactive Charts</div>
+      <div class="drawer-link" onclick="drawerGo('journal')"><span class="ic">📓</span>Trading Journal</div>
+
+      <div class="drawer-group-label">Performance</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">📊</span>Performance Analytics</div>
+      <div class="drawer-link" onclick="drawerGo('coach')"><span class="ic">🤖</span>AI Coach</div>
+
+      <div class="drawer-group-label">Education Center</div>
+      <div class="drawer-link" onclick="drawerGo('academy')"><span class="ic">🎓</span>Academy</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">📰</span>Market News</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">👥</span>Community</div>
+
+      <div class="drawer-group-label">Tools</div>
+      <div class="drawer-link" onclick="drawerGo('calc')"><span class="ic">🧮</span>Risk Calculator</div>
+      <div class="drawer-group-label">Account</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">🏆</span>Achievements</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">⚙️</span>Settings</div>
+    </div>
+    <div class="drawer-plan"><div class="dp-label">Active Plan</div><div class="dp-val">Premium Member</div></div>
+    <div class="drawer-user">
+      <div class="side-avatar">DA</div>
+      <div><div class="su-name">David A.</div><div style="font-size:11px; color:var(--muted);">Verified Member</div></div>
+    </div>
+  </div>
+
+  <div id="mobile-dash">
+    <div class="m-topbar">
+      <div class="m-brand"><div class="m-menu-btn" onclick="openDrawer()">☰</div>Tradelify</div>
+      <div class="m-avatar">DA</div>
+    </div>
+    <div class="m-body">
+      <h1>Hi, David! 👋</h1>
+      <p class="m-sub">Let's continue your journey.</p>
+
+      <div class="m-card">
+        <div class="m-card-head"><span>Your Progress</span><span>⋮</span></div>
+        <div class="m-progress-row"><span class="m-progress-val progress-val-display">68%</span><span class="m-progress-delta">+12% this week</span></div>
+        <div class="m-bar"><div class="m-bar-fill progress-bar-fill" style="width:68%;"></div></div>
+      </div>
+
+      <div class="m-section-title">Continue Learning</div>
+      <div class="m-learn-card" onclick="continueLesson()" style="cursor:pointer;">
+        <div class="m-learn-thumb">📊</div>
+        <div class="m-learn-info">
+          <h4>Price Action Trading</h4>
+          <p>Lesson 12 of 16 &nbsp;·&nbsp; <span style="color:var(--mint);">75%</span></p>
+          <div class="m-bar" style="width:160px;"><div class="m-bar-fill" style="width:75%;"></div></div>
+        </div>
+      </div>
+
+      <div class="m-section-title">Quick Access</div>
+      <div class="qa-grid">
+        <div class="qa-tile" onclick="mobileSwitchView('charts')"><div class="qa-icon" style="background:rgba(91,108,240,0.18); color:#7C8CFF;">📈</div><span>Charts</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('journal')"><div class="qa-icon" style="background:rgba(224,90,60,0.18); color:#F0805C;">📓</div><span>Journal</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('academy')"><div class="qa-icon" style="background:rgba(180,170,40,0.18); color:#D9CC4E;">🎓</div><span>Academy</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('coach')"><div class="qa-icon" style="background:rgba(150,80,220,0.18); color:#B57CE8;">🤖</div><span>AI Coach</span></div>
+      </div>
+    </div>
+
+    <div class="m-bottomnav">
+      <div class="m-navitem active" onclick="mobileSwitchView('overview')"><span class="ni-icon">🏠</span>Home</div>
+      <div class="m-navitem" onclick="mobileSwitchView('academy')"><span class="ni-icon">🎓</span>Academy</div>
+      <div class="m-navitem" onclick="mobileSwitchView('charts')"><span class="ni-icon">📈</span>Charts</div>
+      <div class="m-navitem" onclick="mobileSwitchView('journal')"><span class="ni-icon">📓</span>Journal</div>
+      <div class="m-navitem" onclick="openDrawer()"><span class="ni-icon">⋯</span>More</div>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+    <div class="sidebar">
+      <div>
+        <div class="side-top"><div class="brand"><div class="mark">T</div>Tradelify</div></div>
+        <div class="side-link active" onclick="switchView('overview',this)"><span class="ic">🏠</span>Dashboard</div>
+        <div class="side-link" onclick="switchView('academy',this)"><span class="ic">🎓</span>Academy</div>
+        <div class="side-link" onclick="switchView('charts',this)"><span class="ic">📈</span>Interactive Charts</div>
+        <div class="side-link" onclick="switchView('journal',this)"><span class="ic">📓</span>Trading Journal</div>
+        <div class="side-link" onclick="switchView('demo',this)"><span class="ic">🕹️</span>Demo Trading</div>
+        <div class="side-link" onclick="switchView('coach',this)"><span class="ic">🤖</span>AI Coach</div>
+        <div class="side-link" onclick="switchView('overview',this)"><span class="ic">📰</span>Market News</div>
+        <div class="side-link" onclick="switchView('overview',this)"><span class="ic">👥</span>Community</div>
+        <div class="side-link" onclick="switchView('calc',this)"><span class="ic">🧮</span>Risk Calculator</div>
+        <div class="side-link" onclick="switchView('overview',this)"><span class="ic">🏆</span>Achievements</div>
+        <div class="side-link" onclick="switchView('overview',this)"><span class="ic">⚙️</span>Settings</div>
+      </div>
+      <div class="side-user">
+        <div class="side-avatar">DA</div>
+        <div><div class="su-name">David A.</div><div class="su-plan">Premium Plan ✦</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="dash-topbar">
+        <div class="dash-search">🔍 Search for courses, lessons, topics...</div>
+        <div class="dash-topbar-actions">
+          <div class="icon-btn">🔔<span class="dot"></span></div>
+          <div class="icon-btn">💬</div>
+          <div class="premium-badge">👑 Premium</div>
+          <button class="btn btn-ghost" onclick="exitDashboard()">Log Out</button>
+        </div>
+      </div>
+
+      <div class="dash-main">
+        <div id="view-overview" class="dash-view active">
+          <h2>Welcome back, David! 👋</h2>
+          <p style="color:var(--muted); margin-top:4px;">Learn smarter. Trade wiser.</p>
+
+          <div class="stat-row">
+            <div class="stat-card"><div class="sc-label">Learning Progress</div><div class="sc-val progress-val-display">68%</div><div class="bar"><div class="bar-fill progress-bar-fill" style="width:68%;"></div></div></div>
+            <div class="stat-card"><div class="sc-label">Journal Trades</div><div class="sc-val">24</div><div class="sc-delta">+8 this week</div></div>
+            <div class="stat-card"><div class="sc-label">Win Rate</div><div class="sc-val">62.5%</div><div class="sc-delta">+5.3% this week</div></div>
+            <div class="stat-card"><div class="sc-label">Current Streak</div><div class="sc-val">7 Days 🔥</div><div class="sc-delta" style="color:var(--amber);">Keep it up!</div></div>
+          </div>
+
+          <div class="dash-section-title">Continue Learning <a href="#">View all ›</a></div>
+          <div class="learn-card">
+            <div class="learn-thumb">📊 CHART</div>
+            <div class="learn-info">
+              <h4>Price Action Trading — The Complete Guide</h4>
+              <p>Lesson 12 of 16 · 32 min left</p>
+              <div class="bar" style="width:200px;"><div class="bar-fill" style="width:75%;"></div></div>
+            </div>
+            <button class="btn btn-primary" onclick="continueLesson()">Continue Lesson</button>
+          </div>
+
+          <div class="dash-section-title">Recommended for You <a href="#">View all ›</a></div>
+          <div class="course-grid">
+            <div class="course-card"><div class="course-thumb" style="background:rgba(61,214,140,.1);">⚖️</div><h4>Risk Management</h4><div class="course-meta">Intermediate · 12 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(124,108,240,.12);">🧭</div><h4>Smart Money Concepts</h4><div class="course-meta">Advanced · 18 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(245,166,35,.1);">📉</div><h4>Technical Analysis Mastery</h4><div class="course-meta">Intermediate · 20 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(240,85,107,.1);">🧠</div><h4>Trading Psychology</h4><div class="course-meta">Beginner · 10 Lessons</div></div>
+          </div>
+        </div>
+
+        <div id="view-charts" class="dash-view">
+          <h2 style="margin-bottom:20px;">Interactive Charts</h2>
+          <div class="chart-panel">
+            <div class="chart-topbar">
+              <div class="chart-pair-select">
+                <select id="chart-symbol-select" onchange="changeChartSymbol()">
+                  <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                  <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                  <option value="FX:EURUSD">EUR/USD</option>
+                  <option value="FX:GBPUSD">GBP/USD</option>
+                  <option value="OANDA:XAUUSD">XAU/USD (Gold)</option>
+                </select>
+              </div>
+              <div class="chart-tools">
+                <div class="icon-btn" title="Indicators">📶</div>
+                <div class="icon-btn" title="Alert">🔔</div>
+                <div class="icon-btn" title="Replay">⏮</div>
+              </div>
+            </div>
+            <div class="chart-embed">
+              <div class="tradingview-widget-container" style="height:100%;">
+                <div id="tv_chart_main" style="height:100%;"></div>
+              </div>
+            </div>
+            <div class="chart-strip">
+              <span>RSI 14: <b>58.21</b></span>
+              <span>Session: <b>London/NY Overlap</b></span>
+              <span>Volatility: <b>Moderate</b></span>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:13px;">Live market data via TradingView. Switch symbols using the dropdown above.</p>
+        </div>
+
+        <div id="view-academy" class="dash-view">
+          <h2 style="margin-bottom:20px;">Academy</h2>
+          <p style="color:var(--muted);">Full lesson player with video, notes and quizzes — this is the next module to build after the dashboard shell.</p>
+        </div>
+        <div id="view-coach" class="dash-view">
+          <h2 style="margin-bottom:20px;">AI Coach</h2>
+          <div class="coach-shell">
+            <div class="coach-msgs" id="coach-msgs">
+              <div class="msg msg-bot">Hi David! 👋<br>How can I help you improve today?</div>
+            </div>
+            <div class="coach-quick" id="coach-quick">
+              <button onclick="coachAsk('Why did I lose this trade?')">Why did I lose this trade?</button>
+              <button onclick="coachAsk('How can I improve my RR?')">How can I improve my RR?</button>
+              <button onclick="coachAsk('Explain support and resistance')">Explain support and resistance</button>
+            </div>
+            <div class="coach-input-row">
+              <label for="coach-file" class="icon-btn" style="cursor:pointer;" title="Upload chart screenshot">📎</label>
+              <input type="file" id="coach-file" accept="image/*" style="display:none;" onchange="coachFileUpload(event)">
+              <input type="text" id="coach-input" placeholder="Type a message or upload a chart..." onkeydown="if(event.key==='Enter')coachSend()">
+              <button class="coach-send" onclick="coachSend()">➤</button>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:12px; text-align:center; margin-top:10px;">Demo responses for now — connects to a real AI backend once Firebase is wired in.</p>
+        </div>
+
+        <div id="view-demo" class="dash-view">
+          <h2 style="margin-bottom:20px;">Demo Trading</h2>
+          <div class="demo-top">
+            <div>
+              <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">Account Balance</div>
+              <div class="demo-balance mono" id="demo-balance">$10,234.75</div>
+              <div class="demo-balance-delta" id="demo-delta">+$234.75 (2.34%) Today</div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="openOrderForm()">+ New Order</button>
+          </div>
+          <div class="demo-stats">
+            <div class="demo-stat"><div class="ds-label">Equity</div><div class="ds-val" id="demo-equity">$10,234.75</div></div>
+            <div class="demo-stat"><div class="ds-label">Used Margin</div><div class="ds-val">$1,250.00</div></div>
+            <div class="demo-stat"><div class="ds-label">Free Margin</div><div class="ds-val" id="demo-free">$8,984.75</div></div>
+            <div class="demo-stat"><div class="ds-label">Margin Level</div><div class="ds-val">818.78%</div></div>
+          </div>
+          <div class="demo-tabs">
+            <button class="demo-tab active" onclick="switchDemoTab('open',this)">Open Positions</button>
+            <button class="demo-tab" onclick="switchDemoTab('pending',this)">Pending Orders</button>
+            <button class="demo-tab" onclick="switchDemoTab('history',this)">History</button>
+          </div>
+          <div id="demo-positions"></div>
+
+          <div id="order-form-wrap" class="hide" style="margin-top:20px;">
+            <div class="order-form">
+              <h3 style="margin-bottom:16px; font-size:16px;">New Order</h3>
+              <div class="field"><label>SYMBOL</label>
+                <select id="ord-symbol"><option>EUR/USD</option><option>GBP/USD</option><option>BTC/USDT</option><option>XAU/USD</option></select>
+              </div>
+              <div class="dir-toggle">
+                <button class="dir-btn buy-active" id="ord-buy-btn" onclick="setOrdDir('buy')">BUY</button>
+                <button class="dir-btn" id="ord-sell-btn" onclick="setOrdDir('sell')">SELL</button>
+              </div>
+              <div class="field"><label>LOT SIZE</label><input type="number" id="ord-lots" value="0.10" step="0.01"></div>
+              <button class="btn btn-primary full-btn" onclick="placeOrder()">Place Order</button>
+              <button class="btn btn-ghost full-btn" style="margin-top:8px;" onclick="closeOrderForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div id="view-calc" class="dash-view"><h2 style="margin-bottom:20px;">Risk Calculator</h2><p style="color:var(--muted);">Use the calculator on the public tools section for now — same engine will power this view.</p></div>
+        <div id="view-journal" class="dash-view">
+          <h2 style="margin-bottom:20px;">Trading Journal</h2>
+          <div class="j-form">
+            <div class="field"><label>PAIR</label><input type="text" id="dj-pair" placeholder="EUR/USD"></div>
+            <div class="field"><label>DIRECTION</label><select id="dj-dir"><option>BUY</option><option>SELL</option></select></div>
+            <div class="field"><label>ENTRY</label><input type="number" id="dj-entry" step="0.0001"></div>
+            <div class="field"><label>EXIT</label><input type="number" id="dj-exit" step="0.0001"></div>
+            <div class="field"><label>RESULT ($)</label><input type="number" id="dj-result"></div>
+            <button class="btn btn-primary" onclick="addUserTrade()">Log Trade</button>
+          </div>
+          <table>
+            <thead><tr><th>Pair</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Result</th></tr></thead>
+            <tbody id="dj-body"><tr class="empty-row"><td colspan="5">Loading your trades...</td></tr></tbody>
+          </table>
+          <div class="stat-strip">
+            <div class="stat-mini"><div class="sv" id="dj-total">0</div><div class="sl">TOTAL TRADES</div></div>
+            <div class="stat-mini"><div class="sv" id="dj-winrate">—</div><div class="sl">WIN RATE</div></div>
+            <div class="stat-mini"><div class="sv" id="dj-pnl">$0</div><div class="sl">TOTAL P&L</div></div>
+          </div>
+          <p style="color:var(--muted); font-size:12px; margin-top:14px;">Saved to your account — syncs across any device you log into.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBbcqsufnNdyyd2JmViXHj8TyWyccutSxw",
+  authDomain: "tradelify-30b4f.firebaseapp.com",
+  projectId: "tradelify-30b4f",
+  storageBucket: "tradelify-30b4f.firebasestorage.app",
+  messagingSenderId: "1059346992672",
+  appId: "1:1059346992672:web:8a8adee456a66cba227645",
+  measurementId: "G-8Y4YPS6LWV"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+</script>
+
+<script>
+// ---------- SAFE STORAGE (works even on file:// pages where localStorage is blocked) ----------
+const memoryStore = {};
+const safeStorage = {
+  getItem(key){
+    try { return localStorage.getItem(key); } catch(e){ return memoryStore[key] || null; }
+  },
+  setItem(key, val){
+    try { localStorage.setItem(key, val); } catch(e){ memoryStore[key] = val; }
+  }
+};
+
+// ---------- MODAL ----------
+function openModal(type){
+  document.getElementById('modal-overlay').classList.remove('hide');
+  switchModal(type);
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.add('hide'); }
+function switchModal(type){
+  document.getElementById('modal-login').classList.toggle('hide', type!=='login');
+  document.getElementById('modal-signup').classList.toggle('hide', type!=='signup');
+}
+
+// ---------- DRAWER MENU ----------
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function drawerGo(view){
+  closeDrawer();
+  if(window.innerWidth <= 800){
+    mobileSwitchView(view);
+  } else {
+    const el = document.querySelector(`.side-link[onclick*="'${view}'"]`);
+    switchView(view, el);
+  }
+}
+
+// ---------- AI COACH CHAT (keyword-based, no exact-match bug) ----------
+const coachIntents = [
+  { keys:['hi','hello','hey','good morning','good afternoon','good evening'],
+    responses:[`Hey David! 👋 I'm here to help — ask me about a losing trade, risk management, or upload a chart screenshot and I'll break it down.`] },
+  { keys:['lose','lost','loss','losing','why did i lose'],
+    responses:[`Let me walk through what typically causes losses like this...<ul><li>Entering before confirmation</li><li>Trading against the higher timeframe trend</li><li>No clear support/resistance nearby</li><li>Risking too much on one idea</li></ul><b>Better approach:</b><ul><li>Wait for confirmation</li><li>Enter on a pullback, not the breakout</li><li>Risk 1–1.5% per trade</li></ul>Want to upload a screenshot of the actual trade? I can point to specifics.`] },
+  { keys:['risk','rr','reward','position size','lot size'],
+    responses:[`For risk-to-reward: aim for at least 1:2 on every setup. Set your stop where the trade idea is actually invalidated — not an arbitrary pip count — then size your position backward from that. The Risk Calculator on this platform does this math for you instantly.`] },
+  { keys:['support','resistance','level','key level'],
+    responses:[`Support is where buyers have historically stepped in and stopped a decline. Resistance is the opposite — where sellers have capped a rally. The strongest levels are ones price has reacted to more than once, and ones that align with a round number or prior high/low.`] },
+  { keys:['psychology','emotion','revenge','fear','greed','discipline'],
+    responses:[`Revenge trading almost always follows a loss you haven't fully accepted yet. A simple rule that works: after any loss, no new trade for at least 30 minutes, and never increase size to "win it back." Your Discipline Streak on the dashboard is designed to make this visible — protect it like a real number, because it is one.`] },
+  { keys:['journal','log','track'],
+    responses:[`Logging every trade — even the ones you're embarrassed by — is what turns random results into a pattern you can actually fix. Head to Trading Journal and log your last 5 trades; I'll be able to point out patterns once there's real data to work with.`] },
+  { keys:['course','learn','academy','lesson'],
+    responses:[`Based on where most traders plateau, I'd suggest starting with Risk Management if you haven't finished it, then Trading Psychology — technical skill rarely is the reason accounts blow up.`] }
+];
+const fallbackResponses = [
+  `Good question. Once this is connected to your real journal and account data, I'll give you a precise answer based on your actual trading history. For now — try asking about a specific loss, risk sizing, or upload a chart screenshot.`,
+  `I want to give you a real answer here, not a generic one — try rephrasing with a bit more detail, or upload a chart screenshot and I'll analyze what's on it.`,
+  `That's outside what I can answer precisely in this demo version yet. Try one of the quick questions below, or ask about risk, psychology, or a specific trade.`
+];
+let fallbackIndex = 0;
+
+function matchCoachIntent(text){
+  const lower = text.toLowerCase();
+  for(const intent of coachIntents){
+    if(intent.keys.some(k => new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'i').test(lower))){
+      return intent.responses[Math.floor(Math.random()*intent.responses.length)];
+    }
+  }
+  return null;
+}
+
+function coachAsk(q){ document.getElementById('coach-input').value = q; coachSend(); }
+
+function appendCoachMsg(html, cls){
+  const msgs = document.getElementById('coach-msgs');
+  msgs.innerHTML += `<div class="msg ${cls}">${html}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function coachSend(){
+  const input = document.getElementById('coach-input');
+  const text = input.value.trim();
+  if(!text) return;
+  appendCoachMsg(text, 'msg-user');
+  input.value = '';
+  const typingId = 'typing-' + Date.now();
+  appendCoachMsg(`<div class="typing-dots" id="${typingId}"><span></span><span></span><span></span></div>`, 'msg-bot');
+  const msgs = document.getElementById('coach-msgs');
+
+  setTimeout(()=>{
+    let reply = matchCoachIntent(text);
+    if(!reply){
+      reply = fallbackResponses[fallbackIndex % fallbackResponses.length];
+      fallbackIndex++;
+    }
+    document.getElementById(typingId).parentElement.innerHTML = reply;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+}
+
+function coachFileUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    appendCoachMsg(`<img src="${e.target.result}" style="max-width:100%; border-radius:8px; display:block; margin-bottom:6px;"><span style="font-size:12px; color:rgba(255,255,255,0.7);">Chart uploaded</span>`, 'msg-user');
+    const typingId = 'typing-' + Date.now();
+    appendCoachMsg(`<div class="typing-dots" id="${typingId}"><span></span><span></span><span></span></div>`, 'msg-bot');
+    const msgs = document.getElementById('coach-msgs');
+    setTimeout(()=>{
+      document.getElementById(typingId).parentElement.innerHTML = `Chart received! Real chart-reading vision analysis needs the AI backend connected (next build phase) — once that's wired in, I'll identify structure, key levels, and patterns directly from what you upload. For now, tell me what you're seeing and I'll help you think through it.`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1000);
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+// ---------- DEMO TRADING ----------
+let demoPositions = JSON.parse(safeStorage.getItem('tradelify_demo_positions') || JSON.stringify([
+  {symbol:'EUR/USD', dir:'buy', lots:0.10, entry:1.0850, current:1.0932, profit:82.00}
+]));
+let ordDir = 'buy';
+function renderDemoPositions(){
+  const wrap = document.getElementById('demo-positions');
+  if(demoPositions.length === 0){
+    wrap.innerHTML = `<div class="pos-row" style="justify-content:center; color:var(--muted);">No open positions. Place a new order to get started.</div>`;
+    return;
+  }
+  wrap.innerHTML = demoPositions.map((p,i) => `
+    <div class="pos-row">
+      <div><span class="pos-sym">${p.symbol}</span><span class="pos-dir ${p.dir==='buy'?'pos-buy':'pos-sell'}">${p.dir.toUpperCase()} ${p.lots}</span></div>
+      <div class="mono" style="font-size:13px;">${p.entry}</div>
+      <div class="mono" style="color:${p.profit>=0?'var(--mint)':'var(--red)'};">${p.profit>=0?'+':''}$${p.profit.toFixed(2)}</div>
+      <button class="pos-close-btn" onclick="closePosition(${i})">Close</button>
+    </div>`).join('');
+}
+function switchDemoTab(tab, el){
+  document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const wrap = document.getElementById('demo-positions');
+  if(tab === 'open'){ renderDemoPositions(); }
+  else { wrap.innerHTML = `<div class="pos-row" style="justify-content:center; color:var(--muted);">No ${tab} orders yet.</div>`; }
+}
+function openOrderForm(){ document.getElementById('order-form-wrap').classList.remove('hide'); }
+function closeOrderForm(){ document.getElementById('order-form-wrap').classList.add('hide'); }
+function setOrdDir(dir){
+  ordDir = dir;
+  document.getElementById('ord-buy-btn').classList.toggle('buy-active', dir==='buy');
+  document.getElementById('ord-sell-btn').classList.toggle('sell-active', dir==='sell');
+}
+function placeOrder(){
+  const symbol = document.getElementById('ord-symbol').value;
+  const lots = parseFloat(document.getElementById('ord-lots').value) || 0.1;
+  const entry = (Math.random()*0.5 + 1.05).toFixed(4);
+  const newPos = {symbol, dir:ordDir, lots, entry:parseFloat(entry), current:parseFloat(entry), profit:0};
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).collection('demoPositions').add({
+      ...newPos, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=> loadUserDemoPositions());
+  } else {
+    demoPositions.unshift(newPos);
+    safeStorage.setItem('tradelify_demo_positions', JSON.stringify(demoPositions));
+    renderDemoPositions();
+  }
+  closeOrderForm();
+}
+function closePosition(i){
+  const pos = demoPositions[i];
+  if(currentUser && pos.id){
+    db.collection('users').doc(currentUser.uid).collection('demoPositions').doc(pos.id).delete()
+      .then(()=> loadUserDemoPositions());
+  } else {
+    demoPositions.splice(i,1);
+    safeStorage.setItem('tradelify_demo_positions', JSON.stringify(demoPositions));
+    renderDemoPositions();
+  }
+}
+renderDemoPositions();
+
+// ---------- USER JOURNAL (Firestore, per-account) ----------
+async function loadUserTrades(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('trades').orderBy('createdAt','desc').get();
+  const body = document.getElementById('dj-body');
+  if(snap.empty){
+    body.innerHTML = `<tr class="empty-row"><td colspan="5">No trades logged yet. Log your first trade above.</td></tr>`;
+    document.getElementById('dj-total').innerText = 0;
+    document.getElementById('dj-winrate').innerText = '—';
+    document.getElementById('dj-pnl').innerText = '$0';
+    return;
+  }
+  let wins = 0, pnl = 0, rows = '';
+  snap.forEach(doc => {
+    const t = doc.data();
+    if(t.result >= 0) wins++;
+    pnl += t.result;
+    rows += `<tr><td>${t.pair}</td><td>${t.dir}</td><td class="mono">${t.entry}</td><td class="mono">${t.exit}</td><td><span class="tag ${t.result>=0?'tag-win':'tag-loss'}">${t.result>=0?'+':''}$${t.result}</span></td></tr>`;
+  });
+  body.innerHTML = rows;
+  document.getElementById('dj-total').innerText = snap.size;
+  document.getElementById('dj-winrate').innerText = Math.round((wins/snap.size)*100) + '%';
+  document.getElementById('dj-pnl').innerText = (pnl>=0?'$':'-$') + Math.abs(pnl).toFixed(0);
+}
+
+async function addUserTrade(){
+  if(!currentUser){ alert('Please log in first.'); return; }
+  const pair = document.getElementById('dj-pair').value.trim();
+  const dir = document.getElementById('dj-dir').value;
+  const entry = document.getElementById('dj-entry').value;
+  const exit = document.getElementById('dj-exit').value;
+  const result = document.getElementById('dj-result').value;
+  if(!pair || !entry || !exit || result===''){ alert('Fill in all fields to log a trade.'); return; }
+  await db.collection('users').doc(currentUser.uid).collection('trades').add({
+    pair, dir, entry: parseFloat(entry), exit: parseFloat(exit), result: parseFloat(result),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('dj-pair').value='';
+  document.getElementById('dj-entry').value='';
+  document.getElementById('dj-exit').value='';
+  document.getElementById('dj-result').value='';
+  loadUserTrades();
+}
+
+// ---------- USER DEMO POSITIONS (Firestore, per-account) ----------
+async function loadUserDemoPositions(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('demoPositions').orderBy('createdAt','desc').get();
+  demoPositions = [];
+  snap.forEach(doc => demoPositions.push({ id: doc.id, ...doc.data() }));
+  if(demoPositions.length === 0){
+    demoPositions.push({symbol:'EUR/USD', dir:'buy', lots:0.10, entry:1.0850, current:1.0932, profit:82.00});
+  }
+  renderDemoPositions();
+}
+function getProgress(){ return parseInt(safeStorage.getItem('tradelify_progress') || '68'); }
+function setProgress(val){
+  val = Math.min(100, val);
+  safeStorage.setItem('tradelify_progress', val);
+  document.querySelectorAll('.progress-val-display').forEach(el => el.innerText = val + '%');
+  document.querySelectorAll('.progress-bar-fill').forEach(el => el.style.width = val + '%');
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).set({ progress: val }, { merge: true });
+  }
+}
+function continueLesson(){
+  setProgress(getProgress() + 4);
+  alert('Nice work! Progress updated to ' + getProgress() + '%.');
+}
+setProgress(getProgress());
+function enterDashboard(){
+  closeModal();
+  document.getElementById('site').classList.add('hide');
+  document.getElementById('dashboard').style.display = 'block';
+}
+function exitDashboard(){
+  auth.signOut();
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('site').classList.remove('hide');
+}
+
+function showAuthError(el, msg){
+  const box = document.getElementById(el);
+  box.innerText = msg;
+  box.style.display = 'block';
+}
+function hideAuthError(el){ document.getElementById(el).style.display = 'none'; }
+
+function friendlyAuthError(code){
+  const map = {
+    'auth/email-already-in-use': 'That email is already registered — try logging in instead.',
+    'auth/invalid-email': 'That email address looks invalid.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/too-many-requests': 'Too many attempts — try again in a few minutes.'
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+function handleSignup(){
+  hideAuthError('signup-error');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if(!name || !email || !password){ showAuthError('signup-error','Please fill in all fields.'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.innerText = 'Creating account...'; btn.disabled = true;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(cred => {
+      return cred.user.updateProfile({ displayName: name })
+        .then(() => cred.user.sendEmailVerification())
+        .then(() => db.collection('users').doc(cred.user.uid).set({
+          name, email, progress: 68, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }));
+    })
+    .then(()=>{ enterDashboard(); })
+    .catch(err => { showAuthError('signup-error', friendlyAuthError(err.code)); })
+    .finally(()=>{ btn.innerText = 'Create My Free Account'; btn.disabled = false; });
+}
+
+function handleLogin(){
+  hideAuthError('login-error');
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if(!email || !password){ showAuthError('login-error','Please enter your email and password.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.innerText = 'Logging in...'; btn.disabled = true;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(()=>{ enterDashboard(); })
+    .catch(err => { showAuthError('login-error', friendlyAuthError(err.code)); })
+    .finally(()=>{ btn.innerText = 'Log In'; btn.disabled = false; });
+}
+
+function resendVerification(){
+  if(auth.currentUser){
+    auth.currentUser.sendEmailVerification().then(()=> alert('Verification email sent.'));
+  }
+}
+
+// ---------- AUTH STATE + PER-USER DATA ----------
+auth.onAuthStateChanged(async (user)=>{
+  currentUser = user;
+  if(!user) return;
+  document.getElementById('verify-banner').classList.toggle('hide', user.emailVerified);
+  const nameParts = (user.displayName || 'David A.').split(' ');
+  const initials = nameParts.map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  document.querySelectorAll('.side-avatar, .m-avatar').forEach(el => el.innerText = initials);
+  document.querySelectorAll('.su-name').forEach(el => el.innerText = user.displayName || 'Trader');
+
+  const userDoc = await db.collection('users').doc(user.uid).get();
+  const data = userDoc.exists ? userDoc.data() : { progress: 68 };
+  setProgress(data.progress || 68);
+  await loadUserTrades();
+  await loadUserDemoPositions();
+});
+function switchView(view, el){
+  document.querySelectorAll('.dash-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.side-link').forEach(s=>s.classList.remove('active'));
+  if(el){ el.classList.add('active'); }
+  if(view === 'charts'){ loadTVWidget(); }
+}
+
+// ---------- MOBILE NAV ----------
+function mobileSwitchView(view){
+  document.querySelectorAll('.m-navitem').forEach(n=>n.classList.remove('active'));
+  const navMap = {overview:0, academy:1, charts:2, journal:3, more:4};
+  if(navMap[view] !== undefined){
+    document.querySelectorAll('.m-navitem')[navMap[view]].classList.add('active');
+  }
+  const mBody = document.querySelector('#mobile-dash .m-body');
+  const dashLayout = document.querySelector('.dash-layout');
+  if(view === 'overview'){
+    mBody.style.display = 'block';
+    dashLayout.style.display = 'none';
+  } else if(view === 'more'){
+    alert('More menu: Demo Trading, Market News, Community, Achievements, Settings — coming in the next build phase.');
+  } else {
+    mBody.style.display = 'none';
+    dashLayout.style.display = 'grid';
+    switchView(view, null);
+  }
+}
+
+// ---------- TRADINGVIEW CHART (real live widget) ----------
+let tvScriptLoaded = false;
+function loadTVWidget(){
+  const symbol = document.getElementById('chart-symbol-select').value;
+  const container = document.getElementById('tv_chart_main');
+  container.innerHTML = '';
+  function render(){
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": symbol,
+      "interval": "60",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#11161F",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "hide_top_toolbar": false,
+      "container_id": "tv_chart_main"
+    });
+  }
+  if(tvScriptLoaded){ render(); return; }
+  const script = document.createElement('script');
+  script.src = "https://s3.tradingview.com/tv.js";
+  script.onload = function(){ tvScriptLoaded = true; render(); };
+  document.body.appendChild(script);
+}
+function changeChartSymbol(){ loadTVWidget(); }
+
+// ---------- TOOL TABS ----------
+function switchTool(tool){
+  document.getElementById('tool-calc').classList.toggle('hide', tool!=='calc');
+  document.getElementById('tool-journal').classList.toggle('hide', tool!=='journal');
+  document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ---------- RISK CALCULATOR (fully functional) ----------
+function runCalc(){
+  const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
+  const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
+  const sl = parseFloat(document.getElementById('calc-sl').value) || 0;
+  const pipValuePerLot = parseFloat(document.getElementById('calc-pair').value);
+
+  document.getElementById('risk-pct-label').innerText = riskPct + '%';
+
+  const riskAmount = balance * (riskPct/100);
+  const lotSize = sl > 0 ? (riskAmount / (sl * pipValuePerLot * 10)) : 0;
+
+  document.getElementById('out-lot').innerText = lotSize.toFixed(2);
+  document.getElementById('out-risk').innerText = '$' + riskAmount.toFixed(2);
+  document.getElementById('rr1').innerText = '$' + riskAmount.toFixed(0);
+  document.getElementById('rr2').innerText = '$' + (riskAmount*2).toFixed(0);
+  document.getElementById('rr3').innerText = '$' + (riskAmount*3).toFixed(0);
+}
+runCalc();
+
+// ---------- TRADING JOURNAL (functional, localStorage demo) ----------
+let trades = JSON.parse(safeStorage.getItem('tradelify_demo_trades') || '[]');
+
+function renderJournal(){
+  const body = document.getElementById('journal-body');
+  if(trades.length === 0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="5">No trades logged yet. Log your first trade above — sign up to save it permanently.</td></tr>';
+  } else {
+    body.innerHTML = trades.map(t => `
+      <tr>
+        <td>${t.pair}</td>
+        <td>${t.dir}</td>
+        <td class="mono">${t.entry}</td>
+        <td class="mono">${t.exit}</td>
+        <td><span class="tag ${t.result>=0?'tag-win':'tag-loss'}">${t.result>=0?'+':''}$${t.result}</span></td>
+      </tr>`).join('');
+  }
+  const total = trades.length;
+  const wins = trades.filter(t=>t.result>=0).length;
+  const pnl = trades.reduce((s,t)=>s+parseFloat(t.result||0),0);
+  document.getElementById('stat-total').innerText = total;
+  document.getElementById('stat-winrate').innerText = total ? Math.round((wins/total)*100)+'%' : '—';
+  document.getElementById('stat-pnl').innerText = (pnl>=0?'$':'-$') + Math.abs(pnl).toFixed(0);
+}
+
+function addTrade(){
+  const pair = document.getElementById('j-pair').value.trim();
+  const dir = document.getElementById('j-dir').value;
+  const entry = document.getElementById('j-entry').value;
+  const exit = document.getElementById('j-exit').value;
+  const result = document.getElementById('j-result').value;
+  if(!pair || !entry || !exit || result===''){ alert('Fill in all fields to log a trade.'); return; }
+
+  trades.unshift({pair, dir, entry, exit, result: parseFloat(result)});
+  safeStorage.setItem('tradelify_demo_trades', JSON.stringify(trades));
+  document.getElementById('j-pair').value='';
+  document.getElementById('j-entry').value='';
+  document.getElementById('j-exit').value='';
+  document.getElementById('j-result').value='';
+  renderJournal();
+}
+renderJournal();
+</script>
+
+</body>
+</html>
