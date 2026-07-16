@@ -235,7 +235,32 @@
   .side-user .su-name{font-size:13px; font-weight:600;}
   .side-user .su-plan{font-size:11px; color:var(--amber);}
 
-  /* ===== MOBILE DRAWER MENU ===== */
+  /* ===== ACADEMY ===== */
+  .acad-course-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px; cursor:pointer; transition:.15s;}
+  .acad-course-card:hover{border-color:#7C6CF0; transform:translateY(-2px);}
+  .acad-icon-lg{width:46px; height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px;}
+  .acad-course-card h3{font-size:16px; margin-bottom:6px;}
+  .acad-course-card p{font-size:12.5px; color:var(--muted); margin-bottom:14px;}
+  .acad-progress-row{display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--muted); margin-bottom:6px;}
+  .acad-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:900px){.acad-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.acad-grid{grid-template-columns:1fr;}}
+
+  .lesson-layout{display:grid; grid-template-columns:1fr 260px; gap:20px;}
+  @media(max-width:800px){.lesson-layout{grid-template-columns:1fr;}}
+  .lesson-back{display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px; margin-bottom:18px; cursor:pointer;}
+  .lesson-content-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:28px;}
+  .lesson-content-box h3{font-size:20px; margin-bottom:6px;}
+  .lesson-content-box .lesson-meta{font-size:12px; color:var(--muted); margin-bottom:20px;}
+  .lesson-content-box .lesson-body{font-size:14.5px; line-height:1.7; color:var(--text);}
+  .lesson-content-box .lesson-body p{margin-bottom:14px;}
+  .lesson-content-box .lesson-body ul{margin:0 0 14px 20px;}
+  .lesson-sidebar{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; height:fit-content;}
+  .lesson-item{display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--muted);}
+  .lesson-item.active{background:var(--panel-2); color:var(--text);}
+  .lesson-item.done{color:var(--mint);}
+  .lesson-check{width:16px; height:16px; border-radius:50%; border:1.5px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:10px;}
+  .lesson-item.done .lesson-check{background:var(--mint); border-color:var(--mint); color:var(--ink);}
   .drawer-overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:90; display:none;}
   .drawer-overlay.open{display:block;}
   .drawer{position:fixed; top:0; left:0; bottom:0; width:280px; max-width:82vw; background:var(--panel); border-right:1px solid var(--line); z-index:91; transform:translateX(-100%); transition:transform .25s ease; display:flex; flex-direction:column; padding:20px 14px;}
@@ -729,8 +754,18 @@
         </div>
 
         <div id="view-academy" class="dash-view">
-          <h2 style="margin-bottom:20px;">Academy</h2>
-          <p style="color:var(--muted);">Full lesson player with video, notes and quizzes — this is the next module to build after the dashboard shell.</p>
+          <div id="acad-grid-view">
+            <h2 style="margin-bottom:6px;">Academy</h2>
+            <p style="color:var(--muted); margin-bottom:24px;">Structured courses — pass the lessons in order to build a real foundation.</p>
+            <div class="acad-grid" id="acad-course-grid"></div>
+          </div>
+          <div id="acad-lesson-view" class="hide">
+            <div class="lesson-back" onclick="backToAcademyGrid()">← Back to Academy</div>
+            <div class="lesson-layout">
+              <div class="lesson-content-box" id="lesson-content-box"></div>
+              <div class="lesson-sidebar" id="lesson-sidebar"></div>
+            </div>
+          </div>
         </div>
         <div id="view-coach" class="dash-view">
           <h2 style="margin-bottom:20px;">AI Coach</h2>
@@ -1105,6 +1140,129 @@ async function loadUserDemoPositions(){
   }
   renderDemoPositions();
 }
+// ---------- ACADEMY ----------
+const academyCourses = [
+  {
+    id:'risk-management', title:'Risk Management', level:'Beginner', icon:'⚖️', color:'rgba(61,214,140,.12)',
+    lessons:[
+      { id:'rm1', title:'Why Risk Comes Before Strategy', duration:'6 min',
+        body:`<p>Most new traders search for the "perfect strategy" first. That's backwards. A mediocre strategy with strict risk control will outlast a brilliant strategy with none — because the market doesn't care how right your analysis is if one bad trade wipes half your account.</p><p>Professional traders think in terms of survival first, profit second. If you're still in the game next month, you can improve. If you're not, the best strategy in the world doesn't matter.</p>`},
+      { id:'rm2', title:'Position Sizing: The 1-2% Rule', duration:'8 min',
+        body:`<p>Risking 1–2% of your account per trade means a losing streak of 10 trades in a row only costs you 10–20% of your capital — recoverable. Risking 10% per trade means the same streak wipes you out completely.</p><ul><li>Calculate risk in dollars first: Account × Risk% = Risk Amount</li><li>Then work backward to position size using your stop-loss distance</li><li>Never size a position based on "how much you want to make" — only on how much you can afford to lose</li></ul><p>Use the Risk Calculator in this platform to do this math automatically before every trade.</p>`},
+      { id:'rm3', title:'Stop-Loss Placement', duration:'7 min',
+        body:`<p>A stop-loss isn't just a safety net — where you place it says whether your trade idea was actually invalidated. A stop placed based on a fixed pip count, unrelated to market structure, will get hit by normal price noise far more often than one placed beyond a real support or resistance level.</p><p>Rule of thumb: place your stop where the reason you entered the trade would no longer be true.</p>`},
+      { id:'rm4', title:'Daily and Weekly Loss Limits', duration:'5 min',
+        body:`<p>Set a maximum loss you're willing to take in a single day (e.g. 3-5% of account) and one for the week. When you hit it, you stop trading — no exceptions. This single rule prevents the most common way accounts get destroyed: revenge trading after a bad day.</p>`}
+    ]
+  },
+  {
+    id:'psychology', title:'Trading Psychology', level:'Beginner', icon:'🧠', color:'rgba(240,85,107,.12)',
+    lessons:[
+      { id:'ps1', title:'The Emotional Cycle of a Trade', duration:'6 min',
+        body:`<p>Every trader moves through the same emotional cycle: optimism when entering, anxiety as price moves against them, relief or euphoria on a win, and denial or anger on a loss. Recognizing which stage you're in — in the moment — is what separates disciplined traders from reactive ones.</p>`},
+      { id:'ps2', title:'Revenge Trading: Why It Happens', duration:'7 min',
+        body:`<p>Revenge trading is an attempt to "undo" a loss immediately, usually by increasing size or ignoring your own rules on the next trade. It feels like getting back what's yours — but it's actually your brain trying to escape the discomfort of loss, not a rational market decision.</p><ul><li>The fix isn't willpower — it's a rule: no new trade for a fixed period after any loss</li><li>Write your reasoning down before entering; if you can't articulate a reason beyond "I need to win it back," don't take the trade</li></ul>`},
+      { id:'ps3', title:'Building a Discipline Streak', duration:'5 min',
+        body:`<p>Discipline compounds the same way money does. Tracking consecutive days without breaking your own rules — sizing, stop-losses, revenge trades — turns discipline into something visible and protectable, instead of an abstract idea. That's exactly what your Discipline Streak on the dashboard is for.</p>`}
+    ]
+  },
+  {
+    id:'price-action', title:'Price Action Fundamentals', level:'Intermediate', icon:'📊', color:'rgba(124,108,240,.14)',
+    lessons:[
+      { id:'pa1', title:'Support and Resistance', duration:'8 min',
+        body:`<p>Support is a price zone where buying pressure has historically overcome selling pressure, stopping declines. Resistance is the reverse. The more times a level has been tested and held, the more significance the market gives it — but a level that finally breaks often becomes the opposite (old resistance becomes new support).</p>`},
+      { id:'pa2', title:'Reading Candlestick Structure', duration:'9 min',
+        body:`<p>A candlestick's body shows where price opened and closed; the wicks show the extremes it reached and rejected. Long wicks at a key level often signal rejection — buyers or sellers stepping in hard. Reading a handful of candles together (not just one) tells you far more than any single candle alone.</p>`},
+      { id:'pa3', title:'Breakouts vs. Fakeouts', duration:'7 min',
+        body:`<p>A real breakout is usually accompanied by increased volume and a candle that closes convincingly beyond the level, not just wicks through it. A fakeout often reverses quickly, trapping traders who entered on the initial move. Waiting for a retest of the broken level before entering filters out many fakeouts.</p>`},
+      { id:'pa4', title:'Putting It Together: A Simple Framework', duration:'8 min',
+        body:`<p>Combine the pieces: identify the higher-timeframe trend, mark key support/resistance zones, wait for price to reach one of those zones, then look for a candlestick confirmation before entering — with your stop placed beyond the level and risk sized using the 1-2% rule from the Risk Management course.</p>`}
+    ]
+  }
+];
+
+let academyProgress = {};
+let currentAcademyCourse = null;
+
+function renderAcademyGrid(){
+  const grid = document.getElementById('acad-course-grid');
+  grid.innerHTML = academyCourses.map(c => {
+    const done = (academyProgress[c.id] || []).length;
+    const total = c.lessons.length;
+    const pct = Math.round((done/total)*100);
+    return `
+      <div class="acad-course-card" onclick="openCourse('${c.id}')">
+        <div class="acad-icon-lg" style="background:${c.color};">${c.icon}</div>
+        <h3>${c.title}</h3>
+        <p>${c.level} · ${total} Lessons</p>
+        <div class="acad-progress-row"><span>${done}/${total} complete</span><span>${pct}%</span></div>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%;"></div></div>
+      </div>`;
+  }).join('');
+}
+
+function openCourse(courseId){
+  currentAcademyCourse = courseId;
+  const course = academyCourses.find(c=>c.id===courseId);
+  const firstIncomplete = course.lessons.find(l => !(academyProgress[courseId]||[]).includes(l.id));
+  openLesson(courseId, firstIncomplete ? firstIncomplete.id : course.lessons[0].id);
+  document.getElementById('acad-grid-view').classList.add('hide');
+  document.getElementById('acad-lesson-view').classList.remove('hide');
+}
+
+function backToAcademyGrid(){
+  document.getElementById('acad-lesson-view').classList.add('hide');
+  document.getElementById('acad-grid-view').classList.remove('hide');
+  renderAcademyGrid();
+}
+
+function openLesson(courseId, lessonId){
+  currentAcademyCourse = courseId;
+  const course = academyCourses.find(c=>c.id===courseId);
+  const lesson = course.lessons.find(l=>l.id===lessonId);
+  const doneList = academyProgress[courseId] || [];
+  const isDone = doneList.includes(lessonId);
+
+  document.getElementById('lesson-content-box').innerHTML = `
+    <h3>${lesson.title}</h3>
+    <div class="lesson-meta">${course.title} · ${lesson.duration}</div>
+    <div class="lesson-body">${lesson.body}</div>
+    <button class="btn ${isDone?'btn-ghost':'btn-primary'}" style="margin-top:10px;" onclick="markLessonDone('${courseId}','${lessonId}')">${isDone?'✓ Completed':'Mark as Complete'}</button>
+  `;
+
+  document.getElementById('lesson-sidebar').innerHTML = course.lessons.map(l => {
+    const done = doneList.includes(l.id);
+    const active = l.id === lessonId;
+    return `<div class="lesson-item ${active?'active':''} ${done?'done':''}" onclick="openLesson('${courseId}','${l.id}')">
+      <span class="lesson-check">${done?'✓':''}</span> ${l.title}
+    </div>`;
+  }).join('');
+}
+
+async function markLessonDone(courseId, lessonId){
+  if(!academyProgress[courseId]) academyProgress[courseId] = [];
+  if(!academyProgress[courseId].includes(lessonId)){
+    academyProgress[courseId].push(lessonId);
+    if(currentUser){
+      await db.collection('users').doc(currentUser.uid).set({ academyProgress }, { merge: true });
+    } else {
+      safeStorage.setItem('tradelify_academy_progress', JSON.stringify(academyProgress));
+    }
+    setProgress(getProgress() + 3);
+  }
+  openLesson(courseId, lessonId);
+}
+
+async function loadAcademyProgress(){
+  if(currentUser){
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    academyProgress = (doc.exists && doc.data().academyProgress) || {};
+  } else {
+    academyProgress = JSON.parse(safeStorage.getItem('tradelify_academy_progress') || '{}');
+  }
+  renderAcademyGrid();
+}
+
 function getProgress(){ return parseInt(safeStorage.getItem('tradelify_progress') || '68'); }
 function setProgress(val){
   val = Math.min(100, val);
@@ -1226,6 +1384,7 @@ function switchView(view, el){
   if(el){ el.classList.add('active'); }
   if(view === 'charts'){ loadTVWidget(); }
   if(view === 'calc'){ runCalc(); }
+  if(view === 'academy'){ loadAcademyProgress(); }
   if(history.pushState){ history.replaceState(null, '', '#'+view); }
 }
 
