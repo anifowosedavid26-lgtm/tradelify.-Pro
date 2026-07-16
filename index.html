@@ -212,6 +212,14 @@
   .full-btn{width:100%; text-align:center; display:block;}
 
   /* dashboard shell */
+  .app-loader{
+    position:fixed; inset:0; background:var(--ink); z-index:200;
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+  }
+  .app-loader .mark{width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--mint),#1f8f5f); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-family:'Space Grotesk'; font-size:20px; animation:pulse 1.4s infinite;}
+  #site, #dashboard{visibility:hidden;}
+  body.app-ready #site, body.app-ready #dashboard{visibility:visible;}
+  body.app-ready .app-loader{display:none;}
   #dashboard{display:none; min-height:100vh;}
   .dash-layout{display:grid; grid-template-columns:230px 1fr; min-height:100vh;}
   @media(max-width:800px){.dash-layout{grid-template-columns:1fr;}}
@@ -367,6 +375,7 @@
 </style>
 </head>
 <body>
+<div class="app-loader"><div class="mark">T</div><div style="color:var(--muted); font-size:13px;">Loading Tradelify...</div></div>
 
 <!-- ================= MARKETING SITE ================= -->
 <div id="site">
@@ -1184,7 +1193,7 @@ function resendVerification(){
 // ---------- AUTH STATE + PER-USER DATA ----------
 auth.onAuthStateChanged(async (user)=>{
   currentUser = user;
-  if(!user) return;
+  if(!user){ document.body.classList.add('app-ready'); return; }
   enterDashboard();
   document.getElementById('verify-banner').classList.toggle('hide', user.emailVerified);
   const nameParts = (user.displayName || 'David A.').split(' ');
@@ -1207,6 +1216,7 @@ auth.onAuthStateChanged(async (user)=>{
     const el = document.querySelector(`.side-link[onclick*="'${targetView}'"]`);
     switchView(targetView, el);
   }
+  document.body.classList.add('app-ready');
 });
 function switchView(view, el){
   document.querySelectorAll('.dash-view').forEach(v=>v.classList.remove('active'));
