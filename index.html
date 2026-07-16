@@ -254,7 +254,15 @@
   .lesson-content-box .lesson-meta{font-size:12px; color:var(--muted); margin-bottom:20px;}
   .lesson-content-box .lesson-body{font-size:14.5px; line-height:1.7; color:var(--text);}
   .lesson-content-box .lesson-body p{margin-bottom:14px;}
-  .lesson-content-box .lesson-body ul{margin:0 0 14px 20px;}
+  .lesson-content-box .lesson-body h4{font-size:16px; margin:24px 0 10px; color:var(--mint); font-family:'Space Grotesk';}
+  .lesson-content-box .lesson-body h4:first-child{margin-top:0;}
+  .lesson-tip{background:var(--panel-2); border-left:3px solid var(--mint); border-radius:6px; padding:14px 16px; margin:16px 0; font-size:13.5px;}
+  .lesson-tip b{color:var(--mint);}
+  .lesson-warning{background:rgba(240,85,107,.08); border-left:3px solid var(--red); border-radius:6px; padding:14px 16px; margin:16px 0; font-size:13.5px;}
+  .lesson-warning b{color:var(--red);}
+  .lesson-diagram{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:18px; margin:18px 0; text-align:center;}
+  .lesson-diagram svg{max-width:100%; height:auto;}
+  .lesson-diagram .diagram-caption{font-size:11.5px; color:var(--muted); margin-top:10px; font-family:'JetBrains Mono';}
   .lesson-sidebar{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; height:fit-content;}
   .lesson-item{display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--muted);}
   .lesson-item.active{background:var(--panel-2); color:var(--text);}
@@ -1141,322 +1149,46 @@ async function loadUserDemoPositions(){
   renderDemoPositions();
 }
 // ---------- ACADEMY ----------
+const diagramRR = `<div class="lesson-diagram"><svg viewBox="0 0 400 140" width="100%"><rect x="20" y="60" width="150" height="20" fill="#F0556B" opacity="0.7"/><rect x="170" y="40" width="210" height="20" fill="#3DD68C" opacity="0.7"/><text x="95" y="55" fill="#8892A6" font-size="11" text-anchor="middle">RISK: $10 (1R)</text><text x="275" y="35" fill="#8892A6" font-size="11" text-anchor="middle">REWARD: $30 (3R)</text><line x1="20" y1="90" x2="380" y2="90" stroke="#232B3A" stroke-width="1"/><circle cx="170" cy="90" r="4" fill="#EDEFF3"/><text x="170" y="110" fill="#EDEFF3" font-size="11" text-anchor="middle">ENTRY</text></svg><div class="diagram-caption">A 1:3 reward-to-risk trade — you can be wrong 2 out of 3 times and still profit</div></div>`;
+const diagramPosSize = `<div class="lesson-diagram"><svg viewBox="0 0 400 120" width="100%"><rect x="20" y="20" width="360" height="26" fill="#161C28" stroke="#232B3A"/><text x="200" y="38" fill="#EDEFF3" font-size="12" text-anchor="middle" font-family="monospace">Account × Risk% = Risk Amount ($)</text><rect x="20" y="60" width="360" height="26" fill="#161C28" stroke="#232B3A"/><text x="200" y="78" fill="#3DD68C" font-size="12" text-anchor="middle" font-family="monospace">Risk Amount ÷ (Stop Distance × Pip Value) = Lot Size</text></svg><div class="diagram-caption">The two formulas behind every position size you'll ever calculate</div></div>`;
+const diagramSR = `<div class="lesson-diagram"><svg viewBox="0 0 400 140" width="100%"><line x1="20" y1="30" x2="380" y2="30" stroke="#F0556B" stroke-width="1.5" stroke-dasharray="4"/><text x="30" y="24" fill="#F0556B" font-size="10">RESISTANCE</text><polyline points="20,100 60,70 100,90 140,50 180,75 220,32 260,60 300,40 340,65 380,45" fill="none" stroke="#EDEFF3" stroke-width="2"/><line x1="20" y1="105" x2="380" y2="105" stroke="#3DD68C" stroke-width="1.5" stroke-dasharray="4"/><text x="30" y="120" fill="#3DD68C" font-size="10">SUPPORT</text></svg><div class="diagram-caption">Price repeatedly reacting to the same zones — that's what makes them significant</div></div>`;
+const diagramPip = `<div class="lesson-diagram"><svg viewBox="0 0 400 90" width="100%"><text x="200" y="40" fill="#EDEFF3" font-size="26" text-anchor="middle" font-family="monospace">1.08<tspan fill="#3DD68C">50</tspan></text><text x="200" y="65" fill="#8892A6" font-size="11" text-anchor="middle">The highlighted digits are the "pip" — the standard unit of price movement</text></svg></div>`;
+
 const academyCourses = [
   {
     id:'risk-management', title:'Risk Management', level:'Beginner', icon:'⚖️', color:'rgba(61,214,140,.12)',
     lessons:[
-      { id:'rm1', title:'Why Risk Comes Before Strategy', duration:'6 min',
-        body:`<p>Most new traders search for the "perfect strategy" first. That's backwards. A mediocre strategy with strict risk control will outlast a brilliant strategy with none — because the market doesn't care how right your analysis is if one bad trade wipes half your account.</p><p>Professional traders think in terms of survival first, profit second. If you're still in the game next month, you can improve. If you're not, the best strategy in the world doesn't matter.</p>`},
-      { id:'rm2', title:'Position Sizing: The 1-2% Rule', duration:'8 min',
-        body:`<p>Risking 1–2% of your account per trade means a losing streak of 10 trades in a row only costs you 10–20% of your capital — recoverable. Risking 10% per trade means the same streak wipes you out completely.</p><ul><li>Calculate risk in dollars first: Account × Risk% = Risk Amount</li><li>Then work backward to position size using your stop-loss distance</li><li>Never size a position based on "how much you want to make" — only on how much you can afford to lose</li></ul><p>Use the Risk Calculator in this platform to do this math automatically before every trade.</p>`},
-      { id:'rm3', title:'Stop-Loss Placement', duration:'7 min',
-        body:`<p>A stop-loss isn't just a safety net — where you place it says whether your trade idea was actually invalidated. A stop placed based on a fixed pip count, unrelated to market structure, will get hit by normal price noise far more often than one placed beyond a real support or resistance level.</p><p>Rule of thumb: place your stop where the reason you entered the trade would no longer be true.</p>`},
-      { id:'rm4', title:'Daily and Weekly Loss Limits', duration:'5 min',
-        body:`<p>Set a maximum loss you're willing to take in a single day (e.g. 3-5% of account) and one for the week. When you hit it, you stop trading — no exceptions. This single rule prevents the most common way accounts get destroyed: revenge trading after a bad day.</p>`}
+      { id:'rm1', title:'Why Risk Comes Before Strategy', duration:'12 min',
+        body:`<h4>The Question Nobody Asks First</h4><p>Almost every new trader's first question is "what strategy should I use?" That question feels natural, but it's the wrong starting point. The right first question is: "how much am I willing to lose, and how do I control that?"</p><p>Here's why the order matters so much. Trading is not a game where being right most of the time guarantees success. It's entirely possible to win 7 out of 10 trades and still lose money overall, if the 3 losses are large enough. It's equally possible to win only 3 out of 10 trades and still be highly profitable, if those 3 wins are large relative to the 7 losses. The strategy determines your win rate. Risk management determines whether your account survives long enough for that win rate to matter.</p><h4>The Casino Comparison</h4><p>Casinos don't win because they're right about the outcome of any single spin of the roulette wheel — they don't know what number will come up any more than you know which way a currency pair will move next. Casinos win because of two things working together: a slight mathematical edge, and strict, unemotional consistency in how much is risked on every single spin. No casino ever bets its entire treasury on one hand of blackjack, no matter how confident the pit boss feels. Trading professionally means adopting the same mindset — the edge matters, but the consistency of risk is what actually protects the business over thousands of trades.</p><h4>What "Blowing an Account" Actually Looks Like</h4><p>Accounts rarely get destroyed by one catastrophic trade out of nowhere. They get destroyed by a slow, then sudden, spiral: a trader risks slightly more than they should, takes a loss, feels the urge to "make it back," increases size on the next trade to recover faster, loses again, panics, and abandons all size discipline entirely on a final, oversized trade. Every step in that spiral was avoidable with one single rule enforced from the very first trade: a fixed, small percentage of the account risked per trade, with no exceptions regardless of how confident the setup looks.</p><div class="lesson-tip"><b>Key takeaway:</b> Your job as a trader is not to be right. It's to make sure that being wrong, when it inevitably happens, costs you as little as possible.</div>`},
+      { id:'rm2', title:'Position Sizing: The 1–2% Rule', duration:'14 min',
+        body:`<h4>The Rule Itself</h4><p>Risk no more than 1–2% of your total trading account on any single trade. That's it — deceptively simple, and almost universally under-followed by beginners. Let's walk through exactly why this specific range, and exactly how to calculate it.</p><h4>The Math Behind Why It Works</h4><p>If you risk 2% per trade and lose ten trades in a row (a losing streak that, while uncomfortable, is statistically normal even for skilled traders), your account is down roughly 18-20%, accounting for compounding losses on a shrinking balance. Painful, but fully recoverable with a normal, disciplined approach. Now compare that to risking 10% per trade: the same ten-trade losing streak wipes out roughly 65% of the account. At 20% per trade, ten losses in a row doesn't just hurt — it functionally ends the account. The relationship between risk-per-trade and how survivable a losing streak is isn't linear; it's brutal at the high end.</p>${diagramPosSize}<h4>How to Actually Calculate It</h4><p>The formula has two steps:</p><ul><li><b>Step 1:</b> Account Balance × Risk Percentage = Risk Amount in dollars. Example: a $1,000 account risking 1% = $10 of risk on this trade.</li><li><b>Step 2:</b> Take that dollar risk amount and divide it by your stop-loss distance (converted into the pip value for your position size) to get the correct lot size.</li></ul><p>This is exactly what the Risk Calculator tool in this platform automates for you — enter your balance, risk percentage, and stop-loss distance in pips, and it instantly returns the correct position size. You should never have to do this math by hand under time pressure while a trade setup is forming.</p><h4>A Common Misunderstanding</h4><p>Many beginners think position sizing means "trade small." That's not quite right. It means trade a size where your predetermined dollar risk stays constant, regardless of how far away your stop-loss needs to be. A trade with a tight, 10-pip stop can actually use a larger lot size than a trade with a wide, 50-pip stop — because both are sized to risk the same dollar amount.</p><div class="lesson-warning"><b>Common mistake:</b> Choosing a lot size first based on "what feels right," then figuring out where to place the stop-loss afterward. This is backwards — always determine your stop-loss location from the chart first, then size your position to match your fixed risk.</div>`},
+      { id:'rm3', title:'Stop-Loss Placement That Actually Makes Sense', duration:'11 min',
+        body:`<h4>A Stop-Loss Is a Statement, Not Just a Safety Net</h4><p>New traders often think of a stop-loss purely as insurance — "the maximum I'm willing to lose." That's true, but incomplete. A well-placed stop-loss is also a statement about your trade idea: it marks the exact price at which the reason you entered the trade is no longer valid. If price reaches your stop, it doesn't just mean you lost money — it means your analysis was wrong, and the market has told you so clearly.</p><h4>Structure-Based vs. Arbitrary Stops</h4><p>An arbitrary stop is one placed at a fixed distance — "always 20 pips" — regardless of what the chart actually shows. This sounds disciplined, but it isn't, because the market doesn't know or care about your fixed number. A structure-based stop is placed just beyond a real technical level: below a support zone for a buy, above a resistance zone for a sell, or beyond the high/low of the pattern that formed your setup.</p><p>Structure-based stops get hit less often by ordinary market noise, because they're positioned where a genuine reversal of your trade idea would actually need to happen. Arbitrary stops get clipped constantly by random short-term volatility that has nothing to do with whether your original idea was right.</p><h4>Giving the Trade Room to Breathe</h4><p>A stop placed too tightly, even if technically "structure-based," can still get triggered by normal price fluctuation before the real move happens. A useful habit: once you've identified your structural stop level, add a small buffer beyond it — enough to account for a brief wick or spike, without moving so far that your risk-to-reward ratio breaks down.</p><div class="lesson-tip"><b>Key takeaway:</b> Ask yourself before every trade — "at what exact price would I admit this idea was wrong?" That price is your stop-loss. If you can't answer that question clearly, you don't have a real trade idea yet.</div>`},
+      { id:'rm4', title:'Reward-to-Risk Ratio Explained', duration:'10 min',
+        body:`<h4>Why Win Rate Alone Is Misleading</h4><p>It's tempting to judge a strategy purely by how often it wins. But a strategy's real profitability depends on the relationship between how much you make on winners and how much you lose on losers — the reward-to-risk ratio (often written as R:R or just "R").</p>${diagramRR}<h4>The Math That Changes Everything</h4><p>With a 1:1 reward-to-risk ratio, you need to win more than 50% of your trades just to break even after costs. With a 1:2 ratio, you only need to win above roughly 34% of trades to be profitable. With a 1:3 ratio, that drops to just above 25%. This is why professional traders obsess over reward-to-risk far more than win rate — a strategy that wins only 40% of the time can still be extremely profitable if winners are consistently 2-3 times larger than losers.</p><h4>How to Improve Your Reward-to-Risk in Practice</h4><ul><li>Set take-profit targets at genuine structural levels (the next resistance zone, for example) rather than an arbitrary fixed pip count</li><li>Consider trailing your stop-loss once a trade moves firmly in your favor, locking in partial profit while letting the rest run</li><li>Avoid closing winning trades early out of fear — this is one of the most common ways traders quietly sabotage a good reward-to-risk ratio without realizing it</li></ul><div class="lesson-warning"><b>Common mistake:</b> Taking trades with a 1:1 or worse reward-to-risk ratio "because the setup looks really strong." No setup is certain enough to justify consistently poor reward-to-risk math — the market doesn't grade on how confident you felt.</div>`},
+      { id:'rm5', title:'Daily, Weekly and Monthly Loss Limits', duration:'9 min',
+        body:`<h4>The Rule That Prevents the Worst Days</h4><p>Beyond sizing individual trades correctly, professional traders set hard limits on total losses over a day, a week, and a month. When a limit is hit, trading stops completely for that period — no exceptions, no "just one more trade to fix it."</p><h4>Suggested Starting Points</h4><ul><li><b>Daily loss limit:</b> 3–5% of account balance</li><li><b>Weekly loss limit:</b> 6–10% of account balance</li><li><b>Monthly loss limit:</b> 10–15% of account balance</li></ul><p>These aren't universal laws — adjust them to your own risk tolerance and strategy's typical volatility — but the principle is non-negotiable: a predetermined stopping point, decided in advance while calm, protects you from decisions made in the middle of an emotional spiral.</p><h4>Why This Single Rule Matters So Much</h4><p>The account-destroying spiral described in Lesson 1 — one loss leading to oversized revenge trades — is almost always a daily-limit failure. A trader who is down 4% for the day and stops, by rule, protects the other 96%. A trader with no limit who is down 4% often keeps going, chasing the loss, and the day frequently ends far worse. This single habit, more than any specific strategy, is what separates traders who survive their first year from those who don't.</p><div class="lesson-tip"><b>Key takeaway:</b> Decide your loss limits today, while you're calm and rational — not in the middle of a losing streak when you're not.</div>`}
     ]
   },
   {
     id:'psychology', title:'Trading Psychology', level:'Beginner', icon:'🧠', color:'rgba(240,85,107,.12)',
     lessons:[
-      { id:'ps1', title:'The Emotional Cycle of a Trade', duration:'6 min',
-        body:`<p>Every trader moves through the same emotional cycle: optimism when entering, anxiety as price moves against them, relief or euphoria on a win, and denial or anger on a loss. Recognizing which stage you're in — in the moment — is what separates disciplined traders from reactive ones.</p>`},
-      { id:'ps2', title:'Revenge Trading: Why It Happens', duration:'7 min',
-        body:`<p>Revenge trading is an attempt to "undo" a loss immediately, usually by increasing size or ignoring your own rules on the next trade. It feels like getting back what's yours — but it's actually your brain trying to escape the discomfort of loss, not a rational market decision.</p><ul><li>The fix isn't willpower — it's a rule: no new trade for a fixed period after any loss</li><li>Write your reasoning down before entering; if you can't articulate a reason beyond "I need to win it back," don't take the trade</li></ul>`},
-      { id:'ps3', title:'Building a Discipline Streak', duration:'5 min',
-        body:`<p>Discipline compounds the same way money does. Tracking consecutive days without breaking your own rules — sizing, stop-losses, revenge trades — turns discipline into something visible and protectable, instead of an abstract idea. That's exactly what your Discipline Streak on the dashboard is for.</p>`}
+      { id:'ps1', title:'The Emotional Cycle of a Trade', duration:'10 min',
+        body:`<h4>A Cycle Every Trader Experiences</h4><p>Regardless of experience level, most trades move through a recognizable emotional arc: optimism and confidence at entry, rising anxiety as price moves against the position, a surge of relief or euphoria on a win, and denial, frustration, or anger on a loss. Beginners often think experienced traders don't feel this — they do. The difference is that experienced traders recognize which stage they're in, in real time, and don't let that stage dictate their next decision.</p><h4>Why Awareness Alone Changes Behavior</h4><p>Simply naming the emotion you're feeling — "I'm anxious because this trade is down" — creates a small but critical gap between the feeling and the action. Without that awareness, anxiety often translates directly into impulsively closing a trade early, moving a stop-loss further away "to give it room," or opening a second, unplanned trade to "hedge" the feeling. With awareness, that same anxiety can be observed and set aside while you stick to the plan you made before emotion entered the picture.</p><h4>A Practical Exercise</h4><p>After every trade, write one sentence describing what you felt at entry, during the trade, and at close. Over a few weeks, patterns emerge — you might notice you consistently feel euphoric after wins and take an oversized trade immediately afterward, or that you consistently feel anxious on Fridays and make worse decisions that day. These patterns are invisible until they're written down.</p><div class="lesson-tip"><b>Key takeaway:</b> You cannot eliminate trading emotions, and trying to is a losing battle. The goal is recognition, not suppression.</div>`},
+      { id:'ps2', title:'Revenge Trading: Why It Happens and How to Stop It', duration:'12 min',
+        body:`<h4>What Revenge Trading Actually Is</h4><p>Revenge trading is the attempt to immediately "win back" a loss, usually by increasing position size or abandoning your normal entry criteria on the very next trade. It feels, in the moment, like a rational attempt to recover what's rightfully yours. It is not rational — it's an emotional escape response to the discomfort of loss, dressed up as a trading decision.</p><h4>The Psychology Behind It</h4><p>Losses trigger a genuine stress response. The brain, seeking to end that discomfort quickly, looks for the fastest available action that promises relief — and "take another trade right now" is almost always more immediately available than "wait, reflect, and follow the plan." This is why revenge trades so often ignore stop-loss discipline, position sizing rules, and even the original strategy's entry criteria entirely: the goal in that moment isn't a good trade, it's ending the uncomfortable feeling as fast as possible.</p><h4>The Fix Is a Rule, Not Willpower</h4><p>Trying to "just be more disciplined" in the heat of the moment rarely works, because the urge is emotional, not logical — you can't out-argue a stress response with logic while you're inside it. What works instead is a pre-committed rule, decided while calm: no new trade for a fixed period (commonly 30 minutes to several hours, or the rest of the trading day) after any loss, no exceptions. This removes the decision entirely from the emotional moment.</p><h4>A Second Layer of Protection</h4><p>Before entering any trade, write down your reason in one sentence. If, after a loss, you catch yourself unable to write a reason beyond "I need to win it back" or "I know it'll go my way this time," that alone is proof the trade shouldn't be taken. This simple written-reason habit catches revenge trades that a loss-limit rule alone might miss.</p><div class="lesson-warning"><b>Common mistake:</b> Believing revenge trading only happens to undisciplined traders. It happens to every trader who hasn't built a specific rule against it — discipline in calm moments doesn't automatically transfer to discipline in emotionally charged ones.</div>`},
+      { id:'ps3', title:'Fear and Greed: The Two Forces Behind Bad Decisions', duration:'9 min',
+        body:`<h4>Fear's Common Disguises</h4><p>Fear rarely announces itself directly. It shows up as closing a winning trade far too early "just to lock something in," hesitating on a valid setup because the last two trades lost, or widening a stop-loss mid-trade because you can't bear to be stopped out. Each of these feels like caution in the moment, but each one actually breaks the trading plan you built while calm and rational.</p><h4>Greed's Common Disguises</h4><p>Greed shows up as increasing position size after a winning streak "because you're clearly in the zone," holding a winning trade well past your planned target hoping for more, or entering a trade late, after a big move has already happened, out of fear of missing out. Greed and fear often alternate within the same trading session — greed on the way up, fear on the way down.</p><h4>The Common Thread</h4><p>Both fear and greed pull a trader away from their predetermined plan in response to a recent emotional trigger — a loss, a win, a big move seen on the chart. The antidote to both is the same: a written plan made in advance, and a firm rule that once a trade is live, only the plan's original exit conditions are honored, regardless of what emotion shows up in the meantime.</p><div class="lesson-tip"><b>Key takeaway:</b> If you find yourself justifying a deviation from your plan mid-trade, that justification is very often fear or greed wearing the costume of "adapting to new information."</div>`},
+      { id:'ps4', title:'Building a Real Discipline Streak', duration:'8 min',
+        body:`<h4>Why Discipline Needs to Be Measured</h4><p>Discipline is easy to claim and hard to verify — which is exactly why it quietly erodes over time without anyone noticing, including the trader themselves. Tracking a visible, countable streak of "days without breaking a rule" turns an abstract intention into a concrete number worth protecting, the same way a savings balance is worth protecting.</p><h4>What Counts as "Breaking the Streak"</h4><p>Define this precisely, in advance: exceeding your risk-per-trade limit, skipping your stop-loss, revenge trading after a loss, or trading outside your planned session hours are all reasonable streak-breakers. Losing a well-planned trade that followed every rule is not a streak-breaker — losses are a normal, expected part of trading; rule violations are the actual problem.</p><h4>Why This Works Psychologically</h4><p>Loss aversion — the tendency to feel the pain of losing something more strongly than the pleasure of gaining the equivalent — is a well-documented bias. A visible discipline streak harnesses that same bias productively: once a trader has protected a 14-day streak, breaking it on day 15 starts to feel like losing something real, which makes the disciplined choice easier in the moment it matters most. This is exactly why the Discipline Streak counter exists on your dashboard.</p>`}
     ]
   },
   {
     id:'price-action', title:'Price Action Fundamentals', level:'Intermediate', icon:'📊', color:'rgba(124,108,240,.14)',
     lessons:[
-      { id:'pa1', title:'Support and Resistance', duration:'8 min',
-        body:`<p>Support is a price zone where buying pressure has historically overcome selling pressure, stopping declines. Resistance is the reverse. The more times a level has been tested and held, the more significance the market gives it — but a level that finally breaks often becomes the opposite (old resistance becomes new support).</p>`},
-      { id:'pa2', title:'Reading Candlestick Structure', duration:'9 min',
-        body:`<p>A candlestick's body shows where price opened and closed; the wicks show the extremes it reached and rejected. Long wicks at a key level often signal rejection — buyers or sellers stepping in hard. Reading a handful of candles together (not just one) tells you far more than any single candle alone.</p>`},
-      { id:'pa3', title:'Breakouts vs. Fakeouts', duration:'7 min',
-        body:`<p>A real breakout is usually accompanied by increased volume and a candle that closes convincingly beyond the level, not just wicks through it. A fakeout often reverses quickly, trapping traders who entered on the initial move. Waiting for a retest of the broken level before entering filters out many fakeouts.</p>`},
-      { id:'pa4', title:'Putting It Together: A Simple Framework', duration:'8 min',
-        body:`<p>Combine the pieces: identify the higher-timeframe trend, mark key support/resistance zones, wait for price to reach one of those zones, then look for a candlestick confirmation before entering — with your stop placed beyond the level and risk sized using the 1-2% rule from the Risk Management course.</p>`}
-    ]
-  }
-];
-
-let academyProgress = {};
-let currentAcademyCourse = null;
-
-function renderAcademyGrid(){
-  const grid = document.getElementById('acad-course-grid');
-  grid.innerHTML = academyCourses.map(c => {
-    const done = (academyProgress[c.id] || []).length;
-    const total = c.lessons.length;
-    const pct = Math.round((done/total)*100);
-    return `
-      <div class="acad-course-card" onclick="openCourse('${c.id}')">
-        <div class="acad-icon-lg" style="background:${c.color};">${c.icon}</div>
-        <h3>${c.title}</h3>
-        <p>${c.level} · ${total} Lessons</p>
-        <div class="acad-progress-row"><span>${done}/${total} complete</span><span>${pct}%</span></div>
-        <div class="bar"><div class="bar-fill" style="width:${pct}%;"></div></div>
-      </div>`;
-  }).join('');
-}
-
-function openCourse(courseId){
-  currentAcademyCourse = courseId;
-  const course = academyCourses.find(c=>c.id===courseId);
-  const firstIncomplete = course.lessons.find(l => !(academyProgress[courseId]||[]).includes(l.id));
-  openLesson(courseId, firstIncomplete ? firstIncomplete.id : course.lessons[0].id);
-  document.getElementById('acad-grid-view').classList.add('hide');
-  document.getElementById('acad-lesson-view').classList.remove('hide');
-}
-
-function backToAcademyGrid(){
-  document.getElementById('acad-lesson-view').classList.add('hide');
-  document.getElementById('acad-grid-view').classList.remove('hide');
-  renderAcademyGrid();
-}
-
-function openLesson(courseId, lessonId){
-  currentAcademyCourse = courseId;
-  const course = academyCourses.find(c=>c.id===courseId);
-  const lesson = course.lessons.find(l=>l.id===lessonId);
-  const doneList = academyProgress[courseId] || [];
-  const isDone = doneList.includes(lessonId);
-
-  document.getElementById('lesson-content-box').innerHTML = `
-    <h3>${lesson.title}</h3>
-    <div class="lesson-meta">${course.title} · ${lesson.duration}</div>
-    <div class="lesson-body">${lesson.body}</div>
-    <button class="btn ${isDone?'btn-ghost':'btn-primary'}" style="margin-top:10px;" onclick="markLessonDone('${courseId}','${lessonId}')">${isDone?'✓ Completed':'Mark as Complete'}</button>
-  `;
-
-  document.getElementById('lesson-sidebar').innerHTML = course.lessons.map(l => {
-    const done = doneList.includes(l.id);
-    const active = l.id === lessonId;
-    return `<div class="lesson-item ${active?'active':''} ${done?'done':''}" onclick="openLesson('${courseId}','${l.id}')">
-      <span class="lesson-check">${done?'✓':''}</span> ${l.title}
-    </div>`;
-  }).join('');
-}
-
-async function markLessonDone(courseId, lessonId){
-  if(!academyProgress[courseId]) academyProgress[courseId] = [];
-  if(!academyProgress[courseId].includes(lessonId)){
-    academyProgress[courseId].push(lessonId);
-    if(currentUser){
-      await db.collection('users').doc(currentUser.uid).set({ academyProgress }, { merge: true });
-    } else {
-      safeStorage.setItem('tradelify_academy_progress', JSON.stringify(academyProgress));
-    }
-    setProgress(getProgress() + 3);
-  }
-  openLesson(courseId, lessonId);
-}
-
-async function loadAcademyProgress(){
-  if(currentUser){
-    const doc = await db.collection('users').doc(currentUser.uid).get();
-    academyProgress = (doc.exists && doc.data().academyProgress) || {};
-  } else {
-    academyProgress = JSON.parse(safeStorage.getItem('tradelify_academy_progress') || '{}');
-  }
-  renderAcademyGrid();
-}
-
-function getProgress(){ return parseInt(safeStorage.getItem('tradelify_progress') || '68'); }
-function setProgress(val){
-  val = Math.min(100, val);
-  safeStorage.setItem('tradelify_progress', val);
-  document.querySelectorAll('.progress-val-display').forEach(el => el.innerText = val + '%');
-  document.querySelectorAll('.progress-bar-fill').forEach(el => el.style.width = val + '%');
-  if(currentUser){
-    db.collection('users').doc(currentUser.uid).set({ progress: val }, { merge: true });
-  }
-}
-function continueLesson(){
-  setProgress(getProgress() + 4);
-  alert('Nice work! Progress updated to ' + getProgress() + '%.');
-}
-setProgress(getProgress());
-function enterDashboard(){
-  closeModal();
-  document.getElementById('site').classList.add('hide');
-  document.getElementById('dashboard').style.display = 'block';
-}
-function exitDashboard(){
-  auth.signOut();
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('site').classList.remove('hide');
-}
-
-function showAuthError(el, msg){
-  const box = document.getElementById(el);
-  box.innerText = msg;
-  box.style.display = 'block';
-}
-function hideAuthError(el){ document.getElementById(el).style.display = 'none'; }
-
-function friendlyAuthError(code){
-  const map = {
-    'auth/email-already-in-use': 'That email is already registered — try logging in instead.',
-    'auth/invalid-email': 'That email address looks invalid.',
-    'auth/weak-password': 'Password must be at least 6 characters.',
-    'auth/user-not-found': 'No account found with that email.',
-    'auth/wrong-password': 'Incorrect password.',
-    'auth/invalid-credential': 'Incorrect email or password.',
-    'auth/too-many-requests': 'Too many attempts — try again in a few minutes.'
-  };
-  return map[code] || 'Something went wrong. Please try again.';
-}
-
-function handleSignup(){
-  hideAuthError('signup-error');
-  const name = document.getElementById('signup-name').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-password').value;
-  if(!name || !email || !password){ showAuthError('signup-error','Please fill in all fields.'); return; }
-  const btn = document.getElementById('signup-btn');
-  btn.innerText = 'Creating account...'; btn.disabled = true;
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(cred => {
-      return cred.user.updateProfile({ displayName: name })
-        .then(() => cred.user.sendEmailVerification())
-        .then(() => db.collection('users').doc(cred.user.uid).set({
-          name, email, progress: 68, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }));
-    })
-    .then(()=>{ enterDashboard(); })
-    .catch(err => { showAuthError('signup-error', friendlyAuthError(err.code)); })
-    .finally(()=>{ btn.innerText = 'Create My Free Account'; btn.disabled = false; });
-}
-
-function handleLogin(){
-  hideAuthError('login-error');
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  if(!email || !password){ showAuthError('login-error','Please enter your email and password.'); return; }
-  const btn = document.getElementById('login-btn');
-  btn.innerText = 'Logging in...'; btn.disabled = true;
-  auth.signInWithEmailAndPassword(email, password)
-    .then(()=>{ enterDashboard(); })
-    .catch(err => { showAuthError('login-error', friendlyAuthError(err.code)); })
-    .finally(()=>{ btn.innerText = 'Log In'; btn.disabled = false; });
-}
-
-function resendVerification(){
-  if(auth.currentUser){
-    auth.currentUser.sendEmailVerification().then(()=> alert('Verification email sent.'));
-  }
-}
-
-// ---------- AUTH STATE + PER-USER DATA ----------
-auth.onAuthStateChanged(async (user)=>{
-  currentUser = user;
-  if(!user){ document.body.classList.add('app-ready'); return; }
-  enterDashboard();
-  document.getElementById('verify-banner').classList.toggle('hide', user.emailVerified);
-  const nameParts = (user.displayName || 'David A.').split(' ');
-  const initials = nameParts.map(p=>p[0]).join('').slice(0,2).toUpperCase();
-  document.querySelectorAll('.side-avatar, .m-avatar').forEach(el => el.innerText = initials);
-  document.querySelectorAll('.su-name').forEach(el => el.innerText = user.displayName || 'Trader');
-
-  const userDoc = await db.collection('users').doc(user.uid).get();
-  const data = userDoc.exists ? userDoc.data() : { progress: 68 };
-  setProgress(data.progress || 68);
-  await loadUserTrades();
-  await loadUserDemoPositions();
-
-  const savedView = location.hash ? location.hash.replace('#','') : 'overview';
-  const validViews = ['overview','charts','journal','academy','demo','coach','calc'];
-  const targetView = validViews.includes(savedView) ? savedView : 'overview';
-  if(window.innerWidth <= 800){
-    mobileSwitchView(targetView);
-  } else {
-    const el = document.querySelector(`.side-link[onclick*="'${targetView}'"]`);
-    switchView(targetView, el);
-  }
-  document.body.classList.add('app-ready');
-});
-function switchView(view, el){
-  document.querySelectorAll('.dash-view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+view).classList.add('active');
-  document.querySelectorAll('.side-link').forEach(s=>s.classList.remove('active'));
-  if(el){ el.classList.add('active'); }
-  if(view === 'charts'){ loadTVWidget(); }
-  if(view === 'calc'){ runCalc(); }
-  if(view === 'academy'){ loadAcademyProgress(); }
-  if(history.pushState){ history.replaceState(null, '', '#'+view); }
-}
-
-// ---------- MOBILE NAV ----------
-function mobileSwitchView(view){
-  document.querySelectorAll('.m-navitem').forEach(n=>n.classList.remove('active'));
-  const navMap = {overview:0, academy:1, charts:2, journal:3, more:4};
-  if(navMap[view] !== undefined){
-    document.querySelectorAll('.m-navitem')[navMap[view]].classList.add('active');
-  }
-  const mBody = document.querySelector('#mobile-dash .m-body');
-  const dashLayout = document.querySelector('.dash-layout');
-  if(view === 'overview'){
-    mBody.style.display = 'block';
-    dashLayout.style.display = 'none';
-  } else if(view === 'more'){
-    alert('More menu: Demo Trading, Market News, Community, Achievements, Settings — coming in the next build phase.');
-  } else {
-    mBody.style.display = 'none';
-    dashLayout.style.display = 'grid';
-    switchView(view, null);
-  }
-}
-// ---------- TRADINGVIEW CHART (real live widget) ----------
-let tvScriptLoaded = false;
-function loadTVWidget(){
-  const symbol = document.getElementById('chart-symbol-select').value;
-  const container = document.getElementById('tv_chart_main');
-  container.innerHTML = '';
-  function render(){
-    new TradingView.widget({
-      "autosize": true,
-      "symbol": symbol,
-      "interval": "60",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#11161F",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "hide_top_toolbar": false,
-      "container_id": "tv_chart_main"
-    });
-  }
-  if(tvScriptLoaded){ render(); return; }
-  const script = document.createElement('script');
-  script.src = "https://s3.tradingview.com/tv.js";
-  script.onload = function(){ tvScriptLoaded = true; render(); };
-  document.body.appendChild(script);
-}
-function changeChartSymbol(){ loadTVWidget(); }
-
-// ---------- RISK CALCULATOR (fully functional, dashboard only) ----------
-function runCalc(){
-  const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
-  const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
-  const sl = parseFloat(document.getElementById('calc-sl').value) || 0;
-  const pipValuePerLot = parseFloat(document.getElementById('calc-pair').value);
-
-  document.getElementById('risk-pct-label').innerText = riskPct + '%';
-
-  const riskAmount = balance * (riskPct/100);
-  const lotSize = sl > 0 ? (riskAmount / (sl * pipValuePerLot * 10)) : 0;
-
-  document.getElementById('out-lot').innerText = lotSize.toFixed(2);
-  document.getElementById('out-risk').innerText = '$' + riskAmount.toFixed(2);
-  document.getElementById('rr1').innerText = '$' + riskAmount.toFixed(0);
-  document.getElementById('rr2').innerText = '$' + (riskAmount*2).toFixed(0);
-  document.getElementById('rr3').innerText = '$' + (riskAmount*3).toFixed(0);
-}
-</script>
-
-</body>
-</html>
+      { id:'pa1', title:'Support and Resistance: The Foundation of Everything', duration:'13 min',
+        body:`<h4>What These Levels Actually Represent</h4><p>Support is a price zone where buying pressure has historically been strong enough to overcome selling pressure and stop a decline. Resistance is the mirror image — a zone where selling pressure has overcome buying pressure and capped a rally. These aren't magic lines; they represent real decisions made by real market participants at that price, repeated enough times to become predictable.</p>${diagramSR}<h4>Why Some Levels Matter More Than Others</h4><p>Not all support and resistance zones carry equal weight. A level tested and respected multiple times carries more significance than one touched only once. A level that aligns with a round psychological number (like 1.1000 in a currency pair) often carries extra weight, because many market participants place orders around round numbers. A level on a higher timeframe (daily or weekly chart) generally matters more than the same price level noticed only on a 5-minute chart.</p><h4>The Flip Principle: Old Resistance Becomes New Support</h4><p>One of the most reliable patterns in price action: when resistance finally breaks decisively, it frequently becomes support on any subsequent retest — because the same price level that once attracted heavy selling now attracts buyers who missed the original breakout, plus previous sellers looking to exit their now-losing short positions. The reverse is equally true when support breaks.</p><h4>How to Actually Draw These Zones</h4><p>Resist the urge to draw a single, perfectly thin line. Real support and resistance are zones, not exact prices — mark the area where price has reacted, generally spanning from the wicks to the bodies of the candles that touched that level. A zone that's too narrow will constantly appear "broken" by normal noise; a zone that's too wide becomes useless for decision-making.</p><div class="lesson-tip"><b>Key takeaway:</b> Before drawing a single indicator on your chart, master support and resistance. Most successful price action strategies are built almost entirely on this one concept, applied well.</div>`},
+      { id:'pa2', title:'Reading Candlestick Structure', duration:'12 min',
+        body:`<h4>What Each Part of a Candle Tells You</h4><p>A candlestick's body represents the range between the opening and closing price for that period. The wicks (also called shadows) above and below the body show the highest and lowest prices reached during that period, which were then rejected — price traveled there but didn't stay. A long wick, especially at a key support or resistance level, often signals a strong rejection: buyers or sellers stepping in forcefully enough to push price back the other way before the period closed.</p><h4>Reading Candles in Groups, Not Isolation</h4><p>A single candle rarely tells a complete story. A long-wicked rejection candle at resistance means far more when it's the third consecutive attempt to break that level and fail, compared to the first attempt. Context — what happened in the 5-10 candles before the one you're analyzing — is often more informative than the shape of any individual candle.</p><h4>Body-to-Wick Ratio as a Momentum Signal</h4><p>A candle with a large body and small wicks suggests strong, decisive momentum in one direction for that period — buyers or sellers were firmly in control throughout. A candle with a small body and long wicks on both sides suggests indecision — a tug-of-war where neither side maintained control by the close. Recognizing this distinction helps identify whether a trend is likely continuing with conviction or beginning to stall.</p><h4>Volume as Confirmation</h4><p>Where available, volume data adds crucial context to candle reading. A strong-bodied breakout candle accompanied by unusually high volume is far more credible than the same-looking candle on unusually low volume — the latter is more likely to be a temporary spike that reverses quickly.</p><div class="lesson-warning"><b>Common mistake:</b> Treating every long wick as automatically meaningful. Long wicks are common in low-liquidity periods purely from normal noise — always weigh a wick's significance against where it occurred (a key level or open air) and what preceded it.</div>`},
+      { id:'pa3', title:'Breakouts vs. Fakeouts', duration:'11 min',
+        body:`<h4>Anatomy of a Genuine Breakout</h4><p>A credible breakout typically shows several supporting signs together: a candle that closes convincingly beyond the level (not just a wick poking through), noticeably increased volume compared to the recent average, and often a brief pause or small retest of the broken level that holds, before the move continues. When multiple signs align, the probability of a genuine, sustained move increases meaningfully.</p><h4>Anatomy of a Fakeout</h4><p>A fakeout (also called a false breakout or bull/bear trap) typically shows the opposite pattern: price wicks through the level but closes back inside it, volume on the "breakout" candle is unremarkable or even below average, and price reverses sharply shortly after, often trapping traders who entered aggressively on the initial move.</p><h4>The Retest Strategy</h4><p>One of the most effective ways to filter out fakeouts without missing genuine breakouts entirely: instead of entering the in
