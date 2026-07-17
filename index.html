@@ -235,6 +235,28 @@
   .side-user .su-name{font-size:13px; font-weight:600;}
   .side-user .su-plan{font-size:11px; color:var(--amber);}
 
+  /* ===== ADMIN PANEL ===== */
+  .admin-tabs{display:flex; gap:6px; margin-bottom:22px; flex-wrap:wrap;}
+  .admin-tab{padding:9px 16px; border-radius:8px; font-size:13px; border:1px solid var(--line); background:transparent; color:var(--muted);}
+  .admin-tab.active{background:var(--panel-2); color:var(--text); border-color:#7C6CF0;}
+  .admin-stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px;}
+  @media(max-width:800px){.admin-stat-row{grid-template-columns:repeat(2,1fr);}}
+  .admin-stat{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px;}
+  .admin-stat .as-val{font-family:'JetBrains Mono'; font-size:24px; font-weight:700;}
+  .admin-stat .as-label{font-size:11.5px; color:var(--muted); margin-top:4px;}
+  .admin-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .admin-table th{text-align:left; color:var(--muted); font-family:'JetBrains Mono'; font-size:10.5px; padding:9px 10px; border-bottom:1px solid var(--line);}
+  .admin-table td{padding:10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  .admin-plan-badge{padding:3px 9px; border-radius:5px; font-size:11px; font-family:'JetBrains Mono';}
+  .admin-plan-free{background:var(--panel-2); color:var(--muted);}
+  .admin-plan-pro{background:rgba(61,214,140,.15); color:var(--mint);}
+  .admin-plan-elite{background:rgba(245,166,35,.15); color:var(--amber);}
+  .admin-mini-btn{padding:5px 10px; border-radius:6px; font-size:11px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); margin-right:4px;}
+  .admin-form{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px; max-width:520px;}
+  .admin-post-item{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:10px;}
+  .admin-post-item h4{font-size:14px; margin-bottom:4px;}
+  .admin-post-item p{font-size:12.5px; color:var(--muted);}
+
   /* ===== QUIZ ===== */
   .quiz-start-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:32px; max-width:480px; margin:0 auto; text-align:center;}
   .quiz-topic-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0;}
@@ -639,6 +661,7 @@
       <div class="drawer-group-label">Tools</div>
       <div class="drawer-link" onclick="drawerGo('calc')"><span class="ic">🧮</span>Risk Calculator</div>
       <div class="drawer-link" onclick="drawerGo('quiz')"><span class="ic">📝</span>Quiz</div>
+      <div class="drawer-link hide" id="admin-nav-link-mobile" onclick="drawerGo('admin')"><span class="ic">🛡️</span>Admin Panel</div>
       <div class="drawer-group-label">Account</div>
       <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">🏆</span>Achievements</div>
       <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">⚙️</span>Settings</div>
@@ -708,6 +731,7 @@
         <div class="side-link" onclick="switchView('overview',this)"><span class="ic">👥</span>Community</div>
         <div class="side-link" onclick="switchView('calc',this)"><span class="ic">🧮</span>Risk Calculator</div>
         <div class="side-link" onclick="switchView('quiz',this)"><span class="ic">📝</span>Quiz</div>
+        <div class="side-link hide" id="admin-nav-link" onclick="switchView('admin',this)"><span class="ic">🛡️</span>Admin Panel</div>
         <div class="side-link" onclick="switchView('overview',this)"><span class="ic">🏆</span>Achievements</div>
         <div class="side-link" onclick="switchView('overview',this)"><span class="ic">⚙️</span>Settings</div>
       </div>
@@ -807,6 +831,53 @@
             </div>
           </div>
         </div>
+        <div id="view-admin" class="dash-view">
+          <h2 style="margin-bottom:6px;">Admin Panel</h2>
+          <p style="color:var(--muted); margin-bottom:22px;">Visible only to your account.</p>
+          <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('overview',this)">Overview</button>
+            <button class="admin-tab" onclick="switchAdminTab('users',this)">Users</button>
+            <button class="admin-tab" onclick="switchAdminTab('content',this)">Content</button>
+            <button class="admin-tab" onclick="switchAdminTab('notify',this)">Notifications</button>
+          </div>
+
+          <div id="admin-tab-overview" class="admin-tab-content">
+            <div class="admin-stat-row">
+              <div class="admin-stat"><div class="as-val" id="admin-stat-users">—</div><div class="as-label">TOTAL USERS</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-pro">—</div><div class="as-label">PRO/ELITE MEMBERS</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-trades">—</div><div class="as-label">JOURNAL ENTRIES LOGGED</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-posts">—</div><div class="as-label">MARKET ANALYSIS POSTS</div></div>
+            </div>
+          </div>
+
+          <div id="admin-tab-users" class="admin-tab-content hide">
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Actions</th></tr></thead>
+              <tbody id="admin-users-body"><tr><td colspan="4" style="color:var(--muted);">Loading...</td></tr></tbody>
+            </table>
+          </div>
+
+          <div id="admin-tab-content" class="admin-tab-content hide">
+            <div class="admin-form" style="margin-bottom:24px;">
+              <h3 style="margin-bottom:14px; font-size:15px;">Post Market Analysis</h3>
+              <div class="field"><label>TITLE</label><input type="text" id="admin-post-title" placeholder="e.g. Gold (XAUUSD) — Key Levels to Watch"></div>
+              <div class="field"><label>CONTENT</label><input type="text" id="admin-post-body" placeholder="Short analysis text..."></div>
+              <button class="btn btn-primary" onclick="postMarketAnalysis()">Publish</button>
+            </div>
+            <div id="admin-posts-list"></div>
+          </div>
+
+          <div id="admin-tab-notify" class="admin-tab-content hide">
+            <div class="admin-form">
+              <h3 style="margin-bottom:14px; font-size:15px;">Send Platform Notification</h3>
+              <div class="field"><label>TITLE</label><input type="text" id="admin-notify-title" placeholder="e.g. New course added!"></div>
+              <div class="field"><label>MESSAGE</label><input type="text" id="admin-notify-body" placeholder="Short message..."></div>
+              <button class="btn btn-primary" onclick="sendAdminNotification()">Send to All Users</button>
+              <p style="color:var(--muted); font-size:12px; margin-top:10px;">Note: this saves the notification — wiring it to the bell icon badge is a quick next step once you're ready.</p>
+            </div>
+          </div>
+        </div>
+
         <div id="view-quiz" class="dash-view">
           <div id="quiz-start-screen">
             <h2 style="margin-bottom:6px;">Quiz</h2>
@@ -1372,6 +1443,111 @@ const quizBank = [
   { courseId:'crypto-basics', lessonId:'cr3', q:"What risk is more specific to crypto than to major forex pairs?", options:["Interest rate risk","Exchange and custody risk","Pip value risk","Leverage doesn't exist in crypto"], correct:1, explain:"Unlike regulated forex brokers, crypto exchanges vary enormously in regulation and security — exposing traders to real custody risk." }
 ];
 
+// ---------- ADMIN PANEL ----------
+const ADMIN_EMAILS = ['anifowosedavid25@gmail.com'];
+
+function checkAdminAccess(user){
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+  document.getElementById('admin-nav-link').classList.toggle('hide', !isAdmin);
+  document.getElementById('admin-nav-link-mobile').classList.toggle('hide', !isAdmin);
+  return isAdmin;
+}
+
+function switchAdminTab(tab, el){
+  document.querySelectorAll('.admin-tab-content').forEach(c=>c.classList.add('hide'));
+  document.getElementById('admin-tab-'+tab).classList.remove('hide');
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(tab === 'overview'){ loadAdminOverview(); }
+  if(tab === 'users'){ loadAdminUsers(); }
+  if(tab === 'content'){ loadAdminPosts(); }
+}
+
+async function loadAdminOverview(){
+  try {
+    const usersSnap = await db.collection('users').get();
+    document.getElementById('admin-stat-users').innerText = usersSnap.size;
+    let proCount = 0, tradeCount = 0;
+    for(const doc of usersSnap.docs){
+      const plan = doc.data().plan;
+      if(plan === 'pro' || plan === 'elite') proCount++;
+    }
+    document.getElementById('admin-stat-pro').innerText = proCount;
+    const postsSnap = await db.collection('marketAnalysis').get();
+    document.getElementById('admin-stat-posts').innerText = postsSnap.size;
+    document.getElementById('admin-stat-trades').innerText = '—';
+  } catch(e){
+    document.getElementById('admin-stat-users').innerText = 'Error';
+  }
+}
+
+async function loadAdminUsers(){
+  const body = document.getElementById('admin-users-body');
+  try {
+    const snap = await db.collection('users').get();
+    if(snap.empty){ body.innerHTML = `<tr><td colspan="4" style="color:var(--muted);">No users yet.</td></tr>`; return; }
+    body.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const plan = d.plan || 'free';
+      return `<tr>
+        <td>${d.name || '—'}</td>
+        <td style="font-size:12px; color:var(--muted);">${d.email || '—'}</td>
+        <td><span class="admin-plan-badge admin-plan-${plan}">${plan.toUpperCase()}</span></td>
+        <td>
+          <button class="admin-mini-btn" onclick="setUserPlan('${doc.id}','free')">Free</button>
+          <button class="admin-mini-btn" onclick="setUserPlan('${doc.id}','pro')">Pro</button>
+          <button class="admin-mini-btn" onclick="setUserPlan('${doc.id}','elite')">Elite</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e){
+    body.innerHTML = `<tr><td colspan="4" style="color:var(--red);">Error loading users.</td></tr>`;
+  }
+}
+
+async function setUserPlan(uid, plan){
+  await db.collection('users').doc(uid).set({ plan }, { merge:true });
+  loadAdminUsers();
+}
+
+async function postMarketAnalysis(){
+  const title = document.getElementById('admin-post-title').value.trim();
+  const bodyText = document.getElementById('admin-post-body').value.trim();
+  if(!title || !bodyText){ alert('Please fill in both fields.'); return; }
+  await db.collection('marketAnalysis').add({
+    title, body: bodyText, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('admin-post-title').value = '';
+  document.getElementById('admin-post-body').value = '';
+  loadAdminPosts();
+}
+
+async function loadAdminPosts(){
+  const list = document.getElementById('admin-posts-list');
+  try {
+    const snap = await db.collection('marketAnalysis').orderBy('createdAt','desc').limit(10).get();
+    if(snap.empty){ list.innerHTML = `<p style="color:var(--muted);">No posts yet.</p>`; return; }
+    list.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      return `<div class="admin-post-item"><h4>${d.title}</h4><p>${d.body}</p></div>`;
+    }).join('');
+  } catch(e){
+    list.innerHTML = `<p style="color:var(--muted);">No posts yet.</p>`;
+  }
+}
+
+async function sendAdminNotification(){
+  const title = document.getElementById('admin-notify-title').value.trim();
+  const bodyText = document.getElementById('admin-notify-body').value.trim();
+  if(!title || !bodyText){ alert('Please fill in both fields.'); return; }
+  await db.collection('notifications').add({
+    title, body: bodyText, target:'all', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('admin-notify-title').value = '';
+  document.getElementById('admin-notify-body').value = '';
+  alert('Notification sent and saved.');
+}
+
 let quizState = { questions:[], index:0, score:0, answers:[] };
 let selectedQuizTopic = 'all';
 
@@ -1663,9 +1839,10 @@ auth.onAuthStateChanged(async (user)=>{
   setProgress(data.progress || 68);
   await loadUserTrades();
   await loadUserDemoPositions();
+  checkAdminAccess(user);
 
   const savedView = location.hash ? location.hash.replace('#','') : 'overview';
-  const validViews = ['overview','charts','journal','academy','demo','coach','calc','quiz'];
+  const validViews = ['overview','charts','journal','academy','demo','coach','calc','quiz','admin'];
   const targetView = validViews.includes(savedView) ? savedView : 'overview';
   if(window.innerWidth <= 800){
     mobileSwitchView(targetView);
@@ -1684,6 +1861,7 @@ function switchView(view, el){
   if(view === 'calc'){ runCalc(); }
   if(view === 'academy'){ loadAcademyProgress(); }
   if(view === 'quiz'){ renderQuizTopics(); backToQuizStart(); }
+  if(view === 'admin'){ loadAdminOverview(); }
   if(history.pushState){ history.replaceState(null, '', '#'+view); }
 }
 
@@ -1710,52 +1888,4 @@ function mobileSwitchView(view){
 // ---------- TRADINGVIEW CHART (real live widget) ----------
 let tvScriptLoaded = false;
 function loadTVWidget(){
-  const symbol = document.getElementById('chart-symbol-select').value;
-  const container = document.getElementById('tv_chart_main');
-  container.innerHTML = '';
-  function render(){
-    new TradingView.widget({
-      "autosize": true,
-      "symbol": symbol,
-      "interval": "60",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#11161F",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "hide_top_toolbar": false,
-      "container_id": "tv_chart_main"
-    });
-  }
-  if(tvScriptLoaded){ render(); return; }
-  const script = document.createElement('script');
-  script.src = "https://s3.tradingview.com/tv.js";
-  script.onload = function(){ tvScriptLoaded = true; render(); };
-  document.body.appendChild(script);
-}
-function changeChartSymbol(){ loadTVWidget(); }
-
-// ---------- RISK CALCULATOR (fully functional, dashboard only) ----------
-function runCalc(){
-  const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
-  const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
-  const sl = parseFloat(document.getElementById('calc-sl').value) || 0;
-  const pipValuePerLot = parseFloat(document.getElementById('calc-pair').value);
-
-  document.getElementById('risk-pct-label').innerText = riskPct + '%';
-
-  const riskAmount = balance * (riskPct/100);
-  const lotSize = sl > 0 ? (riskAmount / (sl * pipValuePerLot * 10)) : 0;
-
-  document.getElementById('out-lot').innerText = lotSize.toFixed(2);
-  document.getElementById('out-risk').innerText = '$' + riskAmount.toFixed(2);
-  document.getElementById('rr1').innerText = '$' + riskAmount.toFixed(0);
-  document.getElementById('rr2').innerText = '$' + (riskAmount*2).toFixed(0);
-  document.getElementById('rr3').innerText = '$' + (riskAmount*3).toFixed(0);
-}
-</script>
-
-</body>
-</html>
+  const symbol = docume
