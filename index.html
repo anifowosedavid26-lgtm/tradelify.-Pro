@@ -1035,3 +1035,1040 @@
           <div class="side-avatar topbar-avatar" onclick="openProfileModal()">DA</div>
         </div>
       </div>
+
+      <div class="dash-main">
+        <div id="view-overview" class="dash-view active">
+          <h2>Welcome back, David! 👋</h2>
+          <p style="color:var(--muted); margin-top:4px;">Learn smarter. Trade wiser.</p>
+
+          <div class="stat-row">
+            <div class="stat-card"><div class="sc-label">Learning Progress</div><div class="sc-val progress-val-display">68%</div><div class="bar"><div class="bar-fill progress-bar-fill" style="width:68%;"></div></div></div>
+            <div class="stat-card"><div class="sc-label">Journal Trades</div><div class="sc-val">24</div><div class="sc-delta">+8 this week</div></div>
+            <div class="stat-card"><div class="sc-label">Win Rate</div><div class="sc-val">62.5%</div><div class="sc-delta">+5.3% this week</div></div>
+            <div class="stat-card"><div class="sc-label">Current Streak</div><div class="sc-val">7 Days 🔥</div><div class="sc-delta" style="color:var(--amber);">Keep it up!</div></div>
+          </div>
+
+          <div class="dash-section-title">Continue Learning <a href="#">View all ›</a></div>
+          <div class="learn-card">
+            <div class="learn-thumb">📊 CHART</div>
+            <div class="learn-info">
+              <h4>Price Action Trading — The Complete Guide</h4>
+              <p>Lesson 12 of 16 · 32 min left</p>
+              <div class="bar" style="width:200px;"><div class="bar-fill" style="width:75%;"></div></div>
+            </div>
+            <button class="btn btn-primary" onclick="continueLesson()">Continue Lesson</button>
+          </div>
+
+          <div class="dash-section-title">Recommended for You <a href="#">View all ›</a></div>
+          <div class="course-grid">
+            <div class="course-card"><div class="course-thumb" style="background:rgba(61,214,140,.1);">⚖️</div><h4>Risk Management</h4><div class="course-meta">Intermediate · 12 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(124,108,240,.12);">🧭</div><h4>Smart Money Concepts</h4><div class="course-meta">Advanced · 18 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(245,166,35,.1);">📉</div><h4>Technical Analysis Mastery</h4><div class="course-meta">Intermediate · 20 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(240,85,107,.1);">🧠</div><h4>Trading Psychology</h4><div class="course-meta">Beginner · 10 Lessons</div></div>
+          </div>
+        </div>
+
+        <div id="view-charts" class="dash-view">
+          <h2 style="margin-bottom:20px;">Interactive Charts</h2>
+          <div class="chart-panel">
+            <div class="chart-topbar">
+              <div class="chart-pair-select">
+                <select id="chart-symbol-select" onchange="changeChartSymbol()">
+                  <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                  <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                  <option value="FX:EURUSD">EUR/USD</option>
+                  <option value="FX:GBPUSD">GBP/USD</option>
+                  <option value="OANDA:XAUUSD">XAU/USD (Gold)</option>
+                </select>
+              </div>
+              <div class="chart-tools">
+                <div class="icon-btn" title="Indicators">📶</div>
+                <div class="icon-btn" title="Alert">🔔</div>
+                <div class="icon-btn" title="Replay">⏮</div>
+              </div>
+            </div>
+            <div class="chart-embed">
+              <div class="tradingview-widget-container" style="height:100%;">
+                <div id="tv_chart_main" style="height:100%;"></div>
+              </div>
+            </div>
+            <div class="chart-strip">
+              <span>RSI 14: <b>58.21</b></span>
+              <span>Session: <b>London/NY Overlap</b></span>
+              <span>Volatility: <b>Moderate</b></span>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:13px;">Live market data via TradingView. Switch symbols using the dropdown above.</p>
+        </div>
+
+        <div id="view-academy" class="dash-view">
+          <div id="acad-grid-view">
+            <h2 style="margin-bottom:6px;">Academy</h2>
+            <p style="color:var(--muted); margin-bottom:24px;">Structured courses — pass the lessons in order to build a real foundation.</p>
+            <div class="acad-grid" id="acad-course-grid"></div>
+          </div>
+          <div id="acad-lesson-view" class="hide">
+            <div class="lesson-back" onclick="backToAcademyGrid()">← Back to Academy</div>
+            <div class="lesson-layout">
+              <div class="lesson-content-box" id="lesson-content-box"></div>
+              <div class="lesson-sidebar" id="lesson-sidebar"></div>
+            </div>
+          </div>
+        </div>
+        <div id="view-news" class="dash-view">
+          <h2 style="margin-bottom:6px;">Market News</h2>
+          <p style="color:var(--muted); margin-bottom:20px;">Analysis and updates from Tradelify — not signals, just context.</p>
+          <div id="news-list"><p style="color:var(--muted);">Loading...</p></div>
+        </div>
+
+        <div id="view-notifications" class="dash-view">
+          <h2 style="margin-bottom:20px;">Notifications</h2>
+          <div id="notif-list"><p style="color:var(--muted);">Loading...</p></div>
+        </div>
+
+        <div id="view-settings" class="dash-view">
+          <h2 style="margin-bottom:20px;">Settings</h2>
+
+          <div class="settings-section">
+            <h3>Profile</h3>
+            <div class="field"><label>DISPLAY NAME</label><input type="text" id="settings-name"></div>
+            <div class="field"><label>EMAIL</label><input type="email" id="settings-email" disabled style="opacity:0.6;"></div>
+            <button class="btn btn-primary" onclick="saveProfileSettings()">Save Profile</button>
+            <div class="settings-msg" id="profile-msg"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Change Password</h3>
+            <div class="field"><label>CURRENT PASSWORD</label><input type="password" id="settings-current-pw"></div>
+            <div class="field"><label>NEW PASSWORD</label><input type="password" id="settings-new-pw" placeholder="At least 6 characters"></div>
+            <button class="btn btn-primary" onclick="changePasswordSettings()">Update Password</button>
+            <div class="settings-msg" id="password-msg"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Appearance</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Dark Mode</div><div class="settings-row-sub">Switch between dark and light theme</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="settings-dark-mode" checked onchange="toggleThemeMode()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Notifications</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Email notifications</div><div class="settings-row-sub">Receive platform updates by email</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="settings-email-notifs" checked onchange="saveNotifPref()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Subscription</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Current Plan</div><div class="settings-row-sub">Manage upgrades via the pricing page</div></div>
+              <span class="admin-plan-badge admin-plan-free" id="settings-plan-badge">FREE</span>
+            </div>
+          </div>
+
+          <div class="settings-section settings-danger">
+            <h3>Danger Zone</h3>
+            <button class="btn btn-ghost" onclick="exitDashboard()" style="margin-bottom:10px;">Log Out</button><br>
+            <button class="btn" style="background:var(--red); color:#fff;" onclick="deleteAccountSettings()">Delete Account</button>
+            <div class="settings-msg" id="danger-msg"></div>
+          </div>
+        </div>
+
+        <div id="view-products" class="dash-view">
+          <h2 style="margin-bottom:6px;">Products</h2>
+          <p style="color:var(--muted); margin-bottom:24px;">Guides and resources to go deeper, from the Tradelify team.</p>
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-icon">📕</div>
+              <h3>Why Traders Lose Money</h3>
+              <p>Understand the real, avoidable reasons most traders fail — before they cost you.</p>
+              <a href="https://davycrypto.systeme.io/crypto" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+            <div class="product-card">
+              <div class="product-icon">📗</div>
+              <h3>A–Z Beginners Guide to Trading the Crypto Market</h3>
+              <p>A complete foundation for anyone starting from zero in crypto trading.</p>
+              <a href="https://anifowosedavid25.systeme.io/cryptotrading-7109688d" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+            <div class="product-card">
+              <div class="product-icon">📘</div>
+              <h3>The Only Cryptocurrency Book You'll Ever Need</h3>
+              <p>A comprehensive, all-in-one reference for serious crypto traders.</p>
+              <a href="https://selar.com/0106w1651o" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-analysis" class="dash-view">
+          <h2 style="margin-bottom:6px;">Chart Analysis</h2>
+          <p style="color:var(--muted); margin-bottom:24px; max-width:560px; margin-left:auto; margin-right:auto; text-align:center;">Upload a chart screenshot for a structured read — trend, key levels, and context. Not a buy/sell signal, a second pair of eyes.</p>
+
+          <div class="analysis-upload-card" id="analysis-upload-card" onclick="document.getElementById('analysis-file-input').click()">
+            <div class="au-icon">📊</div>
+            <h3 style="margin-bottom:6px;">Upload a Chart Screenshot</h3>
+            <p style="color:var(--muted); font-size:13px;">Tap to select an image from your gallery</p>
+            <input type="file" id="analysis-file-input" accept="image/*" style="display:none;" onchange="handleAnalysisUpload(event)">
+          </div>
+
+          <div id="analysis-preview-section" class="hide">
+            <div class="analysis-preview-wrap">
+              <img id="analysis-preview-img" src="" alt="Uploaded chart">
+            </div>
+            <div style="text-align:center; margin-bottom:20px;">
+              <button class="btn btn-primary" onclick="runChartAnalysis()">Analyze This Chart</button>
+              <button class="btn btn-ghost" onclick="resetChartAnalysis()">Upload Different Image</button>
+            </div>
+          </div>
+
+          <div id="analysis-results-section" class="hide">
+            <div class="analysis-results">
+              <div class="analysis-section"><div class="as-icon">📈</div><div><h4>Trend Direction</h4><p id="ar-trend">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">🎯</div><div><h4>Key Levels</h4><p id="ar-levels">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">🕯️</div><div><h4>Candlestick Context</h4><p id="ar-candles">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">📶</div><div><h4>Momentum</h4><p id="ar-momentum">—</p></div></div>
+              <div style="text-align:center;"><span class="analysis-pending-badge" id="analysis-pending-note">⚠ Real per-image AI analysis needs the backend connection — see note below</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-brokers" class="dash-view">
+          <h2 style="margin-bottom:6px; text-align:center;">Brokers</h2>
+          <p style="color:var(--muted); margin-bottom:16px; text-align:center;">Compare exchanges before you sign up.</p>
+          <div class="broker-disclosure">ℹ️ Tradelify may earn a commission if you sign up through these links — at no extra cost to you. This doesn't affect our recommendations.</div>
+          <div class="broker-grid">
+            <div class="broker-card">
+              <div class="broker-icon" style="background:rgba(240,185,11,.15);">🟡</div>
+              <h3>Binance</h3>
+              <p>One of the world's largest crypto exchanges by trading volume, offering spot, futures, and a wide range of listed assets.</p>
+              <a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00XMOWFIQ5" target="_blank" class="btn btn-primary full-btn">Sign Up via Tradelify</a>
+            </div>
+            <div class="broker-card">
+              <div class="broker-icon" style="background:rgba(245,166,35,.15);">🟠</div>
+              <h3>Bybit</h3>
+              <p>A major crypto exchange known for derivatives trading, with a growing spot market and copy-trading features.</p>
+              <a href="https://www.bybit.com/invite?ref=JVA361Q" target="_blank" class="btn btn-primary full-btn">Sign Up via Tradelify</a>
+            </div>
+            <div class="broker-card">
+              <div class="broker-icon" style="background:rgba(124,108,240,.15);">🔵</div>
+              <h3>Exness</h3>
+              <p>A well-known forex and CFD broker popular for flexible leverage and fast withdrawal processing.</p>
+              <button class="btn btn-ghost full-btn" disabled style="opacity:0.5;">Link Coming Soon</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-billing" class="dash-view">
+          <h2 style="margin-bottom:6px; text-align:center;">Billing</h2>
+          <p style="color:var(--muted); margin-bottom:26px; text-align:center;">Choose the plan that fits where you are.</p>
+          <div class="billing-plan-grid">
+            <div class="billing-plan-card" id="billing-card-free">
+              <h3>FREE</h3>
+              <div class="billing-price">$0<span>/forever</span></div>
+              <ul><li>Risk Calculator</li><li>Beginner courses</li><li>3 quiz attempts/week</li><li>Community read access</li></ul>
+              <button class="btn btn-ghost full-btn" disabled>Current Plan</button>
+            </div>
+            <div class="billing-plan-card featured" id="billing-card-pro">
+              <h3>GOLD MEMBERSHIP</h3>
+              <div class="billing-price">$15<span>/month</span></div>
+              <ul><li>Unlimited Trading Journal</li><li>All Academy courses</li><li>Unlimited Quiz attempts</li><li>Demo Trading</li><li>AI Coach</li></ul>
+              <button class="btn btn-primary full-btn" onclick="openUpgradeContact('Gold Membership')">Upgrade to Gold</button>
+            </div>
+            <div class="billing-plan-card" id="billing-card-elite">
+              <h3>ELITE</h3>
+              <div class="billing-price">$99<span>/month</span></div>
+              <ul><li>Everything in Gold</li><li>Priority AI Coach responses</li><li>Private chart reviews</li><li>Priority support</li></ul>
+              <button class="btn btn-ghost full-btn" onclick="openUpgradeContact('Elite')">Upgrade to Elite</button>
+            </div>
+          </div>
+
+          <div id="upgrade-contact-section" class="hide">
+            <div class="upgrade-contact-box">
+              <h3 style="margin-bottom:16px; font-size:15px;" id="upgrade-contact-title">Upgrade</h3>
+              <a class="upgrade-contact-option" href="https://wa.me/2349024011558" target="_blank">💬 Message on WhatsApp</a>
+              <a class="upgrade-contact-option" href="mailto:anifowosedavid25@gmail.com?subject=Tradelify%20Upgrade%20Request">📧 Email anifowosedavid25@gmail.com</a>
+              <div class="upgrade-contact-option disabled">💳 Pay via Selar — coming soon</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-analytics" class="dash-view">
+          <h2 style="margin-bottom:6px;">Performance Analytics</h2>
+          <p style="color:var(--muted); margin-bottom:22px;">Built from your real logged trades.</p>
+          <div class="analytics-stat-row">
+            <div class="admin-stat"><div class="as-val" id="pa-total">0</div><div class="as-label">TOTAL TRADES</div></div>
+            <div class="admin-stat"><div class="as-val" id="pa-winrate">—</div><div class="as-label">OVERALL WIN RATE</div></div>
+            <div class="admin-stat"><div class="as-val" id="pa-pnl">$0</div><div class="as-label">TOTAL P&L</div></div>
+            <div class="admin-stat"><div class="as-val" id="pa-best-day">—</div><div class="as-label">BEST DAY</div></div>
+          </div>
+          <div class="analytics-panel">
+            <h3>WIN RATE BY DAY OF WEEK</h3>
+            <div id="pa-day-chart"></div>
+          </div>
+          <div class="analytics-panel">
+            <h3>PERFORMANCE BY SESSION</h3>
+            <div id="pa-session-chart"></div>
+          </div>
+          <div class="analytics-panel">
+            <h3>MONTHLY P&L</h3>
+            <div id="pa-month-chart"></div>
+          </div>
+        </div>
+
+        <div id="view-achievements" class="dash-view">
+          <h2 style="margin-bottom:6px;">Achievements</h2>
+          <p style="color:var(--muted); margin-bottom:22px;">Earned automatically from your real activity — nothing manual.</p>
+          <div class="achievements-grid" id="achievements-grid"></div>
+        </div>
+
+        <div id="view-calendar" class="dash-view">
+          <h2 style="margin-bottom:6px;">Calendar</h2>
+          <p style="color:var(--muted); margin-bottom:20px;">Market events and your own trading history, side by side.</p>
+          <div class="cal-tabs">
+            <button class="cal-tab active" onclick="switchCalendarTab('econ',this)">Economic Calendar</button>
+            <button class="cal-tab" onclick="switchCalendarTab('personal',this)">My Trading Calendar</button>
+          </div>
+
+          <div id="cal-econ-panel">
+            <div class="tradingview-widget-container" style="border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+              <div id="econ-calendar-widget"></div>
+            </div>
+          </div>
+
+          <div id="cal-personal-panel" class="hide">
+            <div class="cal-month-nav">
+              <button onclick="changeCalMonth(-1)">‹</button>
+              <h3 id="cal-month-label">—</h3>
+              <button onclick="changeCalMonth(1)">›</button>
+            </div>
+            <div class="cal-grid" id="cal-day-names"></div>
+            <div class="cal-grid" id="cal-grid-days"></div>
+            <div class="cal-day-detail hide" id="cal-day-detail"></div>
+          </div>
+        </div>
+
+        <div id="view-admin" class="dash-view">
+          <h2 style="margin-bottom:6px;">Admin Panel</h2>
+          <p style="color:var(--muted); margin-bottom:22px;">Visible only to your account.</p>
+          <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('overview',this)">Overview</button>
+            <button class="admin-tab" onclick="switchAdminTab('users',this)">Users</button>
+            <button class="admin-tab" onclick="switchAdminTab('content',this)">Content</button>
+            <button class="admin-tab" onclick="switchAdminTab('notify',this)">Notifications</button>
+          </div>
+
+          <div id="admin-tab-overview" class="admin-tab-content">
+            <div class="admin-stat-row">
+              <div class="admin-stat"><div class="as-val" id="admin-stat-users">—</div><div class="as-label">TOTAL USERS</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-pro">—</div><div class="as-label">PRO/ELITE MEMBERS</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-trades">—</div><div class="as-label">JOURNAL ENTRIES LOGGED</div></div>
+              <div class="admin-stat"><div class="as-val" id="admin-stat-posts">—</div><div class="as-label">MARKET ANALYSIS POSTS</div></div>
+            </div>
+          </div>
+
+          <div id="admin-tab-users" class="admin-tab-content hide">
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Actions</th></tr></thead>
+              <tbody id="admin-users-body"><tr><td colspan="4" style="color:var(--muted);">Loading...</td></tr></tbody>
+            </table>
+          </div>
+
+          <div id="admin-tab-content" class="admin-tab-content hide">
+            <div class="admin-form" style="margin-bottom:24px;">
+              <h3 style="margin-bottom:14px; font-size:15px;">Post Market Analysis</h3>
+              <div class="field"><label>TITLE</label><input type="text" id="admin-post-title" placeholder="e.g. Gold (XAUUSD) — Key Levels to Watch"></div>
+              <div class="field"><label>CONTENT</label><input type="text" id="admin-post-body" placeholder="Short analysis text..."></div>
+              <button class="btn btn-primary" onclick="postMarketAnalysis()">Publish</button>
+            </div>
+            <div id="admin-posts-list"></div>
+          </div>
+
+          <div id="admin-tab-notify" class="admin-tab-content hide">
+            <div class="admin-form" style="margin-bottom:24px;">
+              <h3 style="margin-bottom:14px; font-size:15px;">Send Platform Notification</h3>
+              <div class="field"><label>TITLE</label><input type="text" id="admin-notify-title" placeholder="e.g. New course added!"></div>
+              <div class="field"><label>MESSAGE</label><input type="text" id="admin-notify-body" placeholder="Short message..."></div>
+              <button class="btn btn-primary" onclick="sendAdminNotification()">Send to All Users</button>
+              <p style="color:var(--muted); font-size:12px; margin-top:10px;">This appears live in every user's Notifications feed and bell icon immediately.</p>
+            </div>
+            <div id="admin-sent-notifications"></div>
+          </div>
+        </div>
+
+        <div id="view-quiz" class="dash-view">
+          <div id="quiz-start-screen">
+            <h2 style="margin-bottom:6px;">Quiz</h2>
+            <p style="color:var(--muted); margin-bottom:24px;">Scenario-based questions — test judgment, not just memory.</p>
+            <div class="quiz-start-card">
+              <div style="font-size:32px; margin-bottom:10px;">📝</div>
+              <h3 style="margin-bottom:6px;">Choose a Topic</h3>
+              <p style="color:var(--muted); font-size:13px;">Questions are pulled from the courses you've been studying.</p>
+              <div class="quiz-topic-grid" id="quiz-topic-grid"></div>
+              <button class="btn btn-primary full-btn" onclick="startQuiz()">Start Quiz (10 Questions)</button>
+            </div>
+          </div>
+          <div id="quiz-active-screen" class="hide">
+            <div class="quiz-progress-row"><span id="quiz-progress-text">Question 1 of 10</span><span id="quiz-score-text">Score: 0</span></div>
+            <div class="quiz-q-card">
+              <div class="quiz-q-text" id="quiz-q-text"></div>
+              <div id="quiz-options"></div>
+              <div class="quiz-explain" id="quiz-explain"></div>
+              <button class="btn btn-primary full-btn hide" id="quiz-next-btn" style="margin-top:14px;" onclick="nextQuizQuestion()">Next Question →</button>
+            </div>
+          </div>
+          <div id="quiz-results-screen" class="hide" style="text-align:center;">
+            <div class="quiz-score-ring" id="quiz-score-ring"></div>
+            <h2 id="quiz-result-title" style="margin-bottom:8px;"></h2>
+            <p style="color:var(--muted); margin-bottom:24px;" id="quiz-result-sub"></p>
+            <div style="max-width:520px; margin:0 auto; text-align:left;" id="quiz-review-list"></div>
+            <button class="btn btn-primary" style="margin-top:10px;" onclick="backToQuizStart()">Take Another Quiz</button>
+          </div>
+        </div>
+
+        <div id="view-coach" class="dash-view">
+          <h2 style="margin-bottom:20px;">AI Coach</h2>
+          <div class="coach-shell">
+            <div class="coach-msgs" id="coach-msgs">
+              <div class="msg msg-bot">Hi David! 👋<br>How can I help you improve today?</div>
+            </div>
+            <div class="coach-quick" id="coach-quick">
+              <button onclick="coachAsk('Why did I lose this trade?')">Why did I lose this trade?</button>
+              <button onclick="coachAsk('How can I improve my RR?')">How can I improve my RR?</button>
+              <button onclick="coachAsk('Explain support and resistance')">Explain support and resistance</button>
+            </div>
+            <div class="coach-input-row">
+              <label for="coach-file" class="icon-btn" style="cursor:pointer;" title="Upload chart screenshot">📎</label>
+              <input type="file" id="coach-file" accept="image/*" style="display:none;" onchange="coachFileUpload(event)">
+              <input type="text" id="coach-input" placeholder="Type a message or upload a chart..." onkeydown="if(event.key==='Enter')coachSend()">
+              <button class="coach-send" onclick="coachSend()">➤</button>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:12px; text-align:center; margin-top:10px;">Demo responses for now — connects to a real AI backend once Firebase is wired in.</p>
+        </div>
+
+        <div id="view-demo" class="dash-view">
+          <h2 style="margin-bottom:20px;">Demo Trading</h2>
+          <div class="demo-top">
+            <div>
+              <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">Account Balance</div>
+              <div class="demo-balance mono" id="demo-balance">$10,234.75</div>
+              <div class="demo-balance-delta" id="demo-delta">+$234.75 (2.34%) Today</div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="openOrderForm()">+ New Order</button>
+          </div>
+          <div class="demo-stats">
+            <div class="demo-stat"><div class="ds-label">Equity</div><div class="ds-val" id="demo-equity">$10,234.75</div></div>
+            <div class="demo-stat"><div class="ds-label">Used Margin</div><div class="ds-val">$1,250.00</div></div>
+            <div class="demo-stat"><div class="ds-label">Free Margin</div><div class="ds-val" id="demo-free">$8,984.75</div></div>
+            <div class="demo-stat"><div class="ds-label">Margin Level</div><div class="ds-val">818.78%</div></div>
+          </div>
+          <div class="demo-tabs">
+            <button class="demo-tab active" onclick="switchDemoTab('open',this)">Open Positions</button>
+            <button class="demo-tab" onclick="switchDemoTab('pending',this)">Pending Orders</button>
+            <button class="demo-tab" onclick="switchDemoTab('history',this)">History</button>
+          </div>
+          <div id="demo-positions"></div>
+
+          <div id="order-form-wrap" class="hide" style="margin-top:20px;">
+            <div class="order-form">
+              <h3 style="margin-bottom:16px; font-size:16px;">New Order</h3>
+              <div class="field"><label>SYMBOL</label>
+                <select id="ord-symbol"><option>EUR/USD</option><option>GBP/USD</option><option>BTC/USDT</option><option>XAU/USD</option></select>
+              </div>
+              <div class="dir-toggle">
+                <button class="dir-btn buy-active" id="ord-buy-btn" onclick="setOrdDir('buy')">BUY</button>
+                <button class="dir-btn" id="ord-sell-btn" onclick="setOrdDir('sell')">SELL</button>
+              </div>
+              <div class="field"><label>LOT SIZE</label><input type="number" id="ord-lots" value="0.10" step="0.01"></div>
+              <button class="btn btn-primary full-btn" onclick="placeOrder()">Place Order</button>
+              <button class="btn btn-ghost full-btn" style="margin-top:8px;" onclick="closeOrderForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div id="view-calc" class="dash-view">
+          <h2 style="margin-bottom:20px;">Risk Calculator</h2>
+          <div class="tool-panel">
+            <div class="calc-grid">
+              <div>
+                <div class="field"><label>ACCOUNT BALANCE (USD)</label><input type="number" id="calc-balance" value="1000" oninput="runCalc()"></div>
+                <div class="field"><label>RISK PERCENTAGE: <span id="risk-pct-label">1%</span></label><input type="range" id="calc-risk" min="0.25" max="5" step="0.25" value="1" oninput="runCalc()"></div>
+                <div class="field"><label>STOP LOSS (PIPS)</label><input type="number" id="calc-sl" value="20" oninput="runCalc()"></div>
+                <div class="field"><label>PAIR</label>
+                  <select id="calc-pair" onchange="runCalc()">
+                    <option value="0.1">EUR/USD · GBP/USD · AUD/USD ($10/pip per lot)</option>
+                    <option value="0.091">USD/JPY (pip = 0.01)</option>
+                    <option value="1">Gold (XAU/USD)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="result-box"><div class="label">LOT SIZE (STANDARD)</div><div class="val" id="out-lot">0.00</div></div>
+                <div class="result-box"><div class="label">RISK AMOUNT</div><div class="val" id="out-risk">$0.00</div></div>
+                <div class="rr-row">
+                  <div class="rr-item"><div class="rr-label">1:1</div><div class="rr-val" id="rr1">$0</div></div>
+                  <div class="rr-item"><div class="rr-label">1:2</div><div class="rr-val" id="rr2">$0</div></div>
+                  <div class="rr-item"><div class="rr-label">1:3</div><div class="rr-val" id="rr3">$0</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="view-journal" class="dash-view">
+          <h2 style="margin-bottom:20px;">Trading Journal</h2>
+          <div class="j-form">
+            <div class="field"><label>PAIR</label><input type="text" id="dj-pair" placeholder="EUR/USD"></div>
+            <div class="field"><label>DIRECTION</label><select id="dj-dir"><option>BUY</option><option>SELL</option></select></div>
+            <div class="field"><label>ENTRY</label><input type="number" id="dj-entry" step="0.0001"></div>
+            <div class="field"><label>EXIT</label><input type="number" id="dj-exit" step="0.0001"></div>
+            <div class="field"><label>RESULT ($)</label><input type="number" id="dj-result"></div>
+            <button class="btn btn-primary" onclick="addUserTrade()">Log Trade</button>
+          </div>
+          <table>
+            <thead><tr><th>Pair</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Result</th></tr></thead>
+            <tbody id="dj-body"><tr class="empty-row"><td colspan="5">Loading your trades...</td></tr></tbody>
+          </table>
+          <div class="stat-strip">
+            <div class="stat-mini"><div class="sv" id="dj-total">0</div><div class="sl">TOTAL TRADES</div></div>
+            <div class="stat-mini"><div class="sv" id="dj-winrate">—</div><div class="sl">WIN RATE</div></div>
+            <div class="stat-mini"><div class="sv" id="dj-pnl">$0</div><div class="sl">TOTAL P&L</div></div>
+          </div>
+          <p style="color:var(--muted); font-size:12px; margin-top:14px;">Saved to your account — syncs across any device you log into.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBbcqsufnNdyyd2JmViXHj8TyWyccutSxw",
+  authDomain: "tradelify-30b4f.firebaseapp.com",
+  projectId: "tradelify-30b4f",
+  storageBucket: "tradelify-30b4f.firebasestorage.app",
+  messagingSenderId: "1059346992672",
+  appId: "1:1059346992672:web:8a8adee456a66cba227645",
+  measurementId: "G-8Y4YPS6LWV"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+</script>
+
+<script>
+// ---------- SAFE STORAGE (works even on file:// pages where localStorage is blocked) ----------
+const memoryStore = {};
+const safeStorage = {
+  getItem(key){
+    try { return localStorage.getItem(key); } catch(e){ return memoryStore[key] || null; }
+  },
+  setItem(key, val){
+    try { localStorage.setItem(key, val); } catch(e){ memoryStore[key] = val; }
+  }
+};
+
+// ---------- THEME (dark/light mode) ----------
+(function applyInitialTheme(){
+  const saved = safeStorage.getItem('tradelify_theme');
+  if(saved === 'light'){ document.body.classList.add('light-mode'); }
+})();
+
+async function toggleThemeMode(){
+  const isDark = document.getElementById('settings-dark-mode').checked;
+  document.body.classList.toggle('light-mode', !isDark);
+  const theme = isDark ? 'dark' : 'light';
+  safeStorage.setItem('tradelify_theme', theme);
+  if(currentUser){
+    try { await db.collection('users').doc(currentUser.uid).set({ themePreference: theme }, { merge:true }); } catch(e){}
+  }
+}
+
+// ---------- MODAL ----------
+// ---------- LEGAL PAGES ----------
+function showLegalPage(page){
+  document.getElementById('site').classList.add('hide');
+  document.getElementById('legal-'+page).classList.remove('hide');
+  window.scrollTo(0,0);
+}
+function hideLegalPage(page){
+  document.getElementById('legal-'+page).classList.add('hide');
+  document.getElementById('site').classList.remove('hide');
+}
+
+function openModal(type){
+  document.getElementById('modal-overlay').classList.remove('hide');
+  switchModal(type);
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.add('hide'); }
+// ---------- CALENDAR ----------
+let econWidgetLoaded = false;
+let calCurrentDate = new Date();
+let calTradesByDay = {};
+
+function initCalendarView(){
+  loadEconCalendarWidget();
+  loadPersonalCalendarData();
+}
+
+function loadEconCalendarWidget(){
+  if(econWidgetLoaded) return;
+  econWidgetLoaded = true;
+  const container = document.getElementById('econ-calendar-widget');
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-events.js';
+  script.async = true;
+  script.innerHTML = JSON.stringify({
+    colorTheme: 'dark', isTransparent: false, width: '100%', height: 550,
+    locale: 'en', importanceFilter: '-1,0,1', countryFilter: 'us,eu,gb,jp,au,ca'
+  });
+  container.appendChild(script);
+}
+
+function switchCalendarTab(tab, el){
+  document.querySelectorAll('.cal-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('cal-econ-panel').classList.toggle('hide', tab!=='econ');
+  document.getElementById('cal-personal-panel').classList.toggle('hide', tab!=='personal');
+  if(tab === 'personal'){ renderPersonalCalendar(); }
+}
+
+async function loadPersonalCalendarData(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('trades').get();
+  calTradesByDay = {};
+  snap.forEach(doc => {
+    const t = doc.data();
+    if(t.createdAt && t.createdAt.toDate){
+      const d = t.createdAt.toDate();
+      const key = d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+      if(!calTradesByDay[key]) calTradesByDay[key] = [];
+      calTradesByDay[key].push(t);
+    }
+  });
+}
+
+function changeCalMonth(delta){
+  calCurrentDate.setMonth(calCurrentDate.getMonth() + delta);
+  renderPersonalCalendar();
+}
+
+function renderPersonalCalendar(){
+  const year = calCurrentDate.getFullYear();
+  const month = calCurrentDate.getMonth();
+  document.getElementById('cal-month-label').innerText = calCurrentDate.toLocaleString('default',{month:'long', year:'numeric'});
+
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('cal-day-names').innerHTML = dayNames.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let cells = '';
+  for(let i=0;i<firstDay;i++){ cells += `<div class="cal-day empty"></div>`; }
+  for(let day=1; day<=daysInMonth; day++){
+    const key = year+'-'+month+'-'+day;
+    const dayTrades = calTradesByDay[key];
+    let cls = 'cal-day';
+    if(dayTrades){
+      const netPnl = dayTrades.reduce((s,t)=>s+t.result,0);
+      cls += netPnl >= 0 ? ' win-day' : ' loss-day';
+    }
+    cells += `<div class="${cls}" onclick="showCalDayDetail(${year},${month},${day})"><div class="cal-day-num">${day}</div>${dayTrades?'<div class="cal-day-dot"></div>':''}</div>`;
+  }
+  document.getElementById('cal-grid-days').innerHTML = cells;
+  document.getElementById('cal-day-detail').classList.add('hide');
+}
+
+function showCalDayDetail(year, month, day){
+  const key = year+'-'+month+'-'+day;
+  const dayTrades = calTradesByDay[key];
+  const detail = document.getElementById('cal-day-detail');
+  const dateLabel = new Date(year, month, day).toLocaleDateString('default',{weekday:'long', month:'long', day:'numeric'});
+  if(!dayTrades){
+    detail.innerHTML = `<h4 style="margin-bottom:8px;">${dateLabel}</h4><p style="color:var(--muted); font-size:13px;">No trades logged this day.</p>`;
+  } else {
+    const netPnl = dayTrades.reduce((s,t)=>s+t.result,0);
+    detail.innerHTML = `<h4 style="margin-bottom:8px;">${dateLabel}</h4>` + dayTrades.map(t =>
+      `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;"><span>${t.pair} · ${t.dir}</span><span style="color:${t.result>=0?'var(--mint)':'var(--red)'};">${t.result>=0?'+':''}$${t.result}</span></div>`
+    ).join('') + `<div style="margin-top:10px; font-weight:600; font-size:13px;">Net: <span style="color:${netPnl>=0?'var(--mint)':'var(--red)'};">${netPnl>=0?'+':''}$${netPnl.toFixed(0)}</span></div>`;
+  }
+  detail.classList.remove('hide');
+}
+// ---------- PERFORMANCE ANALYTICS ----------
+async function loadPerformanceAnalytics(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('trades').get();
+  const trades = [];
+  snap.forEach(doc => trades.push(doc.data()));
+
+  document.getElementById('pa-total').innerText = trades.length;
+  if(trades.length === 0){
+    document.getElementById('pa-winrate').innerText = '—';
+    document.getElementById('pa-pnl').innerText = '$0';
+    document.getElementById('pa-best-day').innerText = '—';
+    document.getElementById('pa-day-chart').innerHTML = `<p style="color:var(--muted); font-size:13px;">Log a few trades in your Journal to see analytics here.</p>`;
+    document.getElementById('pa-session-chart').innerHTML = '';
+    document.getElementById('pa-month-chart').innerHTML = '';
+    return;
+  }
+
+  const wins = trades.filter(t=>t.result>=0).length;
+  const totalPnl = trades.reduce((s,t)=>s+t.result,0);
+  document.getElementById('pa-winrate').innerText = Math.round((wins/trades.length)*100)+'%';
+  document.getElementById('pa-pnl').innerText = (totalPnl>=0?'$':'-$')+Math.abs(totalPnl).toFixed(0);
+
+  // Win rate by day of week
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayStats = dayNames.map(()=>({wins:0,total:0}));
+  trades.forEach(t => {
+    if(t.createdAt && t.createdAt.toDate){
+      const day = t.createdAt.toDate().getDay();
+      dayStats[day].total++;
+      if(t.result>=0) dayStats[day].wins++;
+    }
+  });
+  let bestDay = '—', bestRate = -1;
+  dayStats.forEach((d,i)=>{ if(d.total>0){ const rate = d.wins/d.total; if(rate>bestRate){ bestRate=rate; bestDay=dayNames[i]; } } });
+  document.getElementById('pa-best-day').innerText = bestDay;
+  document.getElementById('pa-day-chart').innerHTML = dayNames.map((name,i)=>{
+    const d = dayStats[i];
+    const pct = d.total>0 ? Math.round((d.wins/d.total)*100) : 0;
+    return `<div class="bar-chart-row"><div class="bar-chart-label">${name}</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:${pct}%;"></div></div><div class="bar-chart-val">${d.total>0?pct+'%':'—'}</div></div>`;
+  }).join('');
+
+  // Performance by session (derived from UTC hour)
+  const sessions = { 'Asian':{wins:0,total:0}, 'London':{wins:0,total:0}, 'New York':{wins:0,total:0} };
+  trades.forEach(t => {
+    if(t.createdAt && t.createdAt.toDate){
+      const hour = t.createdAt.toDate().getUTCHours();
+      const key = hour < 7 ? 'Asian' : hour < 16 ? 'London' : 'New York';
+      sessions[key].total++;
+      if(t.result>=0) sessions[key].wins++;
+    }
+  });
+  document.getElementById('pa-session-chart').innerHTML = Object.entries(sessions).map(([name,d])=>{
+    const pct = d.total>0 ? Math.round((d.wins/d.total)*100) : 0;
+    return `<div class="bar-chart-row"><div class="bar-chart-label">${name}</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:${pct}%;"></div></div><div class="bar-chart-val">${d.total>0?pct+'%':'—'}</div></div>`;
+  }).join('');
+
+  // Monthly P&L
+  const months = {};
+  trades.forEach(t => {
+    if(t.createdAt && t.createdAt.toDate){
+      const d = t.createdAt.toDate();
+      const key = d.toLocaleString('default',{month:'short', year:'2-digit'});
+      months[key] = (months[key]||0) + t.result;
+    }
+  });
+  const monthEntries = Object.entries(months);
+  const maxAbs = Math.max(...monthEntries.map(([,v])=>Math.abs(v)), 1);
+  document.getElementById('pa-month-chart').innerHTML = monthEntries.length ? monthEntries.map(([name,val])=>{
+    const pct = Math.min(100, Math.round((Math.abs(val)/maxAbs)*100));
+    return `<div class="bar-chart-row"><div class="bar-chart-label">${name}</div><div class="bar-chart-track"><div class="bar-chart-fill ${val<0?'loss-fill':''}" style="width:${pct}%;"></div></div><div class="bar-chart-val">${val>=0?'$':'-$'}${Math.abs(val).toFixed(0)}</div></div>`;
+  }).join('') : `<p style="color:var(--muted); font-size:13px;">No dated trades yet.</p>`;
+}
+
+// ---------- ACHIEVEMENTS ----------
+async function loadAchievements(){
+  if(!currentUser) return;
+  const grid = document.getElementById('achievements-grid');
+  grid.innerHTML = `<p style="color:var(--muted);">Loading...</p>`;
+
+  const tradesSnap = await db.collection('users').doc(currentUser.uid).collection('trades').get();
+  const tradeCount = tradesSnap.size;
+
+  const userDoc = await db.collection('users').doc(currentUser.uid).get();
+  const progress = (userDoc.exists && userDoc.data().academyProgress) || {};
+  const coursesCompleted = academyCourses.filter(c => (progress[c.id]||[]).length === c.lessons.length).length;
+
+  let quizPassCount = 0;
+  try {
+    const quizSnap = await db.collection('users').doc(currentUser.uid).collection('quizResults').get();
+    quizSnap.forEach(doc => { if(doc.data().pct >= 80) quizPassCount++; });
+  } catch(e){}
+
+  const achievements = [
+    { icon:'🎯', title:'First Trade', desc:'Log your first journal entry', unlocked: tradeCount >= 1 },
+    { icon:'📓', title:'10 Trades Logged', desc:'Build a real track record', unlocked: tradeCount >= 10 },
+    { icon:'📈', title:'30 Trades Logged', desc:'Enough data for real patterns', unlocked: tradeCount >= 30 },
+    { icon:'🎓', title:'First Course Completed', desc:'Finish any Academy course', unlocked: coursesCompleted >= 1 },
+    { icon:'👑', title:'Academy Graduate', desc:'Complete all 8 courses', unlocked: coursesCompleted >= 8 },
+    { icon:'📝', title:'Quiz Passed', desc:'Score 80%+ on any quiz', unlocked: quizPassCount >= 1 },
+    { icon:'🧠', title:'Quiz Master', desc:'Pass 5 quizzes at 80%+', unlocked: quizPassCount >= 5 },
+    { icon:'✦', title:'Gold Member', desc:'Upgrade to Gold Membership', unlocked: isGoldOrAbove() },
+    { icon:'🔥', title:'Getting Started', desc:'Log in and begin your journey', unlocked: true }
+  ];
+
+  grid.innerHTML = achievements.map(a => `
+    <div class="achievement-card ${a.unlocked?'unlocked':''}">
+      <div class="ach-icon">${a.icon}</div>
+      <h4>${a.title}</h4>
+      <p>${a.desc}</p>
+      <div class="ach-status">${a.unlocked?'✓ UNLOCKED':'LOCKED'}</div>
+    </div>`).join('');
+}
+
+// ---------- PLAN EXPIRY & GATING ----------
+async function checkPlanExpiry(uid, data){
+  if(!data.planExpiresAt || data.plan === 'free'){ return data; }
+  const expiryDate = data.planExpiresAt.toDate ? data.planExpiresAt.toDate() : new Date(data.planExpiresAt);
+  const now = new Date();
+  const daysLeft = Math.ceil((expiryDate - now) / (1000*60*60*24));
+
+  if(daysLeft <= 0){
+    await db.collection('users').doc(uid).set({ plan:'free', planExpiresAt:null }, { merge:true });
+    alert('Your ' + data.plan.toUpperCase() + ' membership has expired and your account has been moved back to the Free plan. Upgrade anytime from Billing.');
+    data.plan = 'free';
+    data.planExpiresAt = null;
+  } else if(daysLeft <= 3){
+    showRenewalBanner(daysLeft, data.plan);
+  }
+  return data;
+}
+
+function showRenewalBanner(daysLeft, plan){
+  const banner = document.getElementById('renewal-banner');
+  if(!banner) return;
+  banner.innerText = `Your ${plan.toUpperCase()} membership ends in ${daysLeft} day${daysLeft===1?'':'s'} — renew from Billing to keep your access.`;
+  banner.classList.remove('hide');
+}
+
+function isGoldOrAbove(){
+  return window.currentUserPlan === 'pro' || window.currentUserPlan === 'elite';
+}
+
+function checkDemoTradingGate(){
+  const view = document.getElementById('view-demo');
+  if(isGoldOrAbove()){
+    if(view.dataset.locked){ location.reload(); } // restore real content if previously locked
+    return;
+  }
+  if(!view.dataset.locked){
+    view.dataset.originalContent = view.innerHTML;
+    view.dataset.locked = 'true';
+  }
+  view.innerHTML = `<div class="locked-feature-box"><div class="lf-icon">🔒</div><h3 style="margin-bottom:10px;">Demo Trading is a Gold Membership feature</h3><p style="color:var(--muted); margin-bottom:20px;">Practice trades risk-free with a demo account — available on Gold and above.</p><button class="btn btn-primary" onclick="switchView('billing', null)">View Plans</button></div>`;
+}
+
+function applyPlanGates(){
+  // Academy: lock all courses except Risk Management for Free plan
+  document.querySelectorAll('.acad-course-card').forEach(card => {
+    const courseId = card.getAttribute('data-course-id');
+    if(!isGoldOrAbove() && courseId !== 'risk-management'){
+      card.classList.add('locked-course');
+    } else {
+      card.classList.remove('locked-course');
+    }
+  });
+}
+
+// ---------- BILLING ----------
+async function loadBillingPage(){
+  document.querySelectorAll('.billing-plan-card').forEach(c => { c.classList.remove('current'); c.querySelector('.billing-current-tag')?.remove(); });
+  document.getElementById('upgrade-contact-section').classList.add('hide');
+  if(!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const plan = doc.exists ? (doc.data().plan || 'free') : 'free';
+    const card = document.getElementById('billing-card-' + plan);
+    if(card){
+      card.classList.add('current');
+      const tag = document.createElement('div');
+      tag.className = 'billing-current-tag';
+      tag.innerText = 'CURRENT PLAN';
+      card.appendChild(tag);
+    }
+  } catch(e){}
+}
+
+function openUpgradeContact(planName){
+  document.getElementById('upgrade-contact-title').innerText = 'Upgrade to ' + planName;
+  document.getElementById('upgrade-contact-section').classList.remove('hide');
+  document.getElementById('upgrade-contact-section').scrollIntoView({behavior:'smooth'});
+}
+
+// ---------- CHART ANALYSIS ----------
+function handleAnalysisUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    document.getElementById('analysis-preview-img').src = e.target.result;
+    document.getElementById('analysis-upload-card').classList.add('hide');
+    document.getElementById('analysis-preview-section').classList.remove('hide');
+    document.getElementById('analysis-results-section').classList.add('hide');
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetChartAnalysis(){
+  document.getElementById('analysis-upload-card').classList.remove('hide');
+  document.getElementById('analysis-preview-section').classList.add('hide');
+  document.getElementById('analysis-results-section').classList.add('hide');
+  document.getElementById('analysis-file-input').value = '';
+}
+
+function runChartAnalysis(){
+  const btn = event.target;
+  btn.innerText = 'Analyzing...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    document.getElementById('ar-trend').innerText = 'Real per-image trend reading requires the AI backend to be connected — this section will describe the actual direction visible in your uploaded chart once wired in.';
+    document.getElementById('ar-levels').innerText = 'Will identify visible support and resistance zones once connected.';
+    document.getElementById('ar-candles').innerText = 'Will describe recent candlestick structure and any notable rejections once connected.';
+    document.getElementById('ar-momentum').innerText = 'Will reference RSI or momentum indicators if visible in the image once connected.';
+    document.getElementById('analysis-results-section').classList.remove('hide');
+    btn.innerText = 'Analyze This Chart';
+    btn.disabled = false;
+  }, 900);
+}
+
+// ---------- PROFILE MODAL ----------
+function openProfileModal(){
+  document.getElementById('profile-modal-overlay').classList.remove('hide');
+  if(currentUser){
+    document.getElementById('profile-modal-name').innerText = currentUser.displayName || 'Trader';
+    document.getElementById('profile-modal-email').innerText = currentUser.email || '';
+  }
+}
+function closeProfileModal(){ document.getElementById('profile-modal-overlay').classList.add('hide'); }
+
+function renderAvatarEverywhere(photoURL, initials){
+  const targets = document.querySelectorAll('.side-avatar, .m-avatar, #profile-avatar-large');
+  targets.forEach(el => {
+    if(photoURL){ el.innerHTML = `<img src="${photoURL}" alt="Profile photo">`; }
+    else { el.innerText = initials; }
+  });
+}
+
+function handleAvatarUpload(event){
+  const file = event.target.files[0];
+  if(!file || !currentUser) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = async function(){
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size/img.width, size/img.height);
+      const w = img.width*scale, h = img.height*scale;
+      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      try {
+        await db.collection('users').doc(currentUser.uid).set({ photoURL: dataUrl }, { merge:true });
+        renderAvatarEverywhere(dataUrl, null);
+      } catch(err){ alert('Could not save photo — please try a smaller image.'); }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---------- SEARCH ----------
+function handleSearchInput(query, resultsId){
+  const dropdown = document.getElementById(resultsId);
+  const q = query.trim().toLowerCase();
+  if(q.length < 2){ dropdown.classList.add('hide'); return; }
+  const matches = [];
+  academyCourses.forEach(course => {
+    course.lessons.forEach(lesson => {
+      if(lesson.title.toLowerCase().includes(q) || course.title.toLowerCase().includes(q)){
+        matches.push({ courseId: course.id, courseTitle: course.title, lessonId: lesson.id, lessonTitle: lesson.title });
+      }
+    });
+  });
+  if(matches.length === 0){
+    dropdown.innerHTML = `<div class="search-result-item" style="color:var(--muted);">No lessons found for "${query}"</div>`;
+  } else {
+    dropdown.innerHTML = matches.slice(0,8).map(m =>
+      `<div class="search-result-item" onclick="goToSearchResult('${m.courseId}','${m.lessonId}','${resultsId}')">${m.lessonTitle}<div class="sr-course">${m.courseTitle}</div></div>`
+    ).join('');
+  }
+  dropdown.classList.remove('hide');
+}
+
+function goToSearchResult(courseId, lessonId, resultsId){
+  document.getElementById(resultsId).classList.add('hide');
+  const el = document.querySelector(`.side-link[onclick*="'academy'"]`);
+  if(window.innerWidth <= 800){ mobileSwitchView('academy'); }
+  else { switchView('academy', el); }
+  setTimeout(()=>{ openCourse(courseId); openLesson(courseId, lessonId); }, 60);
+}
+
+function switchModal(type){
+  document.getElementById('modal-login').classList.toggle('hide', type!=='login');
+  document.getElementById('modal-signup').classList.toggle('hide', type!=='signup');
+}
+
+// ---------- DRAWER MENU ----------
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function drawerGo(view){
+  closeDrawer();
+  if(window.innerWidth <= 800){
+    mobileSwitchView(view);
+  } else {
+    const el = document.querySelector(`.side-link[onclick*="'${view}'"]`);
+    switchView(view, el);
+  }
+}
+
+// ---------- AI COACH CHAT (keyword-based, no exact-match bug) ----------
+const coachIntents = [
+  { keys:['hi','hello','hey','good morning','good afternoon','good evening'],
+    responses:[`Hey David! 👋 I'm here to help — ask me about a losing trade, risk management, or upload a chart screenshot and I'll break it down.`] },
+  { keys:['lose','lost','loss','losing','why did i lose'],
+    responses:[`Let me walk through what typically causes losses like this...<ul><li>Entering before confirmation</li><li>Trading against the higher timeframe trend</li><li>No clear support/resistance nearby</li><li>Risking too much on one idea</li></ul><b>Better approach:</b><ul><li>Wait for confirmation</li><li>Enter on a pullback, not the breakout</li><li>Risk 1–1.5% per trade</li></ul>Want to upload a screenshot of the actual trade? I can point to specifics.`] },
+  { keys:['risk','rr','reward','position size','lot size'],
+    responses:[`For risk-to-reward: aim for at least 1:2 on every setup. Set your stop where the trade idea is actually invalidated — not an arbitrary pip count — then size your position backward from that. The Risk Calculator on this platform does this math for you instantly.`] },
+  { keys:['support','resistance','level','key level'],
+    responses:[`Support is where buyers have historically stepped in and stopped a decline. Resistance is the opposite — where sellers have capped a rally. The strongest levels are ones price has reacted to more than once, and ones that align with a round number or prior high/low.`] },
+  { keys:['psychology','emotion','revenge','fear','greed','discipline'],
+    responses:[`Revenge trading almost always follows a loss you haven't fully accepted yet. A simple rule that works: after any loss, no new trade for at least 30 minutes, and never increase size to "win it back." Your Discipline Streak on the dashboard is designed to make this visible — protect it like a real number, because it is one.`] },
+  { keys:['journal','log','track'],
+    responses:[`Logging every trade — even the ones you're embarrassed by — is what turns random results into a pattern you can actually fix. Head to Trading Journal and log your last 5 trades; I'll be able to point out patterns once there's real data to work with.`] },
+  { keys:['course','learn','academy','lesson'],
+    responses:[`Based on where most traders plateau, I'd suggest starting with Risk Management if you haven't finished it, then Trading Psychology — technical skill rarely is the reason accounts blow up.`] }
+];
+const fallbackResponses = [
+  `Good question. Once this is connected to your real journal and account data, I'll give you a precise answer based on your actual trading history. For now — try asking about a specific loss, risk sizing, or upload a chart screenshot.`,
+  `I want to give you a real answer here, not a generic one — try rephrasing with a bit more detail, or upload a chart screenshot and I'll analyze what's on it.`,
+  `That's outside what I can answer precisely in this demo version yet. Try one of the quick questions below, or ask about risk, psychology, or a specific trade.`
+];
+let fallbackIndex = 0;
+
+function matchCoachIntent(text){
+  const lower = text.toLowerCase();
+  for(const intent of coachIntents){
+    if(intent.keys.some(k => new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'i').test(lower))){
+      return intent.responses[Math.floor(Math.random()*intent.responses.length)];
+    }
+  }
+  return null;
+}
+
+function coachAsk(q){ document.getElementById('coach-input').value = q; coachSend(); }
+
+function appendCoachMsg(html, cls){
+  const msgs = document.getElementById('coach-msgs');
+  msgs.innerHTML += `<div class="msg ${cls}">${html}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function coachSend(){
+  const input = document.getElementById('coach-input');
+  const text = input.value.trim();
+  if(!text) return;
