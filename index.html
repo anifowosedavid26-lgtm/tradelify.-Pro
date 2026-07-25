@@ -2490,3 +2490,622 @@ async function loadSettingsPage(){
 async function saveProfileSettings(){
   const name = document.getElementById('settings-name').value.trim();
 
+  if(!name){ showSettingsMsg('profile-msg', 'Name cannot be empty.', true); return; }
+  try {
+    await currentUser.updateProfile({ displayName: name });
+    await db.collection('users').doc(currentUser.uid).set({ name }, { merge:true });
+    document.querySelectorAll('.su-name').forEach(el => el.innerText = name);
+    showSettingsMsg('profile-msg', 'Profile updated.', false);
+  } catch(e){
+    showSettingsMsg('profile-msg', 'Something went wrong. Try again.', true);
+  }
+}
+
+async function changePasswordSettings(){
+  const currentPw = document.getElementById('settings-current-pw').value;
+  const newPw = document.getElementById('settings-new-pw').value;
+  if(!currentPw || !newPw){ showSettingsMsg('password-msg', 'Fill in both fields.', true); return; }
+  if(newPw.length < 6){ showSettingsMsg('password-msg', 'New password must be at least 6 characters.', true); return; }
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPw);
+    await currentUser.reauthenticateWithCredential(cred);
+    await currentUser.updatePassword(newPw);
+    document.getElementById('settings-current-pw').value = '';
+    document.getElementById('settings-new-pw').value = '';
+    showSettingsMsg('password-msg', 'Password updated successfully.', false);
+  } catch(e){
+    showSettingsMsg('password-msg', e.code === 'auth/wrong-password' ? 'Current password is incorrect.' : 'Something went wrong. Try again.', true);
+  }
+}
+
+async function saveNotifPref(){
+  const checked = document.getElementById('settings-email-notifs').checked;
+  if(currentUser){
+    await db.collection('users').doc(currentUser.uid).set({ emailNotifs: checked }, { merge:true });
+  }
+}
+
+async function deleteAccountSettings(){
+  if(!confirm('This permanently deletes your account and all data. This cannot be undone. Continue?')) return;
+  const pw = prompt('For security, please re-enter your password to confirm:');
+  if(!pw) return;
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pw);
+    await currentUser.reauthenticateWithCredential(cred);
+    await db.collection('users').doc(currentUser.uid).delete();
+    await currentUser.delete();
+    alert('Account deleted.');
+  } catch(e){
+    showSettingsMsg('danger-msg', 'Could not delete account — check your password and try again.', true);
+  }
+}
+
+const ADMIN_EMAILS = ['anifowosedavid25@gmail.com'];
+
+function checkAdminAccess(user){
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+  document.getElementById('admin-nav-link').classList.toggle('hide', !isAdmin);
+  document.getElementById('admin-nav-link-mobile').classList.toggle('hide', !isAdmin);
+  return isAdmin;
+}
+
+function switchAdminTab(tab, el){
+  document.querySelectorAll('.admin-tab-content').forEach(c=>c.classList.add('hide'));
+  document.getElementById('admin-tab-'+tab).classList.remove('hide');
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(tab === 'overview'){ loadAdminOverview(); }
+  if(tab === 'users'){ loadAdminUsers(); }
+  if(tab === 'content'){ loadAdminPosts(); }
+  if(tab === 'notify'){ loadAdminSentNotifications(); }
+}
+
+async function loadAdminOverview(){
+  try {
+    const usersSnap = await db.collection('users').get();
+    document.getElementById('admin-stat-users').innerText = usersSnap.size;
+    let proCount = 0, tradeCount = 0;
+    for(const doc of usersSnap.docs){
+      const plan = doc.data().plan;
+      if(plan === 'pro' || plan === 'elite') proCount++;
+    }
+    document.getElementById('admin-stat-pro').innerText = proCount;
+    const postsSnap = await db.collection('marketAnalysis').get();
+    document.getElementById('admin-stat-posts').innerText = postsSnap.size;
+    document.getElementById('admin-stat-trades').innerText = '—';
+  } catch(e){
+    document.getElementById('admin-stat-users').innerText = 'Error';
+  }
+}
+
+async function loadAdminUsers(){
+  const body = document.getElementById('admin-users-body');
+  try {
+    const snap = await db.collection('users').get();
+    if(snap.empty){ body.innerHTML = `<tr><td colspan="4" style="color:var(--muted);">No users yet.</td></tr>`; return; }
+    body.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const plan = d.plan || 'free';
+      const expiryText = d.planExpiresAt ? new Date(d.planExpiresAt.toDate()).toLocaleDateString() : (plan==='free' ? '—' : 'No expiry set');
+      return `<tr>
+        <td>${d.name || '—'}</td>
+        <td style="font-size:12px; color:var(--muted);">${d.email || '—'}<br><span style="font-size:10.5px;">Expires: ${expiryText}</span></td>
+        <td><span class="admin-plan-badge admin-plan-${plan}">${plan.toUpperCase()}</span></td>
+        <td>
+          <button class="admin-mini-btn" onclick="setUserPlan('${doc.id}','free')">Free</button>
+          <button class="admin-mini-btn" onclick="activatePaidPlan('${doc.id}','pro')">Activate Gold (30d)</button>
+          <button class="admin-mini-btn" onclick="activatePaidPlan('${doc.id}','elite')">Activate Elite (30d)</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e){
+    body.innerHTML = `<tr><td colspan="4" style="color:var(--red);">Error loading users.</td></tr>`;
+  }
+}
+
+async function setUserPlan(uid, plan){
+  await db.collection('users').doc(uid).set({ plan, planExpiresAt: null }, { merge:true });
+  loadAdminUsers();
+}
+
+async function activatePaidPlan(uid, plan){
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 30);
+  await db.collection('users').doc(uid).set({
+    plan,
+    planExpiresAt: firebase.firestore.Timestamp.fromDate(expiry)
+  }, { merge:true });
+  loadAdminUsers();
+}
+
+async function postMarketAnalysis(){
+  const title = document.getElementById('admin-post-title').value.trim();
+  const bodyText = document.getElementById('admin-post-body').value.trim();
+  if(!title || !bodyText){ alert('Please fill in both fields.'); return; }
+  await db.collection('marketAnalysis').add({
+    title, body: bodyText, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('admin-post-title').value = '';
+  document.getElementById('admin-post-body').value = '';
+  loadAdminPosts();
+}
+
+async function loadAdminPosts(){
+  const list = document.getElementById('admin-posts-list');
+  try {
+    const snap = await db.collection('marketAnalysis').orderBy('createdAt','desc').limit(10).get();
+    if(snap.empty){ list.innerHTML = `<p style="color:var(--muted);">No posts yet.</p>`; return; }
+    list.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      return `<div class="admin-post-item"><h4>${d.title}</h4><p>${d.body}</p><button class="admin-mini-btn" style="margin-top:8px; color:var(--red);" onclick="deleteMarketPost('${doc.id}')">Delete</button></div>`;
+    }).join('');
+  } catch(e){
+    list.innerHTML = `<p style="color:var(--muted);">No posts yet.</p>`;
+  }
+}
+
+async function deleteMarketPost(id){
+  if(!confirm('Delete this post? This cannot be undone.')) return;
+  await db.collection('marketAnalysis').doc(id).delete();
+  loadAdminPosts();
+}
+
+async function sendAdminNotification(){
+  const title = document.getElementById('admin-notify-title').value.trim();
+  const bodyText = document.getElementById('admin-notify-body').value.trim();
+  if(!title || !bodyText){ alert('Please fill in both fields.'); return; }
+  await db.collection('notifications').add({
+    title, body: bodyText, target:'all', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('admin-notify-title').value = '';
+  document.getElementById('admin-notify-body').value = '';
+  loadAdminSentNotifications();
+}
+
+async function loadAdminSentNotifications(){
+  const list = document.getElementById('admin-sent-notifications');
+  if(!list) return;
+  try {
+    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(10).get();
+    if(snap.empty){ list.innerHTML = `<p style="color:var(--muted);">No notifications sent yet.</p>`; return; }
+    list.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      return `<div class="admin-post-item"><h4>${d.title}</h4><p>${d.body}</p><button class="admin-mini-btn" style="margin-top:8px; color:var(--red);" onclick="deleteAdminNotification('${doc.id}')">Delete</button></div>`;
+    }).join('');
+  } catch(e){
+    list.innerHTML = `<p style="color:var(--muted);">No notifications sent yet.</p>`;
+  }
+}
+
+async function deleteAdminNotification(id){
+  if(!confirm('Delete this notification? This cannot be undone.')) return;
+  await db.collection('notifications').doc(id).delete();
+  loadAdminSentNotifications();
+}
+
+let quizState = { questions:[], index:0, score:0, answers:[] };
+let selectedQuizTopic = 'all';
+
+function renderQuizTopics(){
+  const grid = document.getElementById('quiz-topic-grid');
+  const topics = [{id:'all', title:'All Topics'}, ...academyCourses.map(c=>({id:c.id, title:c.title}))];
+  grid.innerHTML = topics.map(t => `<button class="quiz-topic-btn ${t.id===selectedQuizTopic?'active':''}" onclick="selectQuizTopic('${t.id}')">${t.title}</button>`).join('');
+}
+function selectQuizTopic(id){ selectedQuizTopic = id; renderQuizTopics(); }
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+async function startQuiz(){
+  if(!isGoldOrAbove() && currentUser){
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const d = doc.exists ? doc.data() : {};
+    const now = new Date();
+    const weekStart = d.quizWeekStart ? (d.quizWeekStart.toDate ? d.quizWeekStart.toDate() : new Date(d.quizWeekStart)) : null;
+    const isNewWeek = !weekStart || (now - weekStart) > 7*24*60*60*1000;
+    const attemptsThisWeek = isNewWeek ? 0 : (d.quizAttemptsThisWeek || 0);
+    if(attemptsThisWeek >= 3){
+      if(confirm('Free plan is limited to 3 quiz attempts per week. Upgrade to Gold for unlimited quizzes — go to Billing now?')){ switchView('billing', null); }
+      return;
+    }
+    await db.collection('users').doc(currentUser.uid).set({
+      quizAttemptsThisWeek: attemptsThisWeek + 1,
+      quizWeekStart: isNewWeek ? firebase.firestore.Timestamp.fromDate(now) : (d.quizWeekStart || firebase.firestore.Timestamp.fromDate(now))
+    }, { merge:true });
+  }
+  const pool = selectedQuizTopic === 'all' ? quizBank : quizBank.filter(q=>q.courseId===selectedQuizTopic);
+  const shuffled = shuffleArray(pool);
+  const count = Math.min(10, shuffled.length);
+  quizState = { questions: shuffled.slice(0, count), index:0, score:0, answers:[] };
+  document.getElementById('quiz-start-screen').classList.add('hide');
+  document.getElementById('quiz-results-screen').classList.add('hide');
+  document.getElementById('quiz-active-screen').classList.remove('hide');
+  showQuizQuestion();
+}
+
+function showQuizQuestion(){
+  const q = quizState.questions[quizState.index];
+  document.getElementById('quiz-progress-text').innerText = `Question ${quizState.index+1} of ${quizState.questions.length}`;
+  document.getElementById('quiz-score-text').innerText = `Score: ${quizState.score}`;
+  document.getElementById('quiz-q-text').innerText = q.q;
+  document.getElementById('quiz-explain').style.display = 'none';
+  document.getElementById('quiz-next-btn').classList.add('hide');
+  document.getElementById('quiz-options').innerHTML = q.options.map((opt,i) =>
+    `<button class="quiz-opt" onclick="selectQuizAnswer(${i})">${opt}</button>`).join('');
+}
+
+function selectQuizAnswer(i){
+  const q = quizState.questions[quizState.index];
+  const buttons = document.querySelectorAll('.quiz-opt');
+  buttons.forEach((b,idx) => {
+    b.disabled = true;
+    if(idx === q.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('wrong');
+  });
+  const isCorrect = i === q.correct;
+  if(isCorrect) quizState.score++;
+  quizState.answers.push({ ...q, userAnswer:i, isCorrect });
+  document.getElementById('quiz-score-text').innerText = `Score: ${quizState.score}`;
+  const explain = document.getElementById('quiz-explain');
+  explain.innerText = q.explain;
+  explain.style.display = 'block';
+  document.getElementById('quiz-next-btn').classList.remove('hide');
+  document.getElementById('quiz-next-btn').innerText = quizState.index+1 >= quizState.questions.length ? 'See Results →' : 'Next Question →';
+}
+
+function nextQuizQuestion(){
+  quizState.index++;
+  if(quizState.index >= quizState.questions.length){ showQuizResults(); }
+  else { showQuizQuestion(); }
+}
+
+async function showQuizResults(){
+  document.getElementById('quiz-active-screen').classList.add('hide');
+  document.getElementById('quiz-results-screen').classList.remove('hide');
+  const total = quizState.questions.length;
+  const pct = Math.round((quizState.score/total)*100);
+  const passed = pct >= 80;
+  document.getElementById('quiz-score-ring').style.border = `4px solid ${passed?'var(--mint)':'var(--red)'}`;
+  document.getElementById('quiz-score-ring').style.borderRadius = '50%';
+  document.getElementById('quiz-score-ring').innerText = pct + '%';
+  document.getElementById('quiz-result-title').innerText = passed ? 'Passed! 🎉' : 'Keep Practicing';
+  document.getElementById('quiz-result-sub').innerText = `${quizState.score} of ${total} correct — 80% needed to pass.`;
+
+  const wrong = quizState.answers.filter(a=>!a.isCorrect);
+  const reviewList = document.getElementById('quiz-review-list');
+  if(wrong.length === 0){
+    reviewList.innerHTML = `<p style="color:var(--muted); text-align:center;">Perfect score — no weak spots this round.</p>`;
+  } else {
+    reviewList.innerHTML = `<h4 style="margin-bottom:12px; font-size:14px; color:var(--muted);">Review these topics:</h4>` + wrong.map(w => {
+      const course = academyCourses.find(c=>c.id===w.courseId);
+      return `<div class="quiz-review-item"><div class="qri-q">${w.q}</div><div class="qri-link" onclick="reviewFromQuiz('${w.courseId}','${w.lessonId}')">→ Review in ${course.title}</div></div>`;
+    }).join('');
+  }
+
+  if(currentUser){
+    try {
+      await db.collection('users').doc(currentUser.uid).collection('quizResults').add({
+        topic: selectedQuizTopic, score: quizState.score, total, pct, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch(e){}
+  }
+}
+
+function reviewFromQuiz(courseId, lessonId){
+  const el = document.querySelector(`.side-link[onclick*="'academy'"]`);
+  switchView('academy', el);
+  setTimeout(()=>{ openCourse(courseId); openLesson(courseId, lessonId); }, 50);
+}
+
+function backToQuizStart(){
+  document.getElementById('quiz-active-screen').classList.add('hide');
+  document.getElementById('quiz-results-screen').classList.add('hide');
+  document.getElementById('quiz-start-screen').classList.remove('hide');
+}
+
+let academyProgress = {};
+let currentAcademyCourse = null;
+
+function renderAcademyGrid(){
+  const grid = document.getElementById('acad-course-grid');
+  grid.innerHTML = academyCourses.map(c => {
+    const done = (academyProgress[c.id] || []).length;
+    const total = c.lessons.length;
+    const pct = Math.round((done/total)*100);
+    return `
+      <div class="acad-course-card" data-course-id="${c.id}" onclick="openCourse('${c.id}')">
+        <div class="acad-icon-lg" style="background:${c.color};">${c.icon}</div>
+        <h3>${c.title}</h3>
+        <p>${c.level} · ${total} Lessons</p>
+        <div class="acad-progress-row"><span>${done}/${total} complete</span><span>${pct}%</span></div>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%;"></div></div>
+      </div>`;
+  }).join('');
+  applyPlanGates();
+}
+
+function openCourse(courseId){
+  if(!isGoldOrAbove() && courseId !== 'risk-management'){
+    if(confirm('This course is part of Gold Membership. Go to Billing to upgrade?')){ switchView('billing', null); }
+    return;
+  }
+  currentAcademyCourse = courseId;
+  const course = academyCourses.find(c=>c.id===courseId);
+  const firstIncomplete = course.lessons.find(l => !(academyProgress[courseId]||[]).includes(l.id));
+  openLesson(courseId, firstIncomplete ? firstIncomplete.id : course.lessons[0].id);
+  document.getElementById('acad-grid-view').classList.add('hide');
+  document.getElementById('acad-lesson-view').classList.remove('hide');
+}
+
+function backToAcademyGrid(){
+  document.getElementById('acad-lesson-view').classList.add('hide');
+  document.getElementById('acad-grid-view').classList.remove('hide');
+  renderAcademyGrid();
+}
+
+function openLesson(courseId, lessonId){
+  currentAcademyCourse = courseId;
+  const course = academyCourses.find(c=>c.id===courseId);
+  const lesson = course.lessons.find(l=>l.id===lessonId);
+  const doneList = academyProgress[courseId] || [];
+  const isDone = doneList.includes(lessonId);
+
+  document.getElementById('lesson-content-box').innerHTML = `
+    <h3>${lesson.title}</h3>
+    <div class="lesson-meta">${course.title} · ${lesson.duration}</div>
+    <div class="lesson-body">${lesson.body}</div>
+    <button class="btn ${isDone?'btn-ghost':'btn-primary'}" style="margin-top:10px;" onclick="markLessonDone('${courseId}','${lessonId}')">${isDone?'✓ Completed':'Mark as Complete'}</button>
+  `;
+
+  document.getElementById('lesson-sidebar').innerHTML = course.lessons.map(l => {
+    const done = doneList.includes(l.id);
+    const active = l.id === lessonId;
+    return `<div class="lesson-item ${active?'active':''} ${done?'done':''}" onclick="openLesson('${courseId}','${l.id}')">
+      <span class="lesson-check">${done?'✓':''}</span> ${l.title}
+    </div>`;
+  }).join('');
+}
+
+async function markLessonDone(courseId, lessonId){
+  if(!academyProgress[courseId]) academyProgress[courseId] = [];
+  if(!academyProgress[courseId].includes(lessonId)){
+    academyProgress[courseId].push(lessonId);
+    if(currentUser){
+      await db.collection('users').doc(currentUser.uid).set({ academyProgress }, { merge: true });
+    } else {
+      safeStorage.setItem('tradelify_academy_progress', JSON.stringify(academyProgress));
+    }
+    setProgress(getProgress() + 3);
+  }
+  openLesson(courseId, lessonId);
+}
+
+async function loadAcademyProgress(){
+  if(currentUser){
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    academyProgress = (doc.exists && doc.data().academyProgress) || {};
+  } else {
+    academyProgress = JSON.parse(safeStorage.getItem('tradelify_academy_progress') || '{}');
+  }
+  renderAcademyGrid();
+}
+
+function getProgress(){ return parseInt(safeStorage.getItem('tradelify_progress') || '68'); }
+function setProgress(val){
+  val = Math.min(100, val);
+  safeStorage.setItem('tradelify_progress', val);
+  document.querySelectorAll('.progress-val-display').forEach(el => el.innerText = val + '%');
+  document.querySelectorAll('.progress-bar-fill').forEach(el => el.style.width = val + '%');
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).set({ progress: val }, { merge: true });
+  }
+}
+function continueLesson(){
+  setProgress(getProgress() + 4);
+  alert('Nice work! Progress updated to ' + getProgress() + '%.');
+}
+setProgress(getProgress());
+function enterDashboard(){
+  closeModal();
+  document.getElementById('site').classList.add('hide');
+  document.getElementById('dashboard').style.display = 'block';
+}
+function exitDashboard(){
+  auth.signOut();
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('site').classList.remove('hide');
+}
+
+function showAuthError(el, msg){
+  const box = document.getElementById(el);
+  box.innerText = msg;
+  box.style.display = 'block';
+}
+function hideAuthError(el){ document.getElementById(el).style.display = 'none'; }
+
+function friendlyAuthError(code){
+  const map = {
+    'auth/email-already-in-use': 'That email is already registered — try logging in instead.',
+    'auth/invalid-email': 'That email address looks invalid.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/too-many-requests': 'Too many attempts — try again in a few minutes.'
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+function handleSignup(){
+  hideAuthError('signup-error');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if(!name || !email || !password){ showAuthError('signup-error','Please fill in all fields.'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.innerText = 'Creating account...'; btn.disabled = true;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(cred => {
+      return cred.user.updateProfile({ displayName: name })
+        .then(() => cred.user.sendEmailVerification())
+        .then(() => db.collection('users').doc(cred.user.uid).set({
+          name, email, progress: 68, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }));
+    })
+    .then(()=>{ enterDashboard(); })
+    .catch(err => { showAuthError('signup-error', friendlyAuthError(err.code)); })
+    .finally(()=>{ btn.innerText = 'Create My Free Account'; btn.disabled = false; });
+}
+
+function handleLogin(){
+  hideAuthError('login-error');
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if(!email || !password){ showAuthError('login-error','Please enter your email and password.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.innerText = 'Logging in...'; btn.disabled = true;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(()=>{ enterDashboard(); })
+    .catch(err => { showAuthError('login-error', friendlyAuthError(err.code)); })
+    .finally(()=>{ btn.innerText = 'Log In'; btn.disabled = false; });
+}
+
+function resendVerification(){
+  if(auth.currentUser){
+    auth.currentUser.sendEmailVerification().then(()=> alert('Verification email sent.'));
+  }
+}
+
+// ---------- AUTH STATE + PER-USER DATA ----------
+auth.onAuthStateChanged(async (user)=>{
+  currentUser = user;
+  if(!user){ document.body.classList.add('app-ready'); return; }
+  enterDashboard();
+  document.getElementById('verify-banner').classList.toggle('hide', user.emailVerified);
+  const nameParts = (user.displayName || 'David A.').split(' ');
+  const initials = nameParts.map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  document.querySelectorAll('.su-name').forEach(el => el.innerText = user.displayName || 'Trader');
+
+  const userDoc = await db.collection('users').doc(user.uid).get();
+  let data = userDoc.exists ? userDoc.data() : { progress: 68 };
+  data = await checkPlanExpiry(user.uid, data);
+  window.currentUserPlan = data.plan || 'free';
+  if(data.themePreference){
+    document.body.classList.toggle('light-mode', data.themePreference === 'light');
+    safeStorage.setItem('tradelify_theme', data.themePreference);
+  }
+  renderAvatarEverywhere(data.photoURL || null, initials);
+  setProgress(data.progress || 68);
+  await loadUserTrades();
+  await loadUserDemoPositions();
+  checkAdminAccess(user);
+  updateNotifBadge();
+  applyPlanGates();
+
+  const savedView = location.hash ? location.hash.replace('#','') : 'overview';
+  const validViews = ['overview','charts','journal','academy','demo','coach','calc','quiz','admin','notifications','news','settings','products','analysis','brokers','billing','analytics','achievements','calendar'];
+  const targetView = validViews.includes(savedView) ? savedView : 'overview';
+  if(window.innerWidth <= 800){
+    mobileSwitchView(targetView);
+  } else {
+    const el = document.querySelector(`.side-link[onclick*="'${targetView}'"]`);
+    switchView(targetView, el);
+  }
+  document.body.classList.add('app-ready');
+});
+function switchView(view, el){
+  document.querySelectorAll('.dash-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.side-link').forEach(s=>s.classList.remove('active'));
+  if(el){ el.classList.add('active'); }
+  if(view === 'charts'){ loadTVWidget(); }
+  if(view === 'calc'){ runCalc(); }
+  if(view === 'academy'){ loadAcademyProgress(); }
+  if(view === 'quiz'){ renderQuizTopics(); backToQuizStart(); }
+  if(view === 'admin'){ loadAdminOverview(); }
+  if(view === 'notifications'){ loadNotifications(); }
+  if(view === 'news'){ loadMarketNews(); }
+  if(view === 'settings'){ loadSettingsPage(); }
+  if(view === 'billing'){ loadBillingPage(); }
+  if(view === 'demo'){ checkDemoTradingGate(); }
+  if(view === 'analytics'){ loadPerformanceAnalytics(); }
+  if(view === 'achievements'){ loadAchievements(); }
+  if(view === 'calendar'){ initCalendarView(); }
+  if(history.pushState){ history.replaceState(null, '', '#'+view); }
+}
+
+// ---------- MOBILE NAV ----------
+function mobileSwitchView(view){
+  document.querySelectorAll('.m-navitem').forEach(n=>n.classList.remove('active'));
+  const navMap = {overview:0, academy:1, charts:2, journal:3, more:4};
+  if(navMap[view] !== undefined){
+    document.querySelectorAll('.m-navitem')[navMap[view]].classList.add('active');
+  }
+  const mBody = document.querySelector('#mobile-dash .m-body');
+  const dashLayout = document.querySelector('.dash-layout');
+  if(view === 'overview'){
+    mBody.style.display = 'block';
+    dashLayout.style.display = 'none';
+  } else if(view === 'more'){
+    alert('More menu: Market News, Community, Achievements, Settings — most are now in the ☰ menu above.');
+  } else {
+    mBody.style.display = 'none';
+    dashLayout.style.display = 'grid';
+    switchView(view, null);
+  }
+}
+// ---------- TRADINGVIEW CHART (real live widget) ----------
+let tvScriptLoaded = false;
+function loadTVWidget(){
+  const symbol = document.getElementById('chart-symbol-select').value;
+  const container = document.getElementById('tv_chart_main');
+  container.innerHTML = '';
+  function render(){
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": symbol,
+      "interval": "60",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#11161F",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "hide_top_toolbar": false,
+      "container_id": "tv_chart_main"
+    });
+  }
+  if(tvScriptLoaded){ render(); return; }
+  const script = document.createElement('script');
+  script.src = "https://s3.tradingview.com/tv.js";
+  script.onload = function(){ tvScriptLoaded = true; render(); };
+  document.body.appendChild(script);
+}
+function changeChartSymbol(){ loadTVWidget(); }
+
+// ---------- RISK CALCULATOR (fully functional, dashboard only) ----------
+function runCalc(){
+  const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
+  const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
+  const sl = parseFloat(document.getElementById('calc-sl').value) || 0;
+  const pipValuePerLot = parseFloat(document.getElementById('calc-pair').value);
+
+  document.getElementById('risk-pct-label').innerText = riskPct + '%';
+
+  const riskAmount = balance * (riskPct/100);
+  const lotSize = sl > 0 ? (riskAmount / (sl * pipValuePerLot * 10)) : 0;
+
+  document.getElementById('out-lot').innerText = lotSize.toFixed(2);
+  document.getElementById('out-risk').innerText = '$' + riskAmount.toFixed(2);
+  document.getElementById('rr1').innerText = '$' + riskAmount.toFixed(0);
+  document.getElementById('rr2').innerText = '$' + (riskAmount*2).toFixed(0);
+  document.getElementById('rr3').innerText = '$' + (riskAmount*3).toFixed(0);
+}
+</script>
+
+</body>
+</html>
