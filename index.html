@@ -2080,3 +2080,697 @@ function handleSearchInput(query, resultsId){
     course.lessons.forEach(lesson => {
       if(lesson.title.toLowerCase().includes(q) || course.title.toLowerCase().includes(q)){
         matches.push({ courseId: course.id, courseTitle: course.title, lessonId: lesson.id, lessonTitle: lesson.title });
+      }
+    });
+  });
+  if(matches.length === 0){
+    dropdown.innerHTML = `<div class="search-result-item" style="color:var(--muted);">No lessons found for "${query}"</div>`;
+  } else {
+    dropdown.innerHTML = matches.slice(0,8).map(m =>
+      `<div class="search-result-item" onclick="goToSearchResult('${m.courseId}','${m.lessonId}','${resultsId}')">${m.lessonTitle}<div class="sr-course">${m.courseTitle}</div></div>`
+    ).join('');
+  }
+  dropdown.classList.remove('hide');
+}
+
+function goToSearchResult(courseId, lessonId, resultsId){
+  document.getElementById(resultsId).classList.add('hide');
+  const el = document.querySelector(`.side-link[onclick*="'academy'"]`);
+  if(window.innerWidth <= 800){ mobileSwitchView('academy'); }
+  else { switchView('academy', el); }
+  setTimeout(()=>{ openCourse(courseId); openLesson(courseId, lessonId); }, 60);
+}
+
+function switchModal(type){
+  document.getElementById('modal-login').classList.toggle('hide', type!=='login');
+  document.getElementById('modal-signup').classList.toggle('hide', type!=='signup');
+}
+
+// ---------- DRAWER MENU ----------
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function drawerGo(view){
+  closeDrawer();
+  if(window.innerWidth <= 800){
+    mobileSwitchView(view);
+  } else {
+    const el = document.querySelector(`.side-link[onclick*="'${view}'"]`);
+    switchView(view, el);
+  }
+}
+
+// ---------- AI COACH CHAT (keyword-based, no exact-match bug) ----------
+const coachIntents = [
+  { keys:['hi','hello','hey','good morning','good afternoon','good evening'],
+    responses:[`Hey David! 👋 I'm here to help — ask me about a losing trade, risk management, or upload a chart screenshot and I'll break it down.`] },
+  { keys:['lose','lost','loss','losing','why did i lose'],
+    responses:[`Let me walk through what typically causes losses like this...<ul><li>Entering before confirmation</li><li>Trading against the higher timeframe trend</li><li>No clear support/resistance nearby</li><li>Risking too much on one idea</li></ul><b>Better approach:</b><ul><li>Wait for confirmation</li><li>Enter on a pullback, not the breakout</li><li>Risk 1–1.5% per trade</li></ul>Want to upload a screenshot of the actual trade? I can point to specifics.`] },
+  { keys:['risk','rr','reward','position size','lot size'],
+    responses:[`For risk-to-reward: aim for at least 1:2 on every setup. Set your stop where the trade idea is actually invalidated — not an arbitrary pip count — then size your position backward from that. The Risk Calculator on this platform does this math for you instantly.`] },
+  { keys:['support','resistance','level','key level'],
+    responses:[`Support is where buyers have historically stepped in and stopped a decline. Resistance is the opposite — where sellers have capped a rally. The strongest levels are ones price has reacted to more than once, and ones that align with a round number or prior high/low.`] },
+  { keys:['psychology','emotion','revenge','fear','greed','discipline'],
+    responses:[`Revenge trading almost always follows a loss you haven't fully accepted yet. A simple rule that works: after any loss, no new trade for at least 30 minutes, and never increase size to "win it back." Your Discipline Streak on the dashboard is designed to make this visible — protect it like a real number, because it is one.`] },
+  { keys:['journal','log','track'],
+    responses:[`Logging every trade — even the ones you're embarrassed by — is what turns random results into a pattern you can actually fix. Head to Trading Journal and log your last 5 trades; I'll be able to point out patterns once there's real data to work with.`] },
+  { keys:['course','learn','academy','lesson'],
+    responses:[`Based on where most traders plateau, I'd suggest starting with Risk Management if you haven't finished it, then Trading Psychology — technical skill rarely is the reason accounts blow up.`] }
+];
+const fallbackResponses = [
+  `Good question. Once this is connected to your real journal and account data, I'll give you a precise answer based on your actual trading history. For now — try asking about a specific loss, risk sizing, or upload a chart screenshot.`,
+  `I want to give you a real answer here, not a generic one — try rephrasing with a bit more detail, or upload a chart screenshot and I'll analyze what's on it.`,
+  `That's outside what I can answer precisely in this demo version yet. Try one of the quick questions below, or ask about risk, psychology, or a specific trade.`
+];
+let fallbackIndex = 0;
+
+function matchCoachIntent(text){
+  const lower = text.toLowerCase();
+  for(const intent of coachIntents){
+    if(intent.keys.some(k => new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'i').test(lower))){
+      return intent.responses[Math.floor(Math.random()*intent.responses.length)];
+    }
+  }
+  return null;
+}
+
+function coachAsk(q){ document.getElementById('coach-input').value = q; coachSend(); }
+
+function appendCoachMsg(html, cls){
+  const msgs = document.getElementById('coach-msgs');
+  msgs.innerHTML += `<div class="msg ${cls}">${html}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function coachSend(){
+  const input = document.getElementById('coach-input');
+  const text = input.value.trim();
+  if(!text) return;
+  appendCoachMsg(text, 'msg-user');
+  input.value = '';
+  const typingId = 'typing-' + Date.now();
+  appendCoachMsg(`<div class="typing-dots" id="${typingId}"><span></span><span></span><span></span></div>`, 'msg-bot');
+  const msgs = document.getElementById('coach-msgs');
+
+  setTimeout(()=>{
+    let reply = matchCoachIntent(text);
+    if(!reply){
+      reply = fallbackResponses[fallbackIndex % fallbackResponses.length];
+      fallbackIndex++;
+    }
+    document.getElementById(typingId).parentElement.innerHTML = reply;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+}
+
+function coachFileUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    appendCoachMsg(`<img src="${e.target.result}" style="max-width:100%; border-radius:8px; display:block; margin-bottom:6px;"><span style="font-size:12px; color:rgba(255,255,255,0.7);">Chart uploaded</span>`, 'msg-user');
+    const typingId = 'typing-' + Date.now();
+    appendCoachMsg(`<div class="typing-dots" id="${typingId}"><span></span><span></span><span></span></div>`, 'msg-bot');
+    const msgs = document.getElementById('coach-msgs');
+    setTimeout(()=>{
+      document.getElementById(typingId).parentElement.innerHTML = `Chart received! Real chart-reading vision analysis needs the AI backend connected (next build phase) — once that's wired in, I'll identify structure, key levels, and patterns directly from what you upload. For now, tell me what you're seeing and I'll help you think through it.`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1000);
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+// ---------- DEMO TRADING ----------
+let demoPositions = JSON.parse(safeStorage.getItem('tradelify_demo_positions') || JSON.stringify([
+  {symbol:'EUR/USD', dir:'buy', lots:0.10, entry:1.0850, current:1.0932, profit:82.00}
+]));
+let ordDir = 'buy';
+function renderDemoPositions(){
+  const wrap = document.getElementById('demo-positions');
+  if(demoPositions.length === 0){
+    wrap.innerHTML = `<div class="pos-row" style="justify-content:center; color:var(--muted);">No open positions. Place a new order to get started.</div>`;
+    return;
+  }
+  wrap.innerHTML = demoPositions.map((p,i) => `
+    <div class="pos-row">
+      <div><span class="pos-sym">${p.symbol}</span><span class="pos-dir ${p.dir==='buy'?'pos-buy':'pos-sell'}">${p.dir.toUpperCase()} ${p.lots}</span></div>
+      <div class="mono" style="font-size:13px;">${p.entry}</div>
+      <div class="mono" style="color:${p.profit>=0?'var(--mint)':'var(--red)'};">${p.profit>=0?'+':''}$${p.profit.toFixed(2)}</div>
+      <button class="pos-close-btn" onclick="closePosition(${i})">Close</button>
+    </div>`).join('');
+}
+function switchDemoTab(tab, el){
+  document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const wrap = document.getElementById('demo-positions');
+  if(tab === 'open'){ renderDemoPositions(); }
+  else { wrap.innerHTML = `<div class="pos-row" style="justify-content:center; color:var(--muted);">No ${tab} orders yet.</div>`; }
+}
+function openOrderForm(){ document.getElementById('order-form-wrap').classList.remove('hide'); }
+function closeOrderForm(){ document.getElementById('order-form-wrap').classList.add('hide'); }
+function setOrdDir(dir){
+  ordDir = dir;
+  document.getElementById('ord-buy-btn').classList.toggle('buy-active', dir==='buy');
+  document.getElementById('ord-sell-btn').classList.toggle('sell-active', dir==='sell');
+}
+function placeOrder(){
+  const symbol = document.getElementById('ord-symbol').value;
+  const lots = parseFloat(document.getElementById('ord-lots').value) || 0.1;
+  const entry = (Math.random()*0.5 + 1.05).toFixed(4);
+  const newPos = {symbol, dir:ordDir, lots, entry:parseFloat(entry), current:parseFloat(entry), profit:0};
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).collection('demoPositions').add({
+      ...newPos, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=> loadUserDemoPositions());
+  } else {
+    demoPositions.unshift(newPos);
+    safeStorage.setItem('tradelify_demo_positions', JSON.stringify(demoPositions));
+    renderDemoPositions();
+  }
+  closeOrderForm();
+}
+function closePosition(i){
+  const pos = demoPositions[i];
+  if(currentUser && pos.id){
+    db.collection('users').doc(currentUser.uid).collection('demoPositions').doc(pos.id).delete()
+      .then(()=> loadUserDemoPositions());
+  } else {
+    demoPositions.splice(i,1);
+    safeStorage.setItem('tradelify_demo_positions', JSON.stringify(demoPositions));
+    renderDemoPositions();
+  }
+}
+renderDemoPositions();
+
+// ---------- USER JOURNAL (Firestore, per-account) ----------
+async function loadUserTrades(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('trades').orderBy('createdAt','desc').get();
+  const body = document.getElementById('dj-body');
+  if(snap.empty){
+    body.innerHTML = `<tr class="empty-row"><td colspan="5">No trades logged yet. Log your first trade above.</td></tr>`;
+    document.getElementById('dj-total').innerText = 0;
+    document.getElementById('dj-winrate').innerText = '—';
+    document.getElementById('dj-pnl').innerText = '$0';
+    return;
+  }
+  let wins = 0, pnl = 0, rows = '';
+  snap.forEach(doc => {
+    const t = doc.data();
+    if(t.result >= 0) wins++;
+    pnl += t.result;
+    rows += `<tr><td>${t.pair}</td><td>${t.dir}</td><td class="mono">${t.entry}</td><td class="mono">${t.exit}</td><td><span class="tag ${t.result>=0?'tag-win':'tag-loss'}">${t.result>=0?'+':''}$${t.result}</span></td></tr>`;
+  });
+  body.innerHTML = rows;
+  document.getElementById('dj-total').innerText = snap.size;
+  document.getElementById('dj-winrate').innerText = Math.round((wins/snap.size)*100) + '%';
+  document.getElementById('dj-pnl').innerText = (pnl>=0?'$':'-$') + Math.abs(pnl).toFixed(0);
+}
+
+async function addUserTrade(){
+  if(!currentUser){ alert('Please log in first.'); return; }
+  if(!isGoldOrAbove()){
+    const countSnap = await db.collection('users').doc(currentUser.uid).collection('trades').get();
+    if(countSnap.size >= 15){
+      if(confirm('Free plan is limited to 15 journal entries. Upgrade to Gold for unlimited trades — go to Billing now?')){ switchView('billing', null); }
+      return;
+    }
+  }
+  const pair = document.getElementById('dj-pair').value.trim();
+  const dir = document.getElementById('dj-dir').value;
+  const entry = document.getElementById('dj-entry').value;
+  const exit = document.getElementById('dj-exit').value;
+  const result = document.getElementById('dj-result').value;
+  if(!pair || !entry || !exit || result===''){ alert('Fill in all fields to log a trade.'); return; }
+  await db.collection('users').doc(currentUser.uid).collection('trades').add({
+    pair, dir, entry: parseFloat(entry), exit: parseFloat(exit), result: parseFloat(result),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('dj-pair').value='';
+  document.getElementById('dj-entry').value='';
+  document.getElementById('dj-exit').value='';
+  document.getElementById('dj-result').value='';
+  loadUserTrades();
+}
+
+// ---------- USER DEMO POSITIONS (Firestore, per-account) ----------
+async function loadUserDemoPositions(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('demoPositions').orderBy('createdAt','desc').get();
+  demoPositions = [];
+  snap.forEach(doc => demoPositions.push({ id: doc.id, ...doc.data() }));
+  if(demoPositions.length === 0){
+    demoPositions.push({symbol:'EUR/USD', dir:'buy', lots:0.10, entry:1.0850, current:1.0932, profit:82.00});
+  }
+  renderDemoPositions();
+}
+// ---------- ACADEMY ----------
+const diagramRR = `<div class="lesson-diagram">
+  <div class="rr-formula">R:R = <span class="num">Take Profit (pips)</span> ÷ <span class="num">Stop Loss (pips)</span></div>
+  <div class="rr-bars-row">
+    <div class="rr-col"><div class="rr-bar-reward" style="height:30%;">20 pips</div><div class="rr-bar-risk" style="height:30%;">20 pips</div></div>
+    <div class="rr-col"><div class="rr-bar-reward" style="height:55%;">40 pips</div><div class="rr-bar-risk" style="height:27%;">20 pips</div></div>
+    <div class="rr-col"><div class="rr-bar-reward" style="height:80%;">60 pips</div><div class="rr-bar-risk" style="height:27%;">20 pips</div></div>
+  </div>
+  <div class="rr-bars-row" style="height:auto; margin-bottom:0;">
+    <div class="rr-col"><div class="rr-label">R:R = 1:1</div></div>
+    <div class="rr-col"><div class="rr-label">R:R = 1:2</div></div>
+    <div class="rr-col"><div class="rr-label">R:R = 1:3</div></div>
+  </div>
+  <div class="diagram-caption">Aim for 1:2 or 1:3 — a 1:1 ratio demands a very high win rate just to stay profitable</div>
+</div>`;
+const diagramPosSize = `<div class="lesson-diagram"><svg viewBox="0 0 400 120" width="100%"><rect x="20" y="20" width="360" height="26" fill="#161C28" stroke="#232B3A"/><text x="200" y="38" fill="#EDEFF3" font-size="12" text-anchor="middle" font-family="monospace">Account × Risk% = Risk Amount ($)</text><rect x="20" y="60" width="360" height="26" fill="#161C28" stroke="#232B3A"/><text x="200" y="78" fill="#3DD68C" font-size="12" text-anchor="middle" font-family="monospace">Risk Amount ÷ (Stop Distance × Pip Value) = Lot Size</text></svg><div class="diagram-caption">The two formulas behind every position size you'll ever calculate</div></div>`;
+const diagramLotTable = `<div class="lesson-diagram">
+  <table class="diagram-table">
+    <thead><tr><th>Account</th><th>Risk Amount</th><th>Lot Size</th></tr></thead>
+    <tbody>
+      <tr><td>$500</td><td>$5.00</td><td>0.05</td></tr>
+      <tr><td>$1,000</td><td>$10.00</td><td>0.10</td></tr>
+      <tr><td>$5,000</td><td>$50.00</td><td>0.50</td></tr>
+      <tr><td>$10,000</td><td>$100.00</td><td>1.00</td></tr>
+    </tbody>
+  </table>
+  <div class="diagram-caption">Example only — assumes 1% risk and a 20-pip stop-loss on EUR/USD. Your real numbers depend on your own stop distance.</div>
+</div>`;
+const diagramSR = `<div class="lesson-diagram"><svg viewBox="0 0 400 140" width="100%"><line x1="20" y1="30" x2="380" y2="30" stroke="#F0556B" stroke-width="1.5" stroke-dasharray="4"/><text x="30" y="24" fill="#F0556B" font-size="10">RESISTANCE</text><polyline points="20,100 60,70 100,90 140,50 180,75 220,32 260,60 300,40 340,65 380,45" fill="none" stroke="#EDEFF3" stroke-width="2"/><line x1="20" y1="105" x2="380" y2="105" stroke="#3DD68C" stroke-width="1.5" stroke-dasharray="4"/><text x="30" y="120" fill="#3DD68C" font-size="10">SUPPORT</text></svg><div class="diagram-caption">Price repeatedly reacting to the same zones — that's what makes them significant</div></div>`;
+const diagramPip = `<div class="lesson-diagram"><svg viewBox="0 0 400 90" width="100%"><text x="200" y="40" fill="#EDEFF3" font-size="26" text-anchor="middle" font-family="monospace">1.08<tspan fill="#3DD68C">50</tspan></text><text x="200" y="65" fill="#8892A6" font-size="11" text-anchor="middle">The highlighted digits are the "pip" — the standard unit of price movement</text></svg></div>`;
+
+const academyCourses = [
+  {
+    id:'risk-management', title:'Risk Management', level:'Beginner', icon:'⚖️', color:'rgba(61,214,140,.12)',
+    lessons:[
+      { id:'rm1', title:'Why Risk Comes Before Strategy', duration:'12 min',
+        body:`<h4>The Question Nobody Asks First</h4><p>Almost every new trader's first question is "what strategy should I use?" That question feels natural, but it's the wrong starting point. The right first question is: "how much am I willing to lose, and how do I control that?"</p><p>Here's why the order matters so much. Trading is not a game where being right most of the time guarantees success. It's entirely possible to win 7 out of 10 trades and still lose money overall, if the 3 losses are large enough. It's equally possible to win only 3 out of 10 trades and still be highly profitable, if those 3 wins are large relative to the 7 losses. The strategy determines your win rate. Risk management determines whether your account survives long enough for that win rate to matter.</p><h4>The Casino Comparison</h4><p>Casinos don't win because they're right about the outcome of any single spin of the roulette wheel — they don't know what number will come up any more than you know which way a currency pair will move next. Casinos win because of two things working together: a slight mathematical edge, and strict, unemotional consistency in how much is risked on every single spin. No casino ever bets its entire treasury on one hand of blackjack, no matter how confident the pit boss feels. Trading professionally means adopting the same mindset — the edge matters, but the consistency of risk is what actually protects the business over thousands of trades.</p><h4>What "Blowing an Account" Actually Looks Like</h4><p>Accounts rarely get destroyed by one catastrophic trade out of nowhere. They get destroyed by a slow, then sudden, spiral: a trader risks slightly more than they should, takes a loss, feels the urge to "make it back," increases size on the next trade to recover faster, loses again, panics, and abandons all size discipline entirely on a final, oversized trade. Every step in that spiral was avoidable with one single rule enforced from the very first trade: a fixed, small percentage of the account risked per trade, with no exceptions regardless of how confident the setup looks.</p><div class="lesson-tip"><b>Key takeaway:</b> Your job as a trader is not to be right. It's to make sure that being wrong, when it inevitably happens, costs you as little as possible.</div>`},
+      { id:'rm2', title:'Position Sizing: The 1–2% Rule', duration:'14 min',
+        body:`<h4>The Rule Itself</h4><p>Risk no more than 1–2% of your total trading account on any single trade. That's it — deceptively simple, and almost universally under-followed by beginners. Let's walk through exactly why this specific range, and exactly how to calculate it.</p><h4>The Math Behind Why It Works</h4><p>If you risk 2% per trade and lose ten trades in a row (a losing streak that, while uncomfortable, is statistically normal even for skilled traders), your account is down roughly 18-20%, accounting for compounding losses on a shrinking balance. Painful, but fully recoverable with a normal, disciplined approach. Now compare that to risking 10% per trade: the same ten-trade losing streak wipes out roughly 65% of the account. At 20% per trade, ten losses in a row doesn't just hurt — it functionally ends the account. The relationship between risk-per-trade and how survivable a losing streak is isn't linear; it's brutal at the high end.</p>${diagramPosSize}<h4>How to Actually Calculate It</h4><p>The formula has two steps:</p><ul><li><b>Step 1:</b> Account Balance × Risk Percentage = Risk Amount in dollars. Example: a $1,000 account risking 1% = $10 of risk on this trade.</li><li><b>Step 2:</b> Take that dollar risk amount and divide it by your stop-loss distance (converted into the pip value for your position size) to get the correct lot size.</li></ul><p>This is exactly what the Risk Calculator tool in this platform automates for you — enter your balance, risk percentage, and stop-loss distance in pips, and it instantly returns the correct position size. You should never have to do this math by hand under time pressure while a trade setup is forming.</p><h4>A Common Misunderstanding</h4><p>Many beginners think position sizing means "trade small." That's not quite right. It means trade a size where your predetermined dollar risk stays constant, regardless of how far away your stop-loss needs to be. A trade with a tight, 10-pip stop can actually use a larger lot size than a trade with a wide, 50-pip stop — because both are sized to risk the same dollar amount.</p><div class="lesson-warning"><b>Common mistake:</b> Choosing a lot size first based on "what feels right," then figuring out where to place the stop-loss afterward. This is backwards — always determine your stop-loss location from the chart first, then size your position to match your fixed risk.</div>`},
+      { id:'rm3', title:'Stop-Loss Placement That Actually Makes Sense', duration:'11 min',
+        body:`<h4>A Stop-Loss Is a Statement, Not Just a Safety Net</h4><p>New traders often think of a stop-loss purely as insurance — "the maximum I'm willing to lose." That's true, but incomplete. A well-placed stop-loss is also a statement about your trade idea: it marks the exact price at which the reason you entered the trade is no longer valid. If price reaches your stop, it doesn't just mean you lost money — it means your analysis was wrong, and the market has told you so clearly.</p><h4>Structure-Based vs. Arbitrary Stops</h4><p>An arbitrary stop is one placed at a fixed distance — "always 20 pips" — regardless of what the chart actually shows. This sounds disciplined, but it isn't, because the market doesn't know or care about your fixed number. A structure-based stop is placed just beyond a real technical level: below a support zone for a buy, above a resistance zone for a sell, or beyond the high/low of the pattern that formed your setup.</p><p>Structure-based stops get hit less often by ordinary market noise, because they're positioned where a genuine reversal of your trade idea would actually need to happen. Arbitrary stops get clipped constantly by random short-term volatility that has nothing to do with whether your original idea was right.</p><h4>Giving the Trade Room to Breathe</h4><p>A stop placed too tightly, even if technically "structure-based," can still get triggered by normal price fluctuation before the real move happens. A useful habit: once you've identified your structural stop level, add a small buffer beyond it — enough to account for a brief wick or spike, without moving so far that your risk-to-reward ratio breaks down.</p><div class="lesson-tip"><b>Key takeaway:</b> Ask yourself before every trade — "at what exact price would I admit this idea was wrong?" That price is your stop-loss. If you can't answer that question clearly, you don't have a real trade idea yet.</div>`},
+      { id:'rm4', title:'Reward-to-Risk Ratio Explained', duration:'10 min',
+        body:`<h4>Why Win Rate Alone Is Misleading</h4><p>It's tempting to judge a strategy purely by how often it wins. But a strategy's real profitability depends on the relationship between how much you make on winners and how much you lose on losers — the reward-to-risk ratio (often written as R:R or just "R").</p>${diagramRR}<h4>The Math That Changes Everything</h4><p>With a 1:1 reward-to-risk ratio, you need to win more than 50% of your trades just to break even after costs. With a 1:2 ratio, you only need to win above roughly 34% of trades to be profitable. With a 1:3 ratio, that drops to just above 25%. This is why professional traders obsess over reward-to-risk far more than win rate — a strategy that wins only 40% of the time can still be extremely profitable if winners are consistently 2-3 times larger than losers.</p><h4>How to Improve Your Reward-to-Risk in Practice</h4><ul><li>Set take-profit targets at genuine structural levels (the next resistance zone, for example) rather than an arbitrary fixed pip count</li><li>Consider trailing your stop-loss once a trade moves firmly in your favor, locking in partial profit while letting the rest run</li><li>Avoid closing winning trades early out of fear — this is one of the most common ways traders quietly sabotage a good reward-to-risk ratio without realizing it</li></ul><div class="lesson-warning"><b>Common mistake:</b> Taking trades with a 1:1 or worse reward-to-risk ratio "because the setup looks really strong." No setup is certain enough to justify consistently poor reward-to-risk math — the market doesn't grade on how confident you felt.</div>`},
+      { id:'rm5', title:'Daily, Weekly and Monthly Loss Limits', duration:'9 min',
+        body:`<h4>The Rule That Prevents the Worst Days</h4><p>Beyond sizing individual trades correctly, professional traders set hard limits on total losses over a day, a week, and a month. When a limit is hit, trading stops completely for that period — no exceptions, no "just one more trade to fix it."</p><h4>Suggested Starting Points</h4><ul><li><b>Daily loss limit:</b> 3–5% of account balance</li><li><b>Weekly loss limit:</b> 6–10% of account balance</li><li><b>Monthly loss limit:</b> 10–15% of account balance</li></ul><p>These aren't universal laws — adjust them to your own risk tolerance and strategy's typical volatility — but the principle is non-negotiable: a predetermined stopping point, decided in advance while calm, protects you from decisions made in the middle of an emotional spiral.</p><h4>Why This Single Rule Matters So Much</h4><p>The account-destroying spiral described in Lesson 1 — one loss leading to oversized revenge trades — is almost always a daily-limit failure. A trader who is down 4% for the day and stops, by rule, protects the other 96%. A trader with no limit who is down 4% often keeps going, chasing the loss, and the day frequently ends far worse. This single habit, more than any specific strategy, is what separates traders who survive their first year from those who don't.</p><div class="lesson-tip"><b>Key takeaway:</b> Decide your loss limits today, while you're calm and rational — not in the middle of a losing streak when you're not.</div>`}
+    ]
+  },
+  {
+    id:'psychology', title:'Trading Psychology', level:'Beginner', icon:'🧠', color:'rgba(240,85,107,.12)',
+    lessons:[
+      { id:'ps1', title:'The Emotional Cycle of a Trade', duration:'10 min',
+        body:`<h4>A Cycle Every Trader Experiences</h4><p>Regardless of experience level, most trades move through a recognizable emotional arc: optimism and confidence at entry, rising anxiety as price moves against the position, a surge of relief or euphoria on a win, and denial, frustration, or anger on a loss. Beginners often think experienced traders don't feel this — they do. The difference is that experienced traders recognize which stage they're in, in real time, and don't let that stage dictate their next decision.</p><h4>Why Awareness Alone Changes Behavior</h4><p>Simply naming the emotion you're feeling — "I'm anxious because this trade is down" — creates a small but critical gap between the feeling and the action. Without that awareness, anxiety often translates directly into impulsively closing a trade early, moving a stop-loss further away "to give it room," or opening a second, unplanned trade to "hedge" the feeling. With awareness, that same anxiety can be observed and set aside while you stick to the plan you made before emotion entered the picture.</p><h4>A Practical Exercise</h4><p>After every trade, write one sentence describing what you felt at entry, during the trade, and at close. Over a few weeks, patterns emerge — you might notice you consistently feel euphoric after wins and take an oversized trade immediately afterward, or that you consistently feel anxious on Fridays and make worse decisions that day. These patterns are invisible until they're written down.</p><div class="lesson-tip"><b>Key takeaway:</b> You cannot eliminate trading emotions, and trying to is a losing battle. The goal is recognition, not suppression.</div>`},
+      { id:'ps2', title:'Revenge Trading: Why It Happens and How to Stop It', duration:'12 min',
+        body:`<h4>What Revenge Trading Actually Is</h4><p>Revenge trading is the attempt to immediately "win back" a loss, usually by increasing position size or abandoning your normal entry criteria on the very next trade. It feels, in the moment, like a rational attempt to recover what's rightfully yours. It is not rational — it's an emotional escape response to the discomfort of loss, dressed up as a trading decision.</p><h4>The Psychology Behind It</h4><p>Losses trigger a genuine stress response. The brain, seeking to end that discomfort quickly, looks for the fastest available action that promises relief — and "take another trade right now" is almost always more immediately available than "wait, reflect, and follow the plan." This is why revenge trades so often ignore stop-loss discipline, position sizing rules, and even the original strategy's entry criteria entirely: the goal in that moment isn't a good trade, it's ending the uncomfortable feeling as fast as possible.</p><h4>The Fix Is a Rule, Not Willpower</h4><p>Trying to "just be more disciplined" in the heat of the moment rarely works, because the urge is emotional, not logical — you can't out-argue a stress response with logic while you're inside it. What works instead is a pre-committed rule, decided while calm: no new trade for a fixed period (commonly 30 minutes to several hours, or the rest of the trading day) after any loss, no exceptions. This removes the decision entirely from the emotional moment.</p><h4>A Second Layer of Protection</h4><p>Before entering any trade, write down your reason in one sentence. If, after a loss, you catch yourself unable to write a reason beyond "I need to win it back" or "I know it'll go my way this time," that alone is proof the trade shouldn't be taken. This simple written-reason habit catches revenge trades that a loss-limit rule alone might miss.</p><div class="lesson-warning"><b>Common mistake:</b> Believing revenge trading only happens to undisciplined traders. It happens to every trader who hasn't built a specific rule against it — discipline in calm moments doesn't automatically transfer to discipline in emotionally charged ones.</div>`},
+      { id:'ps3', title:'Fear and Greed: The Two Forces Behind Bad Decisions', duration:'9 min',
+        body:`<h4>Fear's Common Disguises</h4><p>Fear rarely announces itself directly. It shows up as closing a winning trade far too early "just to lock something in," hesitating on a valid setup because the last two trades lost, or widening a stop-loss mid-trade because you can't bear to be stopped out. Each of these feels like caution in the moment, but each one actually breaks the trading plan you built while calm and rational.</p><h4>Greed's Common Disguises</h4><p>Greed shows up as increasing position size after a winning streak "because you're clearly in the zone," holding a winning trade well past your planned target hoping for more, or entering a trade late, after a big move has already happened, out of fear of missing out. Greed and fear often alternate within the same trading session — greed on the way up, fear on the way down.</p><h4>The Common Thread</h4><p>Both fear and greed pull a trader away from their predetermined plan in response to a recent emotional trigger — a loss, a win, a big move seen on the chart. The antidote to both is the same: a written plan made in advance, and a firm rule that once a trade is live, only the plan's original exit conditions are honored, regardless of what emotion shows up in the meantime.</p><div class="lesson-tip"><b>Key takeaway:</b> If you find yourself justifying a deviation from your plan mid-trade, that justification is very often fear or greed wearing the costume of "adapting to new information."</div>`},
+      { id:'ps4', title:'Building a Real Discipline Streak', duration:'8 min',
+        body:`<h4>Why Discipline Needs to Be Measured</h4><p>Discipline is easy to claim and hard to verify — which is exactly why it quietly erodes over time without anyone noticing, including the trader themselves. Tracking a visible, countable streak of "days without breaking a rule" turns an abstract intention into a concrete number worth protecting, the same way a savings balance is worth protecting.</p><h4>What Counts as "Breaking the Streak"</h4><p>Define this precisely, in advance: exceeding your risk-per-trade limit, skipping your stop-loss, revenge trading after a loss, or trading outside your planned session hours are all reasonable streak-breakers. Losing a well-planned trade that followed every rule is not a streak-breaker — losses are a normal, expected part of trading; rule violations are the actual problem.</p><h4>Why This Works Psychologically</h4><p>Loss aversion — the tendency to feel the pain of losing something more strongly than the pleasure of gaining the equivalent — is a well-documented bias. A visible discipline streak harnesses that same bias productively: once a trader has protected a 14-day streak, breaking it on day 15 starts to feel like losing something real, which makes the disciplined choice easier in the moment it matters most. This is exactly why the Discipline Streak counter exists on your dashboard.</p>`}
+    ]
+  },
+  {
+    id:'price-action', title:'Price Action Fundamentals', level:'Intermediate', icon:'📊', color:'rgba(124,108,240,.14)',
+    lessons:[
+      { id:'pa1', title:'Support and Resistance: The Foundation of Everything', duration:'13 min',
+        body:`<h4>What These Levels Actually Represent</h4><p>Support is a price zone where buying pressure has historically been strong enough to overcome selling pressure and stop a decline. Resistance is the mirror image — a zone where selling pressure has overcome buying pressure and capped a rally. These aren't magic lines; they represent real decisions made by real market participants at that price, repeated enough times to become predictable.</p>${diagramSR}<h4>Why Some Levels Matter More Than Others</h4><p>Not all support and resistance zones carry equal weight. A level tested and respected multiple times carries more significance than one touched only once. A level that aligns with a round psychological number (like 1.1000 in a currency pair) often carries extra weight, because many market participants place orders around round numbers. A level on a higher timeframe (daily or weekly chart) generally matters more than the same price level noticed only on a 5-minute chart.</p><h4>The Flip Principle: Old Resistance Becomes New Support</h4><p>One of the most reliable patterns in price action: when resistance finally breaks decisively, it frequently becomes support on any subsequent retest — because the same price level that once attracted heavy selling now attracts buyers who missed the original breakout, plus previous sellers looking to exit their now-losing short positions. The reverse is equally true when support breaks.</p><h4>How to Actually Draw These Zones</h4><p>Resist the urge to draw a single, perfectly thin line. Real support and resistance are zones, not exact prices — mark the area where price has reacted, generally spanning from the wicks to the bodies of the candles that touched that level. A zone that's too narrow will constantly appear "broken" by normal noise; a zone that's too wide becomes useless for decision-making.</p><div class="lesson-tip"><b>Key takeaway:</b> Before drawing a single indicator on your chart, master support and resistance. Most successful price action strategies are built almost entirely on this one concept, applied well.</div>`},
+      { id:'pa2', title:'Reading Candlestick Structure', duration:'12 min',
+        body:`<h4>What Each Part of a Candle Tells You</h4><p>A candlestick's body represents the range between the opening and closing price for that period. The wicks (also called shadows) above and below the body show the highest and lowest prices reached during that period, which were then rejected — price traveled there but didn't stay. A long wick, especially at a key support or resistance level, often signals a strong rejection: buyers or sellers stepping in forcefully enough to push price back the other way before the period closed.</p><h4>Reading Candles in Groups, Not Isolation</h4><p>A single candle rarely tells a complete story. A long-wicked rejection candle at resistance means far more when it's the third consecutive attempt to break that level and fail, compared to the first attempt. Context — what happened in the 5-10 candles before the one you're analyzing — is often more informative than the shape of any individual candle.</p><h4>Body-to-Wick Ratio as a Momentum Signal</h4><p>A candle with a large body and small wicks suggests strong, decisive momentum in one direction for that period — buyers or sellers were firmly in control throughout. A candle with a small body and long wicks on both sides suggests indecision — a tug-of-war where neither side maintained control by the close. Recognizing this distinction helps identify whether a trend is likely continuing with conviction or beginning to stall.</p><h4>Volume as Confirmation</h4><p>Where available, volume data adds crucial context to candle reading. A strong-bodied breakout candle accompanied by unusually high volume is far more credible than the same-looking candle on unusually low volume — the latter is more likely to be a temporary spike that reverses quickly.</p><div class="lesson-warning"><b>Common mistake:</b> Treating every long wick as automatically meaningful. Long wicks are common in low-liquidity periods purely from normal noise — always weigh a wick's significance against where it occurred (a key level or open air) and what preceded it.</div>`},
+      { id:'pa3', title:'Breakouts vs. Fakeouts', duration:'11 min',
+        body:`<h4>Anatomy of a Genuine Breakout</h4><p>A credible breakout typically shows several supporting signs together: a candle that closes convincingly beyond the level (not just a wick poking through), noticeably increased volume compared to the recent average, and often a brief pause or small retest of the broken level that holds, before the move continues. When multiple signs align, the probability of a genuine, sustained move increases meaningfully.</p><h4>Anatomy of a Fakeout</h4><p>A fakeout (also called a false breakout or bull/bear trap) typically shows the opposite pattern: price wicks through the level but closes back inside it, volume on the "breakout" candle is unremarkable or even below average, and price reverses sharply shortly after, often trapping traders who entered aggressively on the initial move.</p><h4>The Retest Strategy</h4><p>One of the most effective ways to filter out fakeouts without missing genuine breakouts entirely: instead of entering the instant price crosses the level, wait for price to break the level, then pull back to retest it. If the level holds on the retest (old resistance now acting as support, for example), that's a stronger confirmation signal than the initial break alone — at the cost of sometimes entering at a slightly less favorable price, or occasionally missing a breakout that never retests at all.</p><h4>Why Fakeouts Happen So Often at Obvious Levels</h4><p>The most visually obvious support and resistance levels — the ones every trader can see on a chart — are also the levels where large market participants are most likely to intentionally trigger stop-losses and breakout entries before reversing price, precisely because so many orders cluster there. This is a real, well-documented market dynamic, not a conspiracy theory — it's simply where the liquidity is.</p><div class="lesson-tip"><b>Key takeaway:</b> The more "obvious" and widely-watched a level looks, the more skepticism a first breakout attempt deserves.</div>`},
+      { id:'pa4', title:'Trend Structure: Higher Highs and Higher Lows', duration:'10 min',
+        body:`<h4>The Simplest Definition of a Trend</h4><p>An uptrend, in its purest form, is a sequence of higher highs and higher lows — each peak exceeding the last peak, and each pullback finding a floor higher than the previous pullback's floor. A downtrend is the mirror image: lower highs and lower lows. This simple structural definition is more reliable than most indicator-based trend definitions, because it's based directly on what price is actually doing.</p><h4>Identifying a Trend Change Early</h4><p>The first meaningful sign a trend may be weakening is often a failure to make a new higher high (in an uptrend) followed by a break below the most recent higher low. This doesn't guarantee a full reversal — it could be a deeper pullback within a still-intact trend — but it's the first structural warning worth paying attention to, well before most lagging indicators would signal anything.</p><h4>Trading With the Trend vs. Against It</h4><p>Trading in the direction of the higher-timeframe trend generally offers a statistical advantage — you have the larger flow of market participants moving in your favor. Counter-trend trades can work, but typically require tighter risk management and stronger confirmation, since you're betting against the dominant flow.</p>${diagramSR}<h4>Putting It Together: A Simple Framework</h4><p>Combine everything from this course: identify the higher-timeframe trend using structure (higher highs/lows or lower highs/lows), mark the key support and resistance zones on that trend, wait for price to reach one of those zones, then look for candlestick confirmation of a reaction before entering — with your stop placed beyond the level using the placement principles from the Risk Management course, and your position sized using the 1-2% rule.</p>`}
+    ]
+  },
+  {
+    id:'pips-lots', title:'Pips, Lots & Position Sizing', level:'Beginner', icon:'🔢', color:'rgba(245,166,35,.12)',
+    lessons:[
+      { id:'pl1', title:'What a Pip Actually Is', duration:'8 min',
+        body:`<h4>The Basic Unit of Price Movement</h4><p>A pip (percentage in point) is the standard unit used to measure price movement in most currency pairs. For most pairs, a pip is the fourth decimal place — for example, if EUR/USD moves from 1.0850 to 1.0851, that's a one-pip move. Pairs involving the Japanese yen are the main exception, where a pip is the second decimal place instead.</p>${diagramPip}<h4>Pips vs. Pipettes</h4><p>Many modern brokers quote prices to a fifth decimal place (or third, for yen pairs) — this smaller unit is called a pipette, equal to one-tenth of a pip. You'll see prices like 1.08505, where the final "5" is a pipette. This extra precision matters for tight spreads but the pip remains the standard unit traders communicate in.</p><h4>Why Pips Matter for Risk Management</h4><p>Every stop-loss and take-profit distance is measured in pips, which directly feeds into your position-size calculation. Understanding pips isn't academic — it's the literal unit your risk calculator uses to translate "how far away is my stop" into "how large should my position be."</p>`},
+      { id:'pl2', title:'Understanding Lot Sizes', duration:'10 min',
+        body:`<h4>The Three Standard Lot Sizes</h4><ul><li><b>Standard lot:</b> 100,000 units of the base currency. One pip movement ≈ $10 for most USD-quoted pairs.</li><li><b>Mini lot:</b> 10,000 units. One pip movement ≈ $1.</li><li><b>Micro lot:</b> 1,000 units. One pip movement ≈ $0.10.</li></ul><p>Most retail brokers also allow fractional lot sizes (like 0.35 lots), which is what actually makes precise risk-based position sizing possible — you're rarely restricted to whole lot increments.</p>${diagramLotTable}<h4>Why Lot Size Should Never Be a Guess</h4><p>Beginners often pick a lot size based on a round, comfortable-feeling number — "I'll just do 0.10 lots" — regardless of the trade setup. This disconnects position size entirely from actual risk. The same 0.10 lots might risk $10 on a tight 10-pip stop and $50 on a wider 50-pip stop — a five-fold difference in real risk, from a trader who believed they were being consistent.</p><h4>The Correct Process</h4><p>Always work backward: determine your stop-loss location from chart structure first, calculate your fixed dollar risk from your account balance and risk percentage second, and only then calculate the lot size that makes those two numbers match. This is the exact calculation your platform's Risk Calculator performs automatically.</p><div class="lesson-tip"><b>Key takeaway:</b> Lot size is an output of your risk management process, never an input you choose first.</div>`},
+      { id:'pl3', title:'Leverage and Margin, Explained Simply', duration:'11 min',
+        body:`<h4>What Leverage Actually Does</h4><p>Leverage allows you to control a larger position than your account balance alone would permit, by borrowing the difference from your broker. 100:1 leverage means $1,000 of your own capital can control a $100,000 position. Leverage doesn't change your risk-per-trade if you're sizing correctly using the methods from this course — but it dramatically amplifies the consequences of ignoring position sizing altogether.</p><h4>Margin: The Collateral for That Borrowing</h4><p>Margin is the amount of your own capital set aside by the broker as collateral for a leveraged position. If a losing trade causes your account equity to fall below the required margin level, you'll receive a margin call, or in extreme cases, the position gets automatically closed (a "stop out") to protect the broker from further loss.</p><h4>The Real Danger Isn't Leverage Itself</h4><p>High leverage is often blamed for blown accounts, but the actual cause is almost always oversized positioning relative to account balance — something leverage merely makes possible, not something it forces. A trader using proper 1-2% risk sizing on every trade will rarely encounter margin problems, regardless of how much leverage their broker offers, because their position sizes are already conservative relative to account equity.</p><div class="lesson-warning"><b>Common mistake:</b> Using maximum available leverage "because it's offered," without adjusting position size down to compensate. Available leverage is a ceiling, not a target.</div>`}
+    ]
+  },
+  {
+    id:'market-analysis', title:'How to Analyze the Market', level:'Intermediate', icon:'🔍', color:'rgba(91,108,240,.14)',
+    lessons:[
+      { id:'ma1', title:'Top-Down Analysis: Start Broad, Then Narrow', duration:'11 min',
+        body:`<h4>Why Timeframe Order Matters</h4><p>Top-down analysis means examining the highest relevant timeframe first (weekly or daily), establishing the broader trend and major support/resistance zones, then progressively moving to lower timeframes (4-hour, 1-hour) to refine entry timing — never the reverse. Starting on a 5-minute chart without this context is like trying to navigate a city using only a photo of the sidewalk directly in front of you.</p><h4>A Practical Top-Down Routine</h4><ul><li><b>Weekly/Daily:</b> What's the dominant trend? Where are the major support/resistance zones?</li><li><b>4-Hour:</b> Is price approaching one of those major zones? What's the shorter-term structure doing?</li><li><b>1-Hour or lower:</b> Once at a zone of interest, look for a precise entry trigger — a candlestick pattern, a break of minor structure — that aligns with everything observed on the higher timeframes.</li></ul><h4>Avoiding Timeframe Conflict</h4><p>The most common analytical mistake is taking a trade that looks compelling on a low timeframe while directly conflicting with the higher-timeframe trend. These trades can work occasionally, but they're fighting the larger flow of the market and generally carry a lower probability than trades aligned across multiple timeframes.</p>`},
+      { id:'ma2', title:'Fundamental vs. Technical Analysis', duration:'10 min',
+        body:`<h4>Two Different Lenses on the Same Market</h4><p>Technical analysis studies price charts and patterns to infer likely future price behavior, based on the idea that historical price action tends to repeat due to consistent human and institutional behavior. Fundamental analysis studies the underlying economic, political, and financial factors driving an asset's value — interest rates, employment data, central bank policy, geopolitical events.</p><h4>Why Most Traders Lean Technical for Timing, Fundamental for Direction</h4><p>Fundamentals tend to establish the broader, longer-term directional bias — for example, a currency whose central bank is raising interest rates often strengthens over months against currencies where rates are falling, because higher rates attract foreign capital seeking better returns. Technical analysis is generally better suited to timing entries and exits precisely within that broader fundamental backdrop, since fundamentals rarely tell you the exact price or moment to enter.</p><h4>The Economic Calendar</h4><p>High-impact scheduled events — interest rate decisions, employment reports (like Non-Farm Payrolls), inflation data (CPI) — can cause sudden, sharp volatility that overwhelms normal technical levels for minutes to hours. Checking an economic calendar before trading, and either avoiding new positions shortly before major releases or being prepared for increased volatility, is a basic risk-management habit that complements everything in the Risk Management course.</p><div class="lesson-tip"><b>Key takeaway:</b> You don't have to choose one approach exclusively — most professional traders use fundamentals for broad context and technicals for precise execution.</div>`},
+      { id:'ma3', title:'Market Sentiment and Context', duration:'9 min',
+        body:`<h4>What "Sentiment" Means in Practice</h4><p>Market sentiment refers to the overall attitude of participants toward an asset or the market broadly — risk-on (optimistic, favoring higher-risk assets) versus risk-off (cautious, favoring safer assets). Sentiment shifts can cause multiple, seemingly unrelated markets to move together, because the same underlying mood is driving capital flows across asset classes simultaneously.</p><h4>Reading Session Context</h4><p>Currency markets are most active during the overlap of major trading sessions — particularly the London/New York overlap — when liquidity and volatility both tend to be highest. Trades taken during low-liquidity periods (like the late Asian session for most currency pairs) can behave differently, with wider spreads and less reliable technical reactions.</p><h4>Combining Sentiment With Technical Levels</h4><p>Sentiment alone rarely provides precise entry signals, but it adds valuable context: a technical setup aligned with the broader risk-on/risk-off mood of the day generally carries more conviction than the identical setup fighting against that mood.</p>`}
+    ]
+  },
+  {
+    id:'trading-goals', title:'Trading Goals & Business Planning', level:'Beginner', icon:'🎯', color:'rgba(217,204,78,.14)',
+    lessons:[
+      { id:'tg1', title:'Treating Trading Like a Business, Not a Hustle', duration:'9 min',
+        body:`<h4>The Mindset Shift That Changes Everything</h4><p>Every viable business has a business plan, tracks expenses and income, and measures performance against specific goals over realistic timeframes. Trading approached as "I'll just watch charts and figure it out" almost never survives contact with a real losing streak — because there's no plan to fall back on when emotions run high. Trading approached as a business — with a written plan, tracked metrics, and realistic goals — has something concrete to return to.</p><h4>What a Simple Trading Business Plan Includes</h4><ul><li>Starting capital and what percentage of it you can genuinely afford to risk over the coming year</li><li>Your specific strategy or strategies, written down in enough detail that someone else could follow the same rules</li><li>Risk management rules (from the Risk Management course) written explicitly, not just "in your head"</li><li>Realistic performance goals, reviewed monthly</li></ul><div class="lesson-tip"><b>Key takeaway:</b> If you wouldn't invest in a business with no written plan, don't invest your capital in trading without one either.</div>`},
+      { id:'tg2', title:'Setting Realistic Goals', duration:'10 min',
+        body:`<h4>Why "Double My Account This Month" Goals Backfire</h4><p>Unrealistic short-term profit goals almost always lead to oversized risk-taking, because the only way to hit an unrealistic target quickly is to abandon proper position sizing. A goal of doubling an account in a month implicitly demands the kind of risk that also risks losing the entire account in the same timeframe.</p><h4>Process Goals vs. Outcome Goals</h4><p>An outcome goal specifies a result — "make $500 this month." A process goal specifies a behavior — "follow my stop-loss rule on every trade this month" or "log every trade in my journal within an hour of closing it." Process goals are fully within your control; outcome goals depend partly on market conditions outside your control. Professional traders generally weight process goals more heavily, on the reasoning that consistent good process reliably produces good outcomes over time, while chasing outcomes directly often corrupts the process that would have produced them.</p><h4>A Reasonable Long-Term Benchmark</h4><p>Consistently profitable retail traders often target annual returns in a much more modest range than beginners initially expect — commonly cited professional benchmarks fall somewhere between 15-40% annually for skilled discretionary trading, though this varies widely by strategy and market conditions. Compare this to a beginner's common first goal of doubling an account in weeks, and the mismatch in realistic expectations becomes clear.</p>`},
+      { id:'tg3', title:'Tracking Progress the Right Way', duration:'8 min',
+        body:`<h4>Metrics That Actually Matter</h4><p>Total profit and loss is the metric most beginners track — and the least useful one on its own, because it doesn't reveal why results happened. More diagnostic metrics include: win rate, average reward-to-risk ratio, largest winning and losing streak, and performance broken down by session, day of week, and setup type. This is exactly the kind of breakdown your Trading Journal is built to surface automatically once enough trades are logged.</p><h4>Reviewing on a Schedule, Not Just After Big Losses</h4><p>Reviewing performance only after a painful loss leads to emotionally-charged, reactive changes to a strategy that might otherwise be working fine over a larger sample size. A weekly or monthly scheduled review, done regardless of how the period went, produces calmer, more useful adjustments based on actual patterns rather than the most recent emotional event.</p><div class="lesson-tip"><b>Key takeaway:</b> A single losing trade tells you almost nothing reliable about your strategy. Thirty logged trades, reviewed together, tell you a great deal.</div>`}
+    ]
+  },
+  {
+    id:'forex-basics', title:'Forex Trading Fundamentals', level:'Beginner', icon:'💱', color:'rgba(61,214,140,.12)',
+    lessons:[
+      { id:'fx1', title:'How the Forex Market Actually Works', duration:'11 min',
+        body:`<h4>A Market With No Central Exchange</h4><p>Unlike stocks, which trade on centralized exchanges like the NYSE, currencies trade over-the-counter (OTC) — directly between a global network of banks, brokers, and other participants, with no single physical location. This is what allows forex to trade nearly 24 hours a day across different global sessions, rather than only during one exchange's fixed hours.</p><h4>Currency Pairs: Always Relative</h4><p>Every forex trade involves buying one currency while simultaneously selling another — currencies are always quoted and traded in pairs, like EUR/USD or GBP/JPY. When you "buy EUR/USD," you're buying euros and selling US dollars in the same transaction, betting the euro will strengthen relative to the dollar.</p><h4>Major, Minor, and Exotic Pairs</h4><ul><li><b>Majors:</b> Pairs involving the US dollar and another major economy's currency (EUR/USD, GBP/USD, USD/JPY) — highest liquidity, tightest spreads</li><li><b>Minors:</b> Pairs between major currencies excluding the US dollar (EUR/GBP, AUD/JPY)</li><li><b>Exotics:</b> Pairs involving one major currency and one from a smaller or emerging economy — generally wider spreads and lower liquidity</li></ul><h4>The Three Major Trading Sessions</h4><p>Asian (Tokyo), London, and New York sessions each have distinct volatility characteristics. The London/New York overlap typically sees the highest volume and volatility for most major pairs, making it a commonly favored window for active trading.</p>`},
+      { id:'fx2', title:'Reading a Forex Quote', duration:'8 min',
+        body:`<h4>Base and Quote Currency</h4><p>In EUR/USD, EUR is the base currency and USD is the quote currency. The price shown (e.g. 1.0850) tells you how many US dollars are needed to buy one euro. If that number rises, the euro is strengthening against the dollar; if it falls, the euro is weakening.</p><h4>Bid, Ask, and the Spread</h4><p>Every quote actually shows two prices: the bid (the price you can sell at) and the ask (the price you can buy at). The difference between them is the spread — effectively the cost of entering a trade, and one of the ways brokers earn revenue. Tighter spreads generally mean lower trading costs, which matters more the shorter your typical holding period.</p><h4>Why Spread Matters for Strategy Choice</h4><p>A strategy that aims for very small, frequent profits (scalping) is far more sensitive to spread cost than a strategy holding trades for days, because the spread represents a larger proportion of the smaller target profit. Understanding your typical spread cost relative to your typical target is a basic but often-overlooked part of strategy selection.</p>`},
+      { id:'fx3', title:'What Moves Currency Prices', duration:'10 min',
+        body:`<h4>Interest Rate Differentials</h4><p>Central bank interest rates are one of the most significant long-term drivers of currency value. Higher rates tend to attract foreign investment seeking better returns, increasing demand for that currency. This is why central bank meetings and rate decisions are among the highest-impact scheduled events on any economic calendar.</p><h4>Economic Data Releases</h4><p>Employment figures, inflation data (CPI), GDP growth, and retail sales all provide signals about an economy's health, which influences both current sentiment and expectations about future central bank policy. Data that surprises significantly relative to market expectations tends to cause the sharpest immediate price reactions.</p><h4>Geopolitical Events and Risk Sentiment</h4><p>Elections, trade negotiations, conflicts, and other geopolitical developments can shift broad risk sentiment quickly, often benefiting traditional "safe haven" currencies (like the US dollar, Japanese yen, or Swiss franc) at the expense of higher-risk currencies during periods of uncertainty.</p><div class="lesson-tip"><b>Key takeaway:</b> No single factor moves currencies in isolation — the strongest moves typically happen when multiple factors (rate expectations, data surprises, sentiment) align in the same direction simultaneously.</div>`}
+    ]
+  },
+  {
+    id:'crypto-basics', title:'Cryptocurrency Trading Basics', level:'Beginner', icon:'₿', color:'rgba(245,166,35,.14)',
+    lessons:[
+      { id:'cr1', title:'What Makes Crypto Markets Different', duration:'10 min',
+        body:`<h4>24/7 Trading, No Session Breaks</h4><p>Unlike forex, which has distinct sessions, cryptocurrency markets trade continuously, every day of the year, since there's no centralized exchange with fixed hours and no single governing time zone. This means significant moves can happen at any hour, including weekends — a structural difference that affects how risk management (particularly overnight and weekend exposure) should be approached.</p><h4>Volatility Is Structurally Higher</h4><p>Cryptocurrency prices commonly move 5-10% or more in a single day during active periods — far beyond what's typical for major forex pairs. This higher volatility means the position-sizing principles from the Risk Management course matter even more, not less: the same fixed-dollar-risk approach still applies, but stop-loss distances (measured in percentage terms) are often naturally wider to accommodate normal crypto volatility.</p><h4>Fewer Established Historical Patterns</h4><p>Compared to forex or major stock indices, which have decades of historical price data, many cryptocurrencies have a much shorter trading history, and their behavior has changed significantly as the market has matured. Technical analysis principles still apply, but should be held with somewhat more humility given the shorter track record.</p><div class="lesson-warning"><b>Common mistake:</b> Applying forex-typical stop-loss distances (in pips or fixed percentages) directly to crypto without adjusting for its structurally higher volatility, resulting in stops that get hit by completely normal price noise.</div>`},
+      { id:'cr2', title:'Spot Trading vs. Leveraged Trading in Crypto', duration:'9 min',
+        body:`<h4>Spot Trading: Owning the Asset</h4><p>Spot trading means directly buying and holding the actual cryptocurrency. Your maximum loss on a spot position is limited to the amount invested — the asset's price could theoretically fall to zero, but you cannot lose more than what you put in, and there's no margin call risk.</p><h4>Leveraged/Derivative Trading: Amplified Exposure</h4><p>Futures and other leveraged crypto products allow controlling a larger position than your capital alone would permit — similar to forex leverage. Given crypto's already-high baseline volatility, leverage compounds risk especially quickly; a leveraged position that would be moderate risk in a lower-volatility market can become extremely high risk in crypto's typical price swings.</p><h4>Which Approach Fits Beginners</h4><p>Most educators recommend beginners start with spot trading (or very conservative, low leverage if using derivatives) specifically because crypto's baseline volatility already provides ample opportunity and risk without adding leverage on top. Building consistent risk management habits, from the Risk Management course, in a lower-leverage environment first, tends to transfer better than starting directly with high leverage in an already-volatile asset class.</p>`},
+      { id:'cr3', title:'Key Risks Specific to Crypto', duration:'11 min',
+        body:`<h4>Exchange and Custody Risk</h4><p>Unlike a regulated forex broker holding client funds under strict regulatory requirements, cryptocurrency exchanges vary enormously in regulation, security practices, and financial soundness. Funds held on an exchange are exposed to that exchange's operational and security risk — a risk category that has caused significant losses for traders in past exchange failures.</p><h4>Extreme Volatility and Liquidity Gaps</h4><p>Beyond normal day-to-day volatility, cryptocurrency markets have experienced sudden, severe liquidity gaps during periods of extreme stress — moments where the price can gap significantly between trades, making stop-losses execute at prices considerably worse than intended. This "slippage" risk is generally more pronounced in crypto than in major forex pairs.</p><h4>Narrative and Sentiment-Driven Moves</h4><p>Cryptocurrency prices can be heavily influenced by social media sentiment, influencer commentary, and rapidly shifting narratives in ways that are less pronounced in traditional forex markets. This adds an additional layer of unpredictability worth factoring into position sizing and stop-loss placement.</p><div class="lesson-tip"><b>Key takeaway:</b> Every principle from the Risk Management and Trading Psychology courses applies to crypto — arguably more urgently, given the higher volatility and additional risk categories unique to this asset class.</div>`}
+    ]
+  }
+];
+
+// ---------- QUIZ ----------
+const quizBank = [
+  { courseId:'risk-management', lessonId:'rm1', q:"You've found a setup you're 95% confident in. How much of your account should you risk on it?", options:["As much as possible since you're confident","Still just 1-2%, same as any other trade","10%, since high confidence justifies more","50%, to make the trade worth taking"], correct:1, explain:"Confidence doesn't change risk sizing. Even great setups fail sometimes, and consistent sizing is what protects you when they do." },
+  { courseId:'risk-management', lessonId:'rm2', q:"Your $1,000 account has a 1% risk rule. How much can you risk on this trade?", options:["$100","$50","$10","$1"], correct:2, explain:"$1,000 × 1% = $10. This is the dollar amount your position size should be calculated backward from." },
+  { courseId:'risk-management', lessonId:'rm3', q:"Where should a structure-based stop-loss be placed?", options:["Always exactly 20 pips away", "Wherever feels emotionally comfortable", "Just beyond the level that would invalidate your trade idea", "As close as possible to minimize any loss"], correct:2, explain:"A stop-loss should mark the exact point where your original reason for entering the trade is no longer true." },
+  { courseId:'risk-management', lessonId:'rm4', q:"Which reward-to-risk ratio requires the lowest win rate to stay profitable?", options:["1:1","1:2","1:3","They all require the same win rate"], correct:2, explain:"A 1:3 ratio only needs you to win above roughly 25% of trades to be profitable — far less than 1:1's 50%+ requirement." },
+  { courseId:'risk-management', lessonId:'rm5', q:"You've hit your daily loss limit. What should you do?", options:["Take one more trade to try to recover it", "Stop trading for the day, no exceptions", "Double your next position size to catch up faster", "Switch to a different currency pair and keep going"], correct:1, explain:"The entire point of a loss limit is that it's enforced without exception — that's what prevents the revenge-trading spiral." },
+  { courseId:'psychology', lessonId:'ps1', q:"What's the most useful first step when you notice you're feeling anxious mid-trade?", options:["Immediately close the trade","Simply name the emotion you're feeling","Increase your position size to feel in control","Ignore it completely"], correct:1, explain:"Naming the emotion creates a gap between feeling it and acting on it impulsively — that gap is where discipline lives." },
+  { courseId:'psychology', lessonId:'ps2', q:"What's the recommended rule to prevent revenge trading?", options:["Trade smaller for the rest of the day","No new trade for a fixed period after any loss","Switch strategies immediately after a loss","Only revenge trade if very confident"], correct:1, explain:"A pre-committed time-based rule removes the decision from the emotionally charged moment, when willpower alone often fails." },
+  { courseId:'psychology', lessonId:'ps3', q:"Which of these is an example of fear affecting a trade, not greed?", options:["Holding a winner far past your target hoping for more","Closing a winning trade far too early", "Increasing size after a winning streak", "Entering late after a big move out of FOMO"], correct:1, explain:"Closing a winner too early out of anxiety is a classic fear response — cutting a good outcome short to escape discomfort." },
+  { courseId:'psychology', lessonId:'ps4', q:"What counts as 'breaking a discipline streak'?", options:["Taking a well-planned trade that still loses","Exceeding your risk-per-trade limit","Any trade that doesn't hit its take-profit","Trading on a Friday"], correct:1, explain:"Losses are a normal part of trading. Rule violations — like exceeding risk limits — are what actually break a discipline streak." },
+  { courseId:'price-action', lessonId:'pa1', q:"What makes a support or resistance level more significant?", options:["It was drawn with a thicker line","It's been tested and respected multiple times","It's a randomly chosen round number","It appears only on a 1-minute chart"], correct:1, explain:"Levels tested and respected repeatedly carry more real significance than one touched only once." },
+  { courseId:'price-action', lessonId:'pa2', q:"A candle with a long wick and small body at a key resistance level most likely signals:", options:["Guaranteed trend continuation","A strong rejection at that level","Low market volatility","Nothing meaningful"], correct:1, explain:"Long wicks at key levels often show a forceful rejection — price traveled there but buyers or sellers pushed it back." },
+  { courseId:'price-action', lessonId:'pa3', q:"What's a strong sign a breakout might be a fakeout?", options:["High volume on the breakout candle","A close convincingly beyond the level","A wick through the level that closes back inside it","A retest that holds the new level"], correct:2, explain:"A fakeout typically wicks through a level without a real close beyond it, then reverses — trapping traders who entered early." },
+  { courseId:'price-action', lessonId:'pa4', q:"In an uptrend, what's the first structural warning sign of weakening momentum?", options:["Price consolidates for one day","A failure to make a new higher high, followed by a break of the last higher low","Volume increases","The candles turn green"], correct:1, explain:"This structural failure is often the earliest warning of a potential trend change, ahead of most lagging indicators." },
+  { courseId:'pips-lots', lessonId:'pl1', q:"For EUR/USD, if price moves from 1.0850 to 1.0851, how many pips did it move?", options:["10 pips","1 pip","100 pips","0.1 pips"], correct:1, explain:"For most pairs, a pip is the fourth decimal place — a move from 1.0850 to 1.0851 is exactly one pip." },
+  { courseId:'pips-lots', lessonId:'pl2', q:"What should determine your lot size?", options:["A comfortable round number like 0.10","Your fixed dollar risk divided by your stop-loss distance","However much your broker suggests","The size that would make the most profit if you're right"], correct:1, explain:"Lot size is always calculated backward from your fixed dollar risk and your stop distance — never chosen first." },
+  { courseId:'pips-lots', lessonId:'pl3', q:"What is the actual danger that high leverage makes possible?", options:["Leverage directly causes losses on its own","Oversized positioning relative to account balance","Leverage guarantees margin calls","Leverage changes the direction of price"], correct:1, explain:"Leverage itself doesn't cause losses — it simply makes oversized positioning possible if a trader ignores proper position sizing." },
+  { courseId:'market-analysis', lessonId:'ma1', q:"In top-down analysis, which order should you examine timeframes?", options:["Lowest timeframe first, then zoom out","Highest timeframe first, then narrow down","It doesn't matter which order","Only ever use one single timeframe"], correct:1, explain:"Starting broad (weekly/daily) establishes context before narrowing to lower timeframes for precise entry timing." },
+  { courseId:'market-analysis', lessonId:'ma2', q:"What does fundamental analysis primarily help determine?", options:["The exact minute to enter a trade","The broader, longer-term directional bias","Candlestick patterns","Pip values"], correct:1, explain:"Fundamentals like interest rates and economic data tend to drive longer-term direction; technicals are typically better for precise timing." },
+  { courseId:'market-analysis', lessonId:'ma3', q:"When is liquidity and volatility typically highest in forex?", options:["The late Asian session","The London/New York session overlap","Weekends","It's constant throughout the day"], correct:1, explain:"The London/New York overlap typically sees the highest volume and volatility for most major currency pairs." },
+  { courseId:'trading-goals', lessonId:'tg1', q:"What should a basic trading business plan include?", options:["Only a profit target","Written risk rules, strategy, and realistic goals","Nothing — trading should stay flexible","A guess at how much you'll make this year"], correct:1, explain:"A real trading business plan documents risk rules and strategy explicitly, not just a vague profit wish." },
+  { courseId:'trading-goals', lessonId:'tg2', q:"Which is a 'process goal' rather than an 'outcome goal'?", options:["Make $500 this month","Double my account by June","Follow my stop-loss rule on every trade this month","Win 90% of my trades"], correct:2, explain:"Process goals describe a controllable behavior, unlike outcome goals which depend partly on market conditions outside your control." },
+  { courseId:'trading-goals', lessonId:'tg3', q:"Why review trading performance on a fixed schedule instead of only after big losses?", options:["It takes less time","Scheduled reviews avoid emotionally reactive changes to a strategy","It's required by brokers","It guarantees better results immediately"], correct:1, explain:"Reviewing only after a painful loss leads to emotionally-charged changes; scheduled reviews produce calmer, more useful adjustments." },
+  { courseId:'forex-basics', lessonId:'fx1', q:"What does it mean that forex trades 'over-the-counter' (OTC)?", options:["It only trades one hour a day","There's no single centralized exchange", "It's illegal in most countries", "Only banks are allowed to trade it"], correct:1, explain:"Forex trades directly between a global network of participants rather than through one centralized exchange like a stock market." },
+  { courseId:'forex-basics', lessonId:'fx2', q:"In EUR/USD, which is the base currency?", options:["USD","EUR","Neither — both are quote currencies","It depends on the broker"], correct:1, explain:"In EUR/USD, EUR is the base currency — the price tells you how many USD are needed to buy one EUR." },
+  { courseId:'forex-basics', lessonId:'fx3', q:"What tends to happen to a currency when its central bank raises interest rates?", options:["It typically weakens","It typically strengthens, as higher rates attract foreign capital","It has no effect at all","It only affects stock markets"], correct:1, explain:"Higher interest rates tend to attract foreign investment seeking better returns, increasing demand for that currency." },
+  { courseId:'crypto-basics', lessonId:'cr1', q:"Why does crypto often require wider stop-losses than typical forex pairs?", options:["Crypto exchanges require it by law","Crypto's baseline volatility is structurally higher","Wider stops are always better in any market","It doesn't — the same stop distances apply everywhere"], correct:1, explain:"Crypto's naturally higher volatility means stops need to be wider to avoid getting hit by completely normal price noise." },
+  { courseId:'crypto-basics', lessonId:'cr2', q:"What's the maximum loss possible on a spot (non-leveraged) crypto position?", options:["Unlimited","The amount you invested","Double your investment","There is no risk in spot trading"], correct:1, explain:"Spot trading means you own the asset directly — your maximum loss is limited to what you invested, with no margin call risk." },
+  { courseId:'crypto-basics', lessonId:'cr3', q:"What risk is more specific to crypto than to major forex pairs?", options:["Interest rate risk","Exchange and custody risk","Pip value risk","Leverage doesn't exist in crypto"], correct:1, explain:"Unlike regulated forex brokers, crypto exchanges vary enormously in regulation and security — exposing traders to real custody risk." }
+];
+
+// ---------- ADMIN PANEL ----------
+// ---------- MARKET NEWS (user-facing view of admin's posts) ----------
+async function loadMarketNews(){
+  const list = document.getElementById('news-list');
+  try {
+    const snap = await db.collection('marketAnalysis').orderBy('createdAt','desc').limit(20).get();
+    if(snap.empty){
+      list.innerHTML = `<p style="color:var(--muted);">No market analysis posted yet — check back soon.</p>`;
+    } else {
+      list.innerHTML = snap.docs.map(doc => {
+        const d = doc.data();
+        const time = d.createdAt && d.createdAt.toDate ? timeAgo(d.createdAt.toDate()) : '';
+        return `<div class="notif-item"><div class="notif-icon">📰</div><div><h4>${d.title}</h4><p>${d.body}</p><div class="notif-time">${time}</div></div></div>`;
+      }).join('');
+    }
+  } catch(e){
+    list.innerHTML = `<p style="color:var(--muted);">No market analysis posted yet — check back soon.</p>`;
+  }
+}
+
+// ---------- NOTIFICATIONS ----------
+function timeAgo(date){
+  const seconds = Math.floor((Date.now() - date) / 1000);
+  if(seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds/60);
+  if(minutes < 60) return minutes + 'm ago';
+  const hours = Math.floor(minutes/60);
+  if(hours < 24) return hours + 'h ago';
+  return Math.floor(hours/24) + 'd ago';
+}
+
+async function loadNotifications(){
+  const list = document.getElementById('notif-list');
+  try {
+    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(20).get();
+    if(snap.empty){
+      list.innerHTML = `<p style="color:var(--muted);">No notifications yet.</p>`;
+    } else {
+      list.innerHTML = snap.docs.map(doc => {
+        const d = doc.data();
+        const time = d.createdAt && d.createdAt.toDate ? timeAgo(d.createdAt.toDate()) : '';
+        return `<div class="notif-item"><div class="notif-icon">🔔</div><div><h4>${d.title}</h4><p>${d.body}</p><div class="notif-time">${time}</div></div></div>`;
+      }).join('');
+      const latest = snap.docs[0].data().createdAt;
+      if(currentUser && latest){
+        await db.collection('users').doc(currentUser.uid).set({ notifLastSeen: latest }, { merge:true });
+      }
+    }
+  } catch(e){
+    list.innerHTML = `<p style="color:var(--muted);">No notifications yet.</p>`;
+  }
+  updateNotifBadge();
+}
+
+async function updateNotifBadge(){
+  try {
+    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(1).get();
+    if(snap.empty){ setBellDot(false); return; }
+    const latest = snap.docs[0].data().createdAt;
+    if(!currentUser){ setBellDot(true); return; }
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    const lastSeen = userDoc.exists ? userDoc.data().notifLastSeen : null;
+    const hasUnread = !lastSeen || (latest && latest.toMillis() > lastSeen.toMillis());
+    setBellDot(hasUnread);
+  } catch(e){ setBellDot(false); }
+}
+
+function setBellDot(show){
+  const dot = document.getElementById('bell-dot-desktop');
+  if(dot) dot.style.display = show ? 'block' : 'none';
+}
+
+// ---------- SETTINGS ----------
+function showSettingsMsg(id, msg, isError){
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.className = 'settings-msg ' + (isError ? 'show-error' : 'show-success');
+}
+
+async function loadSettingsPage(){
+  if(!currentUser) return;
+  document.getElementById('settings-name').value = currentUser.displayName || '';
+  document.getElementById('settings-email').value = currentUser.email || '';
+  document.getElementById('settings-dark-mode').checked = !document.body.classList.contains('light-mode');
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const data = doc.exists ? doc.data() : {};
+    document.getElementById('settings-email-notifs').checked = data.emailNotifs !== false;
+    const plan = data.plan || 'free';
+    const badge = document.getElementById('settings-plan-badge');
+    badge.innerText = plan.toUpperCase();
+    badge.className = 'admin-plan-badge admin-plan-' + plan;
+  } catch(e){}
+}
+
+async function saveProfileSettings(){
+  const name = document.getElementById('settings-name').value.trim();
+  if(!name){ showSettingsMsg('profile-msg', 'Name cannot be empty.', true); return; }
+  try {
+    await currentUser.updateProfile({ displayName: name });
+    await db.collection('users').doc(currentUser.uid).set({ name }, { merge:true });
+    document.querySelectorAll('.su-name').forEach(el => el.innerText = name);
+    showSettingsMsg('profile-msg', 'Profile updated.', false);
+  } catch(e){
+    showSettingsMsg('profile-msg', 'Something went wrong. Try again.', true);
+  }
+}
+
+async function changePasswordSettings(){
+  const currentPw = document.getElementById('settings-current-pw').value;
+  const newPw = document.getElementById('settings-new-pw').value;
+  if(!currentPw || !newPw){ showSettingsMsg('password-msg', 'Fill in both fields.', true); return; }
+  if(newPw.length < 6){ showSettingsMsg('password-msg', 'New password must be at least 6 characters.', true); return; }
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPw);
+    await currentUser.reauthenticateWithCredential(cred);
+    await currentUser.updatePassword(newPw);
+    document.getElementById('settings-current-pw').value = '';
+    document.getElementById('settings-new-pw').value = '';
+    showSettingsMsg('password-msg', 'Password updated successfully.', false);
+  } catch(e){
+    showSettingsMsg('password-msg', e.code === 'auth/wrong-password' ? 'Current password is incorrect.' : 'Something went wrong. Try again.', true);
+  }
+}
+
+async function saveNotifPref(){
+  const checked = document.getElementById('settings-email-notifs').checked;
+  if(currentUser){
+    await db.collection('users').doc(currentUser.uid).set({ emailNotifs: checked }, { merge:true });
+  }
+}
+
+async function deleteAccountSettings(){
+  if(!confirm('This permanently deletes your account and all data. This cannot be undone. Continue?')) return;
+  const pw = prompt('For security, please re-enter your password to confirm:');
+  if(!pw) return;
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pw);
+    await currentUser.reauthenticateWithCredential(cred);
+    await db.collection('users').doc(currentUser.uid).delete();
+    await currentUser.delete();
+    alert('Account deleted.');
+  } catch(e){
+    showSettingsMsg('danger-msg', 'Could not delete account — check your password and try again.', true);
+  }
+}
+
+// ---------- COMMUNITY ----------
+let selectedPostType = 'analysis';
+let pendingPostImage = null;
+
+function setPostType(type, el){
+  selectedPostType = type;
+  document.querySelectorAll('.comm-type-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleCommunityImageUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      const maxW = 600;
+      const scale = Math.min(1, maxW/img.width);
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      pendingPostImage = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('comm-img-preview').src = pendingPostImage;
+      document.getElementById('comm-img-preview-wrap').classList.remove('hide');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function publishCommunityPost(){
+  if(!currentUser){ alert('Please log in first.'); return; }
+  const text = document.getElementById('comm-post-text').value.trim();
+  if(!text){ alert('Write something before posting.'); return; }
+  const symbol = document.getElementById('comm-post-symbol').value.trim().toUpperCase();
+  await db.collection('communityPosts').add({
+    authorId: currentUser.uid,
+    authorName: currentUser.displayName || 'Trader',
+    type: selectedPostType,
+    text, symbol: symbol || null,
+    image: pendingPostImage,
+    likes: [], commentCount: 0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('comm-post-text').value = '';
+  document.getElementById('comm-post-symbol').value = '';
+  document.getElementById('comm-img-preview-wrap').classList.add('hide');
+  pendingPostImage = null;
+  loadCommunityFeed();
+}
+
+async function loadCommunityFeed(){
+  const feed = document.getElementById('comm-feed');
+  try {
+    const snap = await db.collection('communityPosts').orderBy('createdAt','desc').limit(30).get();
+    if(snap.empty){
+      feed.innerHTML = `<p style="color:var(--muted); text-align:center;">No posts yet — be the first to share something.</p>`;
+      return;
+    }
+    feed.innerHTML = snap.docs.map(doc => renderCommunityPost(doc.id, doc.data())).join('');
+  } catch(e){
+    feed.innerHTML = `<p style="color:var(--muted); text-align:center;">No posts yet — be the first to share something.</p>`;
+  }
+}
+
+function renderCommunityPost(id, p){
+  const time = p.createdAt && p.createdAt.toDate ? timeAgo(p.createdAt.toDate()) : '';
+  const liked = currentUser && p.likes && p.likes.includes(currentUser.uid);
+  const initials = (p.authorName||'T').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `
+    <div class="comm-post">
+      <div class="comm-post-head" onclick="openUserProfile('${p.authorId}')">
+        <div class="side-avatar">${initials}</div>
+        <div><div class="comm-post-author">${p.authorName}</div><div class="comm-post-time">${time}</div></div>
+        <span class="comm-type-badge ${p.type}">${p.type.toUpperCase()}</span>
+      </div>
+      ${p.symbol?`<div class="comm-post-symbol">${p.symbol}</div>`:''}
+      <div class="comm-post-text">${p.text}</div>
+      ${p.image?`<img src="${p.image}" class="comm-img-preview">`:''}
+      <div class="comm-post-actions">
+        <span class="${liked?'liked':''}" onclick="toggleLikePost('${id}')">🚀 <span id="likes-${id}">${(p.likes||[]).length}</span></span>
+        <span onclick="toggleComments('${id}')">💬 <span id="comments-${id}">${p.commentCount||0}</span></span>
+      </div>
+      <div class="comm-comments-box" id="comments-box-${id}">
+        <div id="comments-list-${id}"></div>
+        <div class="comm-comment-input">
+          <input type="text" id="comment-input-${id}" placeholder="Add a comment...">
+          <button class="btn btn-primary" style="padding:8px 14px;" onclick="postComment('${id}')">Send</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function toggleLikePost(postId){
+  if(!currentUser){ alert('Please log in first.'); return; }
+  const ref = db.collection('communityPosts').doc(postId);
+  const doc = await ref.get();
+  const likes = doc.data().likes || [];
+  const idx = likes.indexOf(currentUser.uid);
+  if(idx === -1){ likes.push(currentUser.uid); } else { likes.splice(idx,1); }
+  await ref.set({ likes }, { merge:true });
+  document.getElementById('likes-'+postId).innerText = likes.length;
+  event.target.closest('span').classList.toggle('liked', idx === -1);
+}
+
+function toggleComments(postId){
+  const box = document.getElementById('comments-box-'+postId);
+  const isHidden = box.style.display !== 'block';
+  box.style.display = isHidden ? 'block' : 'none';
+  if(isHidden){ loadComments(postId); }
+}
+
+async function loadComments(postId){
+  const list = document.getElementById('comments-list-'+postId);
+  const snap = await db.collection('communityPosts').doc(postId).collection('comments').orderBy('createdAt','asc').get();
+  list.innerHTML = snap.empty ? '' : snap.docs.map(d => {
+    const c = d.data();
+    return `<div class="comm-comment-item"><b>${c.authorName}</b>${c.text}</div>`;
+  }).join('');
+}
+
+async function postComment(postId){
+  if(!currentUser){ alert('Please log in first.'); return; }
+  const input = document.getElementById('comment-input-'+postId);
+  const text = input.value.trim();
+  if(!text) return;
+  await db.collection('communityPosts').doc(postId).collection('comments').add({
+    authorName: currentUser.displayName || 'Trader', text, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  const postRef = db.collection('communityPosts').doc(postId);
+  const doc = await postRef.get();
+  await postRef.set({ commentCount: (doc.data().commentCount||0)+1 }, { merge:true });
+  input.value = '';
+  loadComments(postId);
