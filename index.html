@@ -786,3 +786,791 @@
   .chart-strip{display:flex; gap:20px; padding:12px 18px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); font-family:'JetBrains Mono'; overflow-x:auto;}
   .chart-strip b{color:var(--text);}
   .dash-section-title a{font-size:12.5px; color:var(--muted); font-weight:400;}
+  .learn-card{display:flex; gap:18px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:32px; align-items:center;}
+  @media(max-width:700px){.learn-card{flex-direction:column; align-items:flex-start;}}
+  .learn-thumb{width:130px; height:80px; border-radius:8px; background:linear-gradient(135deg,#1a2230,#0f1420); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px; font-family:'JetBrains Mono';}
+  .learn-info{flex:1;}
+  .learn-info h4{font-size:15px; margin-bottom:4px;}
+  .learn-info p{font-size:12.5px; color:var(--muted); margin-bottom:10px;}
+  .course-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media(max-width:900px){.course-grid{grid-template-columns:repeat(2,1fr);}}
+  .course-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; cursor:pointer; transition:.15s;}
+  .course-card:hover{border-color:#7C6CF0;}
+  .course-thumb{height:60px; border-radius:7px; margin-bottom:12px; display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .course-card h4{font-size:13.5px; margin-bottom:6px;}
+  .course-meta{font-size:11px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="app-loader" id="app-loader">
+  <div id="loader-normal-state">
+    <div class="mark">T</div>
+    <div style="color:var(--muted); font-size:13px;">Loading Tradelify...</div>
+  </div>
+  <div id="loader-error-state" class="hide" style="text-align:center; max-width:320px; padding:0 20px;">
+    <div class="mark" style="background:var(--red); margin:0 auto 16px;">!</div>
+    <div style="font-size:15px; font-weight:600; margin-bottom:8px;">We're having trouble loading Tradelify</div>
+    <div style="color:var(--muted); font-size:13px; margin-bottom:20px;">Please check your connection and try again.</div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" onclick="retryInitialization()">Retry</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="location.reload()">Reload Application</button>
+  </div>
+</div>
+
+<!-- ================= MARKETING SITE ================= -->
+<div id="site">
+
+<nav class="mkt-nav">
+  <div class="mkt-nav-inner">
+    <div class="mkt-brand"><div class="mark">T</div>Tradelify</div>
+    <div class="mkt-nav-links">
+      <a href="#product">Platform</a>
+      <a href="#story">About</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="mkt-nav-actions">
+      <button class="btn btn-ghost" onclick="openModal('login')">Log In</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Get Started</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="mkt-hero mkt-wrap">
+  <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> A TRADING TECHNOLOGY PLATFORM</div>
+  <h1>Build a Better <span class="accent">Trading Process.</span></h1>
+  <p class="lead">Tradelify brings the learning, practice, risk management, and review a serious trader needs into one structured environment — not another signal feed.</p>
+  <div class="mkt-hero-ctas">
+    <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Get Started</button>
+    <button class="btn btn-ghost btn-lg" onclick="document.getElementById('product').scrollIntoView({behavior:'smooth'})">Explore Tradelify</button>
+  </div>
+  <div class="mkt-hero-visual reveal">
+    <div class="mkt-preview-window">
+      <div class="mkt-preview-bar"><span></span><span></span><span></span></div>
+      <div class="mkt-preview-body">
+        <div class="mkt-preview-card">
+          <div class="pc-label">LEARNING PROGRESS</div>
+          <div class="pc-val" style="color:var(--mint);">72%</div>
+        </div>
+        <div class="mkt-preview-card">
+          <div class="pc-label">WIN RATE (30 DAYS)</div>
+          <div class="pc-val">61%</div>
+          <div class="mkt-preview-bar-chart">
+            <div style="height:40%;"></div><div style="height:70%;"></div><div style="height:30%;"></div><div style="height:85%;"></div><div style="height:55%;"></div><div style="height:65%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="mkt-section" id="story">
+  <div class="mkt-wrap mkt-story reveal">
+    <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> WHY TRADELIFY EXISTS</div>
+    <h2>Trading Is More Than Finding the Next Trade.</h2>
+    <p>It involves learning, preparation, risk management, decision-making, honest review, and discipline held over time. Most platforms focus on one piece — a chart, a course, a signal — and leave the rest to chance. Tradelify is built as the environment around that entire process, so a trader isn't rebuilding their own infrastructure from scratch.</p>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="mkt-section tight" id="problem">
+  <div class="mkt-wrap reveal">
+    <div style="max-width:620px;">
+      <div class="mkt-eyebrow"><span class="dot"></span> THE PROBLEM</div>
+      <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Why so much trading effort doesn't turn into progress.</h2>
+    </div>
+    <div class="mkt-problem-grid">
+      <div class="mkt-problem-cell"><h3>Learning Without Structure</h3><p>Trading information is everywhere, but knowing what to learn — and in what order — is difficult without a guided path.</p></div>
+      <div class="mkt-problem-cell"><h3>Poor Decision Processes</h3><p>Many traders struggle to build a consistent process for planning a trade before it happens and reviewing it afterward.</p></div>
+      <div class="mkt-problem-cell"><h3>Risk Management</h3><p>Understanding position size and real risk before entering a trade is one of the most overlooked parts of responsible trading.</p></div>
+      <div class="mkt-problem-cell"><h3>No Meaningful Review</h3><p>Without a record to look back on, it's difficult to recognize the patterns and mistakes that quietly repeat.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="mkt-section" id="solution">
+  <div class="mkt-wrap reveal" style="text-align:center;">
+    <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> THE APPROACH</div>
+    <h2 style="font-family:'Space Grotesk'; font-size:clamp(26px,4vw,36px); letter-spacing:-0.02em; max-width:640px; margin:0 auto;">That's Where Tradelify Comes In.</h2>
+    <p style="color:var(--muted); max-width:560px; margin:16px auto 0; font-size:15px; line-height:1.7;">One environment built around the cycle every serious trader actually needs to repeat.</p>
+    <div class="mkt-cycle">
+      <div class="mkt-cycle-step"><div class="cs-num">01</div><div class="cs-label">Learn</div></div>
+      <div class="mkt-cycle-arrow">→</div>
+      <div class="mkt-cycle-step"><div class="cs-num">02</div><div class="cs-label">Plan</div></div>
+      <div class="mkt-cycle-arrow">→</div>
+      <div class="mkt-cycle-step"><div class="cs-num">03</div><div class="cs-label">Practice</div></div>
+      <div class="mkt-cycle-arrow">→</div>
+      <div class="mkt-cycle-step"><div class="cs-num">04</div><div class="cs-label">Review</div></div>
+      <div class="mkt-cycle-arrow">→</div>
+      <div class="mkt-cycle-step"><div class="cs-num">05</div><div class="cs-label">Improve</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT PREVIEWS -->
+<section class="mkt-section" id="product">
+  <div class="mkt-wrap">
+    <div class="mkt-preview-row reveal">
+      <div class="mkt-preview-text">
+        <div class="mkt-eyebrow"><span class="dot"></span> YOUR RECORD</div>
+        <h3>Built Around Your Trading Journey</h3>
+        <p>Every trade you log becomes part of a real, growing record — not scattered notes across apps. Over time, that record is what actually reveals whether your process is working.</p>
+      </div>
+      <div class="mkt-preview-visual">
+        <div class="mkt-preview-card" style="margin-bottom:10px;"><div class="pc-label">EUR/USD · BUY</div><div class="pc-val" style="color:var(--mint); font-size:16px;">+$82.00</div></div>
+        <div class="mkt-preview-card"><div class="pc-label">XAU/USD · SELL</div><div class="pc-val" style="color:var(--red); font-size:16px;">-$34.00</div></div>
+      </div>
+    </div>
+
+    <div class="mkt-preview-row reverse reveal">
+      <div class="mkt-preview-text">
+        <div class="mkt-eyebrow"><span class="dot"></span> YOUR PATTERNS</div>
+        <h3>Understand Your Process</h3>
+        <p>Win rate by day of week, performance by session, and monthly trends — built from your own data, not a generic average. It's how "I think I trade better in the mornings" becomes something you actually know.</p>
+      </div>
+      <div class="mkt-preview-visual">
+        <div class="mkt-preview-card"><div class="pc-label">WIN RATE BY SESSION</div>
+          <div class="mkt-preview-bar-chart"><div style="height:80%;"></div><div style="height:45%;"></div><div style="height:60%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mkt-preview-row reveal" style="margin-bottom:0;">
+      <div class="mkt-preview-text">
+        <div class="mkt-eyebrow"><span class="dot"></span> YOUR GROWTH</div>
+        <h3>Keep Improving</h3>
+        <p>Structured lessons, quizzes that check real understanding, and a practice environment to apply it — all in the same place your results live, so learning and performance stay connected.</p>
+      </div>
+      <div class="mkt-preview-visual">
+        <div class="mkt-preview-card"><div class="pc-label">ACADEMY PROGRESS</div><div class="pc-val" style="color:var(--mint);">72%</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY TRADELIFY -->
+<section class="mkt-section tight">
+  <div class="mkt-wrap reveal">
+    <div style="text-align:center;">
+      <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> WHY TRADELIFY</div>
+      <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">What we actually stand for.</h2>
+    </div>
+    <div class="mkt-why-grid">
+      <div class="mkt-why-card"><h4>Process Over Hype</h4><p>Tradelify focuses on a structured trading process, not promises about market outcomes.</p></div>
+      <div class="mkt-why-card"><h4>Learning With Purpose</h4><p>Education is built to lead to actual understanding and applied practice, not passive video-watching.</p></div>
+      <div class="mkt-why-card"><h4>Data-Driven Review</h4><p>Insight should come from your own recorded activity, not generic advice that ignores your history.</p></div>
+      <div class="mkt-why-card"><h4>Built For the Long Term</h4><p>The goal is continuous improvement over time, not a shortcut to guaranteed results — there isn't one.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="mkt-section tight">
+  <div class="mkt-wrap reveal" style="text-align:center;">
+    <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> WHO IT'S FOR</div>
+    <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Built for traders at every stage.</h2>
+    <div class="mkt-who-grid" style="text-align:left;">
+      <div class="mkt-who-card"><h4>For People Learning Trading</h4><p>Build a real foundation with a structured path, instead of scattered videos and guesswork.</p></div>
+      <div class="mkt-who-card"><h4>For Traders Developing Their Process</h4><p>Practice, record, and review with tools built specifically for that cycle.</p></div>
+      <div class="mkt-who-card"><h4>For Serious, Long-Term Learners</h4><p>Organize knowledge and habits into something that compounds, rather than starting over every few months.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="mkt-section tight">
+  <div class="mkt-wrap reveal">
+    <div style="text-align:center;">
+      <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> HOW IT WORKS</div>
+      <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Getting started is simple.</h2>
+    </div>
+    <div class="mkt-steps">
+      <div class="mkt-step"><div class="step-num">01</div><h4>Create your account</h4><p>Free, in under a minute — no card required.</p></div>
+      <div class="mkt-step"><div class="step-num">02</div><h4>Build your foundation</h4><p>Work through structured courses at your own pace.</p></div>
+      <div class="mkt-step"><div class="step-num">03</div><h4>Practice and record</h4><p>Use the demo environment and log real trade decisions.</p></div>
+      <div class="mkt-step"><div class="step-num">04</div><h4>Review and improve</h4><p>Let your own data show you what to work on next.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="mkt-section tight">
+  <div class="mkt-wrap reveal" style="text-align:center;">
+    <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> TRUST</div>
+    <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Built to be transparent from day one.</h2>
+    <p style="color:var(--muted); max-width:520px; margin:14px auto 0; font-size:14.5px;">Tradelify does not sell trading signals, and doesn't claim guaranteed results. Trading involves real risk — our job is to help you build a better process, not to promise outcomes.</p>
+    <div class="mkt-trust">
+      <div class="mkt-trust-item" onclick="showLegalPage('privacy')" style="cursor:pointer;">🔒 Privacy Policy</div>
+      <div class="mkt-trust-item" onclick="showLegalPage('terms')" style="cursor:pointer;">📄 Terms & Conditions</div>
+      <div class="mkt-trust-item" onclick="showLegalPage('terms')" style="cursor:pointer;">⚠️ Risk Disclosure</div>
+      <div class="mkt-trust-item">✉️ anifowosedavid25@gmail.com</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="mkt-section" id="pricing">
+  <div class="mkt-wrap reveal">
+    <div style="text-align:center; margin-bottom:8px;">
+      <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> PRICING</div>
+      <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Start free. Upgrade when it's earning its keep.</h2>
+    </div>
+    <div class="price-grid" style="margin-top:40px;">
+      <div class="price-card">
+        <h3>FREE</h3><div class="price-amt">$0<span>/forever</span></div>
+        <ul class="price-list"><li>Risk Calculator</li><li>Risk Management course</li><li>3 quiz attempts/week</li><li>15 journal entries</li></ul>
+        <button class="btn btn-ghost full-btn" onclick="openModal('signup')">Get Started Free</button>
+      </div>
+      <div class="price-card featured">
+        <h3>GOLD MEMBERSHIP</h3><div class="price-amt">$15<span>/month</span></div>
+        <ul class="price-list"><li>All 8 Academy courses</li><li>Unlimited Journal & Quizzes</li><li>Demo Trading</li><li>AI Coach</li></ul>
+        <button class="btn btn-primary full-btn" onclick="openModal('signup')">Get Started</button>
+      </div>
+      <div class="price-card">
+        <h3>ELITE</h3><div class="price-amt">$99<span>/month</span></div>
+        <ul class="price-list"><li>Everything in Gold</li><li>Priority AI Coach</li><li>Priority support</li></ul>
+        <button class="btn btn-ghost full-btn" onclick="openModal('signup')">Get Started</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="mkt-section tight" id="faq">
+  <div class="mkt-wrap reveal">
+    <div style="text-align:center;">
+      <div class="mkt-eyebrow" style="justify-content:center; display:flex;"><span class="dot"></span> FAQ</div>
+      <h2 style="font-family:'Space Grotesk'; font-size:clamp(24px,3.5vw,32px); letter-spacing:-0.02em;">Common questions.</h2>
+    </div>
+    <div class="mkt-faq">
+      <details><summary>What is Tradelify?</summary><p>A trading education platform bringing structured learning, a trading journal, risk tools, demo practice, and performance review into one environment.</p></details>
+      <details><summary>Who is Tradelify for?</summary><p>Anyone learning to trade, or an active trader trying to build a more consistent, structured process — from complete beginners to experienced traders refining their approach.</p></details>
+      <details><summary>Is Tradelify a trading signal service?</summary><p>No. Tradelify does not provide buy/sell signals. It provides education, tools, and a structured process — the decisions remain yours.</p></details>
+      <details><summary>Can I learn trading on Tradelify?</summary><p>Yes — Academy has structured courses from beginner foundations through more advanced topics, each paired with quizzes to check real understanding.</p></details>
+      <details><summary>Can I practice trading?</summary><p>Yes, Demo Trading lets you practice placing and managing positions without risking real capital.</p></details>
+      <details><summary>Does Tradelify guarantee profits?</summary><p>No. Trading involves real risk, and no platform can guarantee outcomes. Tradelify focuses on helping you build a better process.</p></details>
+      <details><summary>Is anything on Tradelify financial advice?</summary><p>No. All content — including Academy lessons, the AI Coach, and Market News — is educational and informational only, not financial advice.</p></details>
+      <details><summary>How do I get started?</summary><p>Create a free account — no card required — and begin with the Risk Management course and Risk Calculator, both available on the Free plan.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="mkt-section">
+  <div class="mkt-wrap reveal">
+    <div class="mkt-final-cta">
+      <h2>Build Your Trading Process.</h2>
+      <p>Learn with structure. Practice with purpose. Review your decisions. Keep improving.</p>
+      <div class="mkt-hero-ctas" style="margin-bottom:0;">
+        <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Get Started</button>
+        <button class="btn btn-ghost btn-lg" onclick="document.getElementById('product').scrollIntoView({behavior:'smooth'})">Explore Tradelify</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="mkt-footer">
+  <div class="mkt-wrap">
+    <div class="mkt-footer-grid">
+      <div>
+        <div class="mkt-brand" style="font-size:16px; margin-bottom:12px;"><div class="mark">T</div>Tradelify</div>
+        <p style="color:var(--muted); font-size:13px; max-width:260px; line-height:1.6;">A trading technology platform built to help people develop a better trading process.</p>
+      </div>
+      <div class="mkt-footer-col">
+        <h5>Company</h5>
+        <a href="#story">About</a>
+        <a href="mailto:anifowosedavid25@gmail.com">Contact</a>
+      </div>
+      <div class="mkt-footer-col">
+        <h5>Platform</h5>
+        <a href="#product">Overview</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div class="mkt-footer-col">
+        <h5>Legal</h5>
+        <a onclick="showLegalPage('privacy')" style="cursor:pointer;">Privacy</a>
+        <a onclick="showLegalPage('terms')" style="cursor:pointer;">Terms</a>
+        <a onclick="showLegalPage('terms')" style="cursor:pointer;">Risk Disclosure</a>
+      </div>
+    </div>
+    <div class="mkt-footer-bottom">
+      <div>© 2026 Tradelify. All rights reserved.</div>
+      <div>Trading involves risk. Not financial advice.</div>
+    </div>
+  </div>
+</footer>
+
+
+<div id="legal-terms" class="hide">
+  <div class="legal-page">
+    <a class="legal-back-link" onclick="hideLegalPage('terms')">← Back to Tradelify</a>
+    <h1>Terms & Conditions</h1>
+    <div class="legal-updated">Last updated: July 2026</div>
+
+    <div class="legal-disclaimer-box">⚠️ Tradelify is an educational platform. Nothing on this platform — including Academy lessons, the AI Coach, Chart Analysis, or Market News — constitutes financial advice or a recommendation to buy or sell any asset. Trading involves substantial risk of loss. You are solely responsible for your own trading decisions.</div>
+
+    <h2>1. Who We Are</h2>
+    <p>Tradelify is a trading education platform providing tools including a Trading Journal, Risk Calculator, Academy courses, Quiz Engine, Demo Trading, and related features, operated for traders seeking to build structured, disciplined trading habits.</p>
+
+    <h2>2. Accounts</h2>
+    <p>You must provide accurate information when creating an account and are responsible for keeping your login credentials secure. You must be at least 18 years old, or the age of majority in your jurisdiction, to create an account.</p>
+
+    <h2>3. Not Financial Advice</h2>
+    <p>Tradelify does not provide investment, financial, or trading signals of any kind. Educational content, AI Coach responses, Chart Analysis, and Market News posts are for informational and educational purposes only. Any trading decisions you make, on this platform's Demo Trading feature or with real capital elsewhere, are made entirely at your own risk and discretion.</p>
+
+    <h2>4. Subscriptions & Billing</h2>
+    <p>Free, Gold Membership, and Elite plans are described on our Billing page. Paid plans are currently activated manually following payment confirmation via WhatsApp, email, or our listed payment partner, and last 30 days from activation unless otherwise stated. Plans do not renew automatically — you will need to make a new payment to continue paid access after expiry.</p>
+    <h2>5. Refunds</h2>
+    <p>Because Gold and Elite plans grant immediate access to educational content, payments are generally non-refundable once a plan has been activated. If you believe you were charged in error, contact us at the details below and we'll review it in good faith.</p>
+
+    <h2>6. Broker & Product Links</h2>
+    <p>Tradelify may include referral or affiliate links to third-party brokers (such as Binance, Bybit, or Exness) and to third-party products (such as ebooks sold via Selar or Systeme.io). We may earn a commission if you sign up or purchase through these links, at no additional cost to you. We do not control, and are not responsible for, the services, policies, or conduct of these third parties.</p>
+
+    <h2>7. Prohibited Conduct</h2>
+    <ul>
+      <li>Attempting to access another user's account or data</li>
+      <li>Using the platform for any unlawful purpose</li>
+      <li>Attempting to disrupt, reverse-engineer, or interfere with the platform's operation</li>
+    </ul>
+
+    <h2>8. Limitation of Liability</h2>
+    <p>Tradelify, its operator, and affiliates are not liable for any trading losses, financial damages, or other harm arising from your use of this platform, including reliance on educational content, AI Coach responses, or Chart Analysis output. The platform is provided "as is" without warranties of any kind.</p>
+
+    <h2>9. Changes to These Terms</h2>
+    <p>We may update these Terms from time to time. Continued use of Tradelify after changes means you accept the updated Terms.</p>
+
+    <h2>10. Contact</h2>
+    <p>Questions about these Terms can be sent to anifowosedavid25@gmail.com or via WhatsApp at +234 902 401 1558.</p>
+  </div>
+</div>
+
+<div id="legal-privacy" class="hide">
+  <div class="legal-page">
+    <a class="legal-back-link" onclick="hideLegalPage('privacy')">← Back to Tradelify</a>
+    <h1>Privacy Policy</h1>
+    <div class="legal-updated">Last updated: July 2026</div>
+
+    <h2>1. What We Collect</h2>
+    <p>When you create an account, we collect your name, email address, and password (securely handled by Firebase Authentication — we never see or store your raw password). As you use the platform, we store the data you generate, including:</p>
+    <ul>
+      <li>Trading Journal entries (pair, direction, entry/exit prices, results)</li>
+      <li>Academy course progress and quiz results</li>
+      <li>Demo Trading positions</li>
+      <li>Your subscription plan and billing status</li>
+      <li>A profile photo, if you choose to upload one</li>
+    </ul>
+
+    <h2>2. How We Use Your Data</h2>
+    <p>Your data is used to operate the platform's core features — displaying your journal history, tracking your Academy progress, calculating your performance analytics, and managing your subscription. We do not sell your personal data to third parties.</p>
+
+    <h2>3. Where Your Data Is Stored</h2>
+    <p>Tradelify uses Google Firebase (Authentication and Firestore Database) to securely store account and app data. Firebase applies industry-standard security practices; however, no online service can guarantee absolute security.</p>
+
+    <h2>4. Third-Party Services</h2>
+    <p>Tradelify embeds a live chart widget from TradingView for market data display. If you click a broker or product link (Binance, Bybit, Exness, or our ebook partners), you leave Tradelify and become subject to that third party's own privacy policy — we encourage you to review it.</p>
+
+    <h2>5. Your Rights</h2>
+    <p>You can update your profile information and notification preferences anytime from Settings. You can delete your account and associated data at any time from Settings → Danger Zone. If you have questions about your data, contact us using the details below.</p>
+
+    <h2>6. Children's Privacy</h2>
+    <p>Tradelify is not directed at, and should not be used by, anyone under 18 years of age.</p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Material changes will be reflected by updating the "Last updated" date above.</p>
+
+    <h2>8. Contact</h2>
+    <p>Questions about this Privacy Policy can be sent to anifowosedavid25@gmail.com or via WhatsApp at +234 902 401 1558.</p>
+  </div>
+</div>
+
+</div>
+<!-- ================= END MARKETING SITE ================= -->
+
+
+<!-- ================= AUTH MODAL ================= -->
+<div id="modal-overlay" class="modal-overlay hide">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div id="modal-login">
+      <div class="mark-lg">T</div>
+      <h3>Log In</h3>
+      <p class="sub">Welcome back to Tradelify.</p>
+      <div class="field"><label>EMAIL</label><input type="email" id="login-email" placeholder="you@email.com"></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <div id="login-error" style="color:var(--red); font-size:12.5px; margin-bottom:10px; display:none;"></div>
+      <button class="btn btn-primary full-btn" id="login-btn" onclick="handleLogin()">Log In</button>
+      <div class="modal-switch">New to Tradelify? <a onclick="switchModal('signup')">Create a free account</a></div>
+    </div>
+
+    <div id="modal-signup" class="hide">
+      <div class="mark-lg">T</div>
+      <h3>Create Your Account</h3>
+      <p class="sub">Free forever. Real email verification. 60 seconds.</p>
+      <div class="field"><label>FULL NAME</label><input type="text" id="signup-name" placeholder="Your name"></div>
+      <div class="field"><label>EMAIL</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="signup-password" placeholder="At least 6 characters"></div>
+      <div id="signup-error" style="color:var(--red); font-size:12.5px; margin-bottom:10px; display:none;"></div>
+      <button class="btn btn-primary full-btn" id="signup-btn" onclick="handleSignup()">Create My Free Account</button>
+      <div class="modal-switch">Already have an account? <a onclick="switchModal('login')">Log in</a></div>
+    </div>
+  </div>
+</div>
+<div id="profile-modal-overlay" class="modal-overlay hide" onclick="if(event.target===this)closeProfileModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProfileModal()">✕</button>
+    <div class="profile-modal-body">
+      <div class="profile-avatar-lg" id="profile-avatar-large">DA</div>
+      <label class="profile-photo-btn">Change Photo<input type="file" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)"></label>
+      <h3 id="profile-modal-name" style="margin-bottom:2px;">David A.</h3>
+      <p style="color:var(--muted); font-size:12.5px; margin-bottom:20px;" id="profile-modal-email">—</p>
+      <div style="text-align:left;">
+        <div class="profile-menu-item" onclick="closeProfileModal(); switchView('settings', null);">⚙️ Edit Profile & Settings</div>
+        <div class="profile-menu-item" onclick="closeProfileModal(); switchView('achievements', null);">🏆 Achievements</div>
+        <div class="profile-menu-item logout-item" onclick="closeProfileModal(); exitDashboard();">🚪 Log Out</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="verify-banner" class="hide" style="position:fixed; top:0; left:0; right:0; background:var(--amber); color:var(--ink); text-align:center; padding:10px; font-size:13px; font-weight:600; z-index:80;">
+  Verify your email to unlock all features — check your inbox. <a onclick="resendVerification()" style="text-decoration:underline; cursor:pointer;">Resend</a>
+</div>
+<div id="renewal-banner" class="hide" style="position:fixed; top:0; left:0; right:0; background:#7C6CF0; color:#fff; text-align:center; padding:10px; font-size:13px; font-weight:600; z-index:79; cursor:pointer;" onclick="switchView('billing', null)"></div>
+
+
+<!-- ================= DASHBOARD SHELL ================= -->
+<div id="dashboard">
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="brand" style="font-size:16px;"><div class="mark">T</div>Tradelify</div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-scroll">
+      <div class="drawer-group-label">Main Hub</div>
+      <div class="drawer-link" onclick="drawerGo('overview')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="drawer-link" onclick="drawerGo('notifications')"><span class="ic">🔔</span>Notifications</div>
+
+      <div class="drawer-group-label">Trading Operations</div>
+      <div class="drawer-link" onclick="drawerGo('demo')"><span class="ic">🕹️</span>Demo Trading</div>
+      <div class="drawer-link" onclick="drawerGo('charts')"><span class="ic">📈</span>Interactive Charts</div>
+      <div class="drawer-link" onclick="drawerGo('journal')"><span class="ic">📓</span>Trading Journal</div>
+
+      <div class="drawer-group-label">Performance</div>
+      <div class="drawer-link" onclick="drawerGo('analytics')"><span class="ic">📊</span>Performance Analytics</div>
+      <div class="drawer-link" onclick="drawerGo('coach')"><span class="ic">🤖</span>AI Coach</div>
+
+      <div class="drawer-group-label">Education Center</div>
+      <div class="drawer-link" onclick="drawerGo('academy')"><span class="ic">🎓</span>Academy</div>
+      <div class="drawer-link" onclick="drawerGo('news')"><span class="ic">📰</span>Market News</div>
+      <div class="drawer-link hide" id="community-nav-link-mobile" onclick="drawerGo('community')"><span class="ic">👥</span>Community</div>
+
+      <div class="drawer-group-label">Tools</div>
+      <div class="drawer-link" onclick="drawerGo('calc')"><span class="ic">🧮</span>Risk Calculator</div>
+      <div class="drawer-link" onclick="drawerGo('quiz')"><span class="ic">📝</span>Quiz</div>
+      <div class="drawer-link" onclick="drawerGo('products')"><span class="ic">🛒</span>Products</div>
+      <div class="drawer-link" onclick="drawerGo('analysis')"><span class="ic">📊</span>Chart Analysis</div>
+      <div class="drawer-link" onclick="drawerGo('brokers')"><span class="ic">🏦</span>Brokers</div>
+      <div class="drawer-link" onclick="drawerGo('billing')"><span class="ic">💳</span>Billing</div>
+      <div class="drawer-link hide" id="admin-nav-link-mobile" onclick="drawerGo('admin')"><span class="ic">🛡️</span>Admin Panel</div>
+      <div class="drawer-group-label">Account</div>
+      <div class="drawer-link" onclick="drawerGo('achievements')"><span class="ic">🏆</span>Achievements</div>
+      <div class="drawer-link" onclick="drawerGo('calendar')"><span class="ic">📅</span>Calendar</div>
+      <div class="drawer-link" onclick="drawerGo('affiliate')"><span class="ic">💰</span>Affiliate Program</div>
+      <div class="drawer-link" onclick="drawerGo('settings')"><span class="ic">⚙️</span>Settings</div>
+    </div>
+    <div class="drawer-plan"><div class="dp-label">Active Plan</div><div class="dp-val">Premium Member</div></div>
+    <div class="drawer-user" onclick="openProfileModal()" style="cursor:pointer;">
+      <div class="side-avatar">DA</div>
+      <div><div class="su-name">David A.</div><div style="font-size:11px; color:var(--muted);">Verified Member</div></div>
+    </div>
+    <button class="btn btn-ghost full-btn" style="margin-top:14px;" onclick="exitDashboard()">Log Out</button>
+  </div>
+
+  <div id="mobile-dash">
+    <div class="m-topbar">
+      <div class="m-brand"><div class="m-menu-btn" onclick="openDrawer()">☰</div>Tradelify</div>
+      <div class="m-avatar" onclick="openProfileModal()">DA</div>
+    </div>
+    <div class="m-body">
+      <h1>Hi, David! 👋</h1>
+      <p class="m-sub">Let's continue your journey.</p>
+
+      <div class="m-card">
+        <div class="m-card-head"><span>Your Progress</span><span>⋮</span></div>
+        <div class="m-progress-row"><span class="m-progress-val progress-val-display">68%</span><span class="m-progress-delta">+12% this week</span></div>
+        <div class="m-bar"><div class="m-bar-fill progress-bar-fill" style="width:68%;"></div></div>
+      </div>
+
+      <div class="m-section-title">Continue Learning</div>
+      <div class="m-learn-card" onclick="continueLesson()" style="cursor:pointer;">
+        <div class="m-learn-thumb">📊</div>
+        <div class="m-learn-info">
+          <h4>Price Action Trading</h4>
+          <p>Lesson 12 of 16 &nbsp;·&nbsp; <span style="color:var(--mint);">75%</span></p>
+          <div class="m-bar" style="width:160px;"><div class="m-bar-fill" style="width:75%;"></div></div>
+        </div>
+      </div>
+
+      <div class="m-section-title">Quick Access</div>
+      <div class="qa-grid">
+        <div class="qa-tile" onclick="mobileSwitchView('charts')"><div class="qa-icon" style="background:rgba(91,108,240,0.18); color:#7C8CFF;">📈</div><span>Charts</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('journal')"><div class="qa-icon" style="background:rgba(224,90,60,0.18); color:#F0805C;">📓</div><span>Journal</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('academy')"><div class="qa-icon" style="background:rgba(180,170,40,0.18); color:#D9CC4E;">🎓</div><span>Academy</span></div>
+        <div class="qa-tile" onclick="mobileSwitchView('coach')"><div class="qa-icon" style="background:rgba(150,80,220,0.18); color:#B57CE8;">🤖</div><span>AI Coach</span></div>
+      </div>
+    </div>
+
+    <div class="m-bottomnav">
+      <div class="m-navitem active" onclick="mobileSwitchView('overview')"><span class="ni-icon">🏠</span>Home</div>
+      <div class="m-navitem" onclick="mobileSwitchView('academy')"><span class="ni-icon">🎓</span>Academy</div>
+      <div class="m-navitem" onclick="mobileSwitchView('charts')"><span class="ni-icon">📈</span>Charts</div>
+      <div class="m-navitem" onclick="mobileSwitchView('journal')"><span class="ni-icon">📓</span>Journal</div>
+      <div class="m-navitem" onclick="openDrawer()"><span class="ni-icon">⋯</span>More</div>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+    <div class="sidebar">
+      <div>
+        <div class="side-top"><div class="brand"><div class="mark">T</div>Tradelify</div></div>
+        <div class="side-link active" onclick="switchView('overview',this)"><span class="ic">🏠</span>Dashboard</div>
+        <div class="side-link" onclick="switchView('academy',this)"><span class="ic">🎓</span>Academy</div>
+        <div class="side-link" onclick="switchView('charts',this)"><span class="ic">📈</span>Interactive Charts</div>
+        <div class="side-link" onclick="switchView('journal',this)"><span class="ic">📓</span>Trading Journal</div>
+        <div class="side-link" onclick="switchView('analytics',this)"><span class="ic">📊</span>Performance Analytics</div>
+        <div class="side-link" onclick="switchView('demo',this)"><span class="ic">🕹️</span>Demo Trading</div>
+        <div class="side-link" onclick="switchView('coach',this)"><span class="ic">🤖</span>AI Coach</div>
+        <div class="side-link" onclick="switchView('news',this)"><span class="ic">📰</span>Market News</div>
+        <div class="side-link hide" id="community-nav-link" onclick="switchView('community',this)"><span class="ic">👥</span>Community</div>
+        <div class="side-link" onclick="switchView('calc',this)"><span class="ic">🧮</span>Risk Calculator</div>
+        <div class="side-link" onclick="switchView('quiz',this)"><span class="ic">📝</span>Quiz</div>
+        <div class="side-link" onclick="switchView('products',this)"><span class="ic">🛒</span>Products</div>
+        <div class="side-link" onclick="switchView('analysis',this)"><span class="ic">📊</span>Chart Analysis</div>
+        <div class="side-link" onclick="switchView('brokers',this)"><span class="ic">🏦</span>Brokers</div>
+        <div class="side-link" onclick="switchView('billing',this)"><span class="ic">💳</span>Billing</div>
+        <div class="side-link hide" id="admin-nav-link" onclick="switchView('admin',this)"><span class="ic">🛡️</span>Admin Panel</div>
+        <div class="side-link" onclick="switchView('achievements',this)"><span class="ic">🏆</span>Achievements</div>
+        <div class="side-link" onclick="switchView('calendar',this)"><span class="ic">📅</span>Calendar</div>
+        <div class="side-link" onclick="switchView('affiliate',this)"><span class="ic">💰</span>Affiliate Program</div>
+        <div class="side-link" onclick="switchView('settings',this)"><span class="ic">⚙️</span>Settings</div>
+      </div>
+      <div class="side-user" onclick="openProfileModal()" style="cursor:pointer;">
+        <div class="side-avatar">DA</div>
+        <div><div class="su-name">David A.</div><div class="su-plan">Premium Plan ✦</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="dash-topbar">
+        <div class="dash-search-wrap">
+          <input type="text" class="dash-search-input" id="desktop-search-input" placeholder="🔍 Search for courses, lessons, topics..." oninput="handleSearchInput(this.value,'desktop-search-results')">
+          <div class="search-results-dropdown hide" id="desktop-search-results"></div>
+        </div>
+        <div class="dash-topbar-actions">
+          <div class="icon-btn" id="bell-icon-desktop" onclick="switchView('notifications', null)">🔔<span class="dot" id="bell-dot-desktop"></span></div>
+          <div class="icon-btn" onclick="switchView('coach', null)">💬</div>
+          <div class="premium-badge" onclick="switchView('settings', null)">👑 Premium</div>
+          <div class="side-avatar topbar-avatar" onclick="openProfileModal()">DA</div>
+        </div>
+      </div>
+
+      <div class="dash-main">
+        <div id="view-overview" class="dash-view active">
+          <h2>Welcome back, David! 👋</h2>
+          <p style="color:var(--muted); margin-top:4px;">Learn smarter. Trade wiser.</p>
+
+          <div class="stat-row">
+            <div class="stat-card"><div class="sc-label">Learning Progress</div><div class="sc-val progress-val-display">68%</div><div class="bar"><div class="bar-fill progress-bar-fill" style="width:68%;"></div></div></div>
+            <div class="stat-card"><div class="sc-label">Journal Trades</div><div class="sc-val">24</div><div class="sc-delta">+8 this week</div></div>
+            <div class="stat-card"><div class="sc-label">Win Rate</div><div class="sc-val">62.5%</div><div class="sc-delta">+5.3% this week</div></div>
+            <div class="stat-card"><div class="sc-label">Current Streak</div><div class="sc-val">7 Days 🔥</div><div class="sc-delta" style="color:var(--amber);">Keep it up!</div></div>
+          </div>
+
+          <div class="dash-section-title">Continue Learning <a href="#">View all ›</a></div>
+          <div class="learn-card">
+            <div class="learn-thumb">📊 CHART</div>
+            <div class="learn-info">
+              <h4>Price Action Trading — The Complete Guide</h4>
+              <p>Lesson 12 of 16 · 32 min left</p>
+              <div class="bar" style="width:200px;"><div class="bar-fill" style="width:75%;"></div></div>
+            </div>
+            <button class="btn btn-primary" onclick="continueLesson()">Continue Lesson</button>
+          </div>
+
+          <div class="dash-section-title">Recommended for You <a href="#">View all ›</a></div>
+          <div class="course-grid">
+            <div class="course-card"><div class="course-thumb" style="background:rgba(61,214,140,.1);">⚖️</div><h4>Risk Management</h4><div class="course-meta">Intermediate · 12 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(124,108,240,.12);">🧭</div><h4>Smart Money Concepts</h4><div class="course-meta">Advanced · 18 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(245,166,35,.1);">📉</div><h4>Technical Analysis Mastery</h4><div class="course-meta">Intermediate · 20 Lessons</div></div>
+            <div class="course-card"><div class="course-thumb" style="background:rgba(240,85,107,.1);">🧠</div><h4>Trading Psychology</h4><div class="course-meta">Beginner · 10 Lessons</div></div>
+          </div>
+        </div>
+
+        <div id="view-charts" class="dash-view">
+          <h2 style="margin-bottom:20px;">Interactive Charts</h2>
+          <div class="chart-panel">
+            <div class="chart-topbar">
+              <div class="chart-pair-select">
+                <select id="chart-symbol-select" onchange="changeChartSymbol()">
+                  <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                  <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                  <option value="FX:EURUSD">EUR/USD</option>
+                  <option value="FX:GBPUSD">GBP/USD</option>
+                  <option value="OANDA:XAUUSD">XAU/USD (Gold)</option>
+                </select>
+              </div>
+              <div class="chart-tools">
+                <div class="icon-btn" title="Indicators">📶</div>
+                <div class="icon-btn" title="Alert">🔔</div>
+                <div class="icon-btn" title="Replay">⏮</div>
+              </div>
+            </div>
+            <div class="chart-embed">
+              <div class="tradingview-widget-container" style="height:100%;">
+                <div id="tv_chart_main" style="height:100%;"></div>
+              </div>
+            </div>
+            <div class="chart-strip">
+              <span>RSI 14: <b>58.21</b></span>
+              <span>Session: <b>London/NY Overlap</b></span>
+              <span>Volatility: <b>Moderate</b></span>
+            </div>
+          </div>
+          <p style="color:var(--muted); font-size:13px;">Live market data via TradingView. Switch symbols using the dropdown above.</p>
+        </div>
+
+        <div id="view-academy" class="dash-view">
+          <div id="acad-grid-view">
+            <h2 style="margin-bottom:6px;">Academy</h2>
+            <p style="color:var(--muted); margin-bottom:24px;">Structured courses — pass the lessons in order to build a real foundation.</p>
+            <div class="acad-grid" id="acad-course-grid"></div>
+          </div>
+          <div id="acad-lesson-view" class="hide">
+            <div class="lesson-back" onclick="backToAcademyGrid()">← Back to Academy</div>
+            <div class="lesson-layout">
+              <div class="lesson-content-box" id="lesson-content-box"></div>
+              <div class="lesson-sidebar" id="lesson-sidebar"></div>
+            </div>
+          </div>
+        </div>
+        <div id="view-news" class="dash-view">
+          <h2 style="margin-bottom:6px;">Market News</h2>
+          <p style="color:var(--muted); margin-bottom:20px;">Analysis and updates from Tradelify — not signals, just context.</p>
+          <div id="news-list"><p style="color:var(--muted);">Loading...</p></div>
+        </div>
+
+        <div id="view-notifications" class="dash-view">
+          <h2 style="margin-bottom:20px;">Notifications</h2>
+          <div id="notif-list"><p style="color:var(--muted);">Loading...</p></div>
+        </div>
+
+        <div id="view-settings" class="dash-view">
+          <h2 style="margin-bottom:20px;">Settings</h2>
+
+          <div class="settings-section">
+            <h3>Profile</h3>
+            <div class="field"><label>DISPLAY NAME</label><input type="text" id="settings-name"></div>
+            <div class="field"><label>EMAIL</label><input type="email" id="settings-email" disabled style="opacity:0.6;"></div>
+            <button class="btn btn-primary" onclick="saveProfileSettings()">Save Profile</button>
+            <div class="settings-msg" id="profile-msg"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Change Password</h3>
+            <div class="field"><label>CURRENT PASSWORD</label><input type="password" id="settings-current-pw"></div>
+            <div class="field"><label>NEW PASSWORD</label><input type="password" id="settings-new-pw" placeholder="At least 6 characters"></div>
+            <button class="btn btn-primary" onclick="changePasswordSettings()">Update Password</button>
+            <div class="settings-msg" id="password-msg"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Appearance</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Dark Mode</div><div class="settings-row-sub">Switch between dark and light theme</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="settings-dark-mode" checked onchange="toggleThemeMode()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Notifications</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Email notifications</div><div class="settings-row-sub">Receive platform updates by email</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="settings-email-notifs" checked onchange="saveNotifPref()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Subscription</h3>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Current Plan</div><div class="settings-row-sub">Manage upgrades via the pricing page</div></div>
+              <span class="admin-plan-badge admin-plan-free" id="settings-plan-badge">FREE</span>
+            </div>
+          </div>
+
+          <div class="settings-section settings-danger">
+            <h3>Danger Zone</h3>
+            <button class="btn btn-ghost" onclick="exitDashboard()" style="margin-bottom:10px;">Log Out</button><br>
+            <button class="btn" style="background:var(--red); color:#fff;" onclick="deleteAccountSettings()">Delete Account</button>
+            <div class="settings-msg" id="danger-msg"></div>
+          </div>
+        </div>
+
+        <div id="view-products" class="dash-view">
+          <h2 style="margin-bottom:6px;">Products</h2>
+          <p style="color:var(--muted); margin-bottom:24px;">Guides and resources to go deeper, from the Tradelify team.</p>
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-icon">📕</div>
+              <h3>Why Traders Lose Money</h3>
+              <p>Understand the real, avoidable reasons most traders fail — before they cost you.</p>
+              <a href="https://davycrypto.systeme.io/crypto" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+            <div class="product-card">
+              <div class="product-icon">📗</div>
+              <h3>A–Z Beginners Guide to Trading the Crypto Market</h3>
+              <p>A complete foundation for anyone starting from zero in crypto trading.</p>
+              <a href="https://anifowosedavid25.systeme.io/cryptotrading-7109688d" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+            <div class="product-card">
+              <div class="product-icon">📘</div>
+              <h3>The Only Cryptocurrency Book You'll Ever Need</h3>
+              <p>A comprehensive, all-in-one reference for serious crypto traders.</p>
+              <a href="https://selar.com/0106w1651o" target="_blank" class="btn btn-primary full-btn">View & Purchase</a>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-analysis" class="dash-view">
+          <h2 style="margin-bottom:6px;">Chart Analysis</h2>
+          <p style="color:var(--muted); margin-bottom:24px; max-width:560px; margin-left:auto; margin-right:auto; text-align:center;">Upload a chart screenshot for a structured read — trend, key levels, and context. Not a buy/sell signal, a second pair of eyes.</p>
+
+          <div class="analysis-upload-card" id="analysis-upload-card" onclick="document.getElementById('analysis-file-input').click()">
+            <div class="au-icon">📊</div>
+            <h3 style="margin-bottom:6px;">Upload a Chart Screenshot</h3>
+            <p style="color:var(--muted); font-size:13px;">Tap to select an image from your gallery</p>
+            <input type="file" id="analysis-file-input" accept="image/*" style="display:none;" onchange="handleAnalysisUpload(event)">
+          </div>
+
+          <div id="analysis-preview-section" class="hide">
+            <div class="analysis-preview-wrap">
+              <img id="analysis-preview-img" src="" alt="Uploaded chart">
+            </div>
+            <div style="text-align:center; margin-bottom:20px;">
+              <button class="btn btn-primary" onclick="runChartAnalysis()">Analyze This Chart</button>
+              <button class="btn btn-ghost" onclick="resetChartAnalysis()">Upload Different Image</button>
+            </div>
+          </div>
+
+          <div id="analysis-results-section" class="hide">
+            <div class="analysis-results">
+              <div class="analysis-section"><div class="as-icon">📈</div><div><h4>Trend Direction</h4><p id="ar-trend">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">🎯</div><div><h4>Key Levels</h4><p id="ar-levels">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">🕯️</div><div><h4>Candlestick Context</h4><p id="ar-candles">—</p></div></div>
+              <div class="analysis-section"><div class="as-icon">📶</div><div><h4>Momentum</h4><p id="ar-momentum">—</p></div></div>
+              <div style="text-align:center;"><span class="analysis-pending-badge" id="analysis-pending-note">⚠ Real per-image AI analysis needs the backend connection — see note below</span></div>
+            </div>
+          </div>
