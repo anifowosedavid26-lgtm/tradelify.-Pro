@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradelify Academy — Learn. Practice. Improve.</title>
+<meta name="description" content="Tradelify Academy is a structured trading education environment — candlestick patterns, technical analysis, and practical tools, built to help you learn with purpose.">
+<link rel="canonical" href="https://anifowosedavid26-lgtm.github.io/tradelify.-Pro/academy.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0E14; --panel:#141822; --panel-2:#1B202C; --line:#242A38;
+    --text:#F2F4F8; --muted:#8891A5; --mint:#3DD68C; --mint-dim:#1F8F5F;
+    --amber:#F5A623; --red:#E5484D;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--ink); color:var(--text); font-family:'Inter',sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  a{text-decoration:none; color:inherit;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 20px;}
+  .hide{display:none !important;}
+
+  /* ---- Nav ---- */
+  .aca-nav{position:sticky; top:0; z-index:50; background:rgba(11,14,20,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .aca-nav-inner{max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:16px 20px;}
+  .aca-brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:17px;}
+  .aca-brand .mark{width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--mint),var(--mint-dim)); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-size:13px;}
+  .aca-brand .tag{font-size:10px; color:var(--muted); font-family:'JetBrains Mono'; letter-spacing:.06em; margin-left:4px; align-self:flex-end; padding-bottom:3px;}
+  .aca-nav-actions{display:flex; gap:10px; align-items:center;}
+  .aca-btn{padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; border:1px solid var(--line); cursor:pointer; background:transparent; color:var(--text); font-family:inherit;}
+  .aca-btn-primary{background:var(--mint); color:var(--ink); border-color:var(--mint);}
+  .aca-back-link{font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px;}
+  .aca-back-link:hover{color:var(--mint);}
+  .aca-user-chip{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .aca-avatar{width:30px; height:30px; border-radius:50%; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--mint);}
+
+  /* ---- Hero ---- */
+  .aca-hero{padding:56px 0 44px; text-align:center; border-bottom:1px solid var(--line);}
+  .aca-eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12px; font-family:'JetBrains Mono'; color:var(--mint); margin-bottom:16px;}
+  .aca-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--mint);}
+  .aca-hero h1{font-family:'Space Grotesk'; font-weight:700; font-size:clamp(28px,5vw,42px); letter-spacing:-0.02em; max-width:640px; margin:0 auto 16px;}
+  .aca-hero p{color:var(--muted); font-size:15px; max-width:480px; margin:0 auto 28px;}
+
+  /* ---- Continue learning strip (only if logged in w/ progress) ---- */
+  .aca-continue{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; max-width:600px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:14px;}
+  .aca-continue .cc-label{font-size:11px; color:var(--muted); font-family:'JetBrains Mono'; margin-bottom:4px;}
+  .aca-continue .cc-title{font-size:14.5px; font-weight:600;}
+
+  /* ---- Category grid ---- */
+  .aca-section{padding:48px 0;}
+  .aca-section-head{text-align:center; margin-bottom:32px;}
+  .aca-section-head h2{font-family:'Space Grotesk'; font-size:clamp(20px,3vw,26px); letter-spacing:-0.01em; margin-bottom:8px;}
+  .aca-section-head p{color:var(--muted); font-size:13.5px;}
+  .aca-cat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:860px){.aca-cat-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.aca-cat-grid{grid-template-columns:1fr;}}
+  .aca-cat-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:24px; position:relative; cursor:pointer; transition:.15s;}
+  .aca-cat-card:active{transform:scale(.98);}
+  .aca-cat-card .cc-icon{width:44px; height:44px; border-radius:10px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:16px;}
+  .aca-cat-card h3{font-size:15.5px; margin-bottom:6px;}
+  .aca-cat-card p{color:var(--muted); font-size:12.5px; margin-bottom:14px; line-height:1.5;}
+  .aca-cat-card .cc-progress-row{display:flex; justify-content:space-between; font-size:11px; color:var(--muted); font-family:'JetBrains Mono'; margin-bottom:6px;}
+  .aca-bar{height:4px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
+  .aca-bar-fill{height:100%; background:var(--mint); border-radius:3px;}
+  .aca-cat-card.locked{opacity:.75;}
+  .aca-lock-badge{position:absolute; top:18px; right:18px; font-size:10px; font-family:'JetBrains Mono'; background:rgba(124,108,240,.15); color:#9C8CFF; padding:3px 10px; border-radius:20px;}
+
+  /* ---- Tools / Practice teaser row ---- */
+  .aca-teaser-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:700px){.aca-teaser-row{grid-template-columns:1fr;}}
+  .aca-teaser-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:26px;}
+  .aca-teaser-card h3{font-size:16px; margin-bottom:8px; font-family:'Space Grotesk';}
+  .aca-teaser-card p{color:var(--muted); font-size:13px; margin-bottom:16px; line-height:1.6;}
+
+  /* ---- Cross-link to main platform ---- */
+  .aca-crosslink{background:var(--panel); border:1px solid var(--mint-dim); border-radius:16px; padding:36px 24px; text-align:center; margin-top:8px;}
+  .aca-crosslink h3{font-family:'Space Grotesk'; font-size:19px; margin-bottom:10px;}
+  .aca-crosslink p{color:var(--muted); font-size:13.5px; margin-bottom:20px; max-width:420px; margin-left:auto; margin-right:auto;}
+
+  .aca-footer{border-top:1px solid var(--line); padding:28px 0; text-align:center; font-size:12px; color:var(--muted);}
+
+  .aca-loader{position:fixed; inset:0; background:var(--ink); display:flex; align-items:center; justify-content:center; z-index:999;}
+  .aca-loader .mark{width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--mint),var(--mint-dim)); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-family:'Space Grotesk'; animation:pulse 1.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.5;}}
+</style>
+</head>
+<body>
+
+<div class="aca-loader" id="aca-loader"><div class="mark">T</div></div>
+
+<nav class="aca-nav">
+  <div class="aca-nav-inner">
+    <div class="aca-brand"><div class="mark">T</div>Tradelify<span class="tag">ACADEMY</span></div>
+    <div class="aca-nav-actions" id="aca-nav-actions">
+      <a href="index.html" class="aca-back-link">← Tradelify Platform</a>
+    </div>
+  </div>
+</nav>
+
+<section class="aca-hero wrap">
+  <div class="aca-eyebrow"><span class="dot"></span> TRADELIFY ACADEMY</div>
+  <h1>Learn. Practice. Understand. Improve.</h1>
+  <p>A structured trading education environment — candlestick patterns, technical analysis, and practical tools, built to help you learn with purpose.</p>
+
+  <div class="aca-continue hide" id="aca-continue-strip">
+    <div>
+      <div class="cc-label">CONTINUE LEARNING</div>
+      <div class="cc-title" id="aca-continue-title">Candlestick Mastery</div>
+    </div>
+    <button class="aca-btn aca-btn-primary" onclick="alert('Lesson content is coming in Phase 2.')">Resume</button>
+  </div>
+</section>
+
+<section class="aca-section wrap">
+  <div class="aca-section-head">
+    <h2>Learning Categories</h2>
+    <p>Structured courses, from foundations to advanced concepts.</p>
+  </div>
+  <div class="aca-cat-grid" id="aca-category-grid"></div>
+</section>
+
+<section class="aca-section wrap">
+  <div class="aca-section-head">
+    <h2>Practice &amp; Tools</h2>
+    <p>Apply what you learn before you apply it with real decisions.</p>
+  </div>
+  <div class="aca-teaser-row">
+    <div class="aca-teaser-card">
+      <h3>🧪 Practice Lab</h3>
+      <p>Pattern recognition, chart challenges, and knowledge checks that track your accuracy — not just your speed.</p>
+      <button class="aca-btn" onclick="alert('Practice Lab arrives in Phase 5.')">Coming Soon</button>
+    </div>
+    <div class="aca-teaser-card">
+      <h3>🧮 Tools Lab</h3>
+      <p>Risk, position size, pip, and Fibonacci calculators — plus an original Tradelify Gann Square of 9.</p>
+      <button class="aca-btn" onclick="alert('Tools Lab arrives in Phase 4.')">Coming Soon</button>
+    </div>
+  </div>
+</section>
+
+<section class="aca-section wrap">
+  <div class="aca-crosslink">
+    <h3>Ready to Apply What You've Learned?</h3>
+    <p>Practice real decisions in the Tradelify simulator, log them in your Journal, and track your progress over time.</p>
+    <a href="index.html"><button class="aca-btn aca-btn-primary">Open Tradelify Trading Platform</button></a>
+  </div>
+</section>
+
+<footer class="aca-footer wrap">
+  Tradelify Academy — part of the Tradelify ecosystem. Educational content only, not financial advice.
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbcqsufnNdyyd2JmViXHj8TyWyccutSxw",
+    authDomain: "tradelify-30b4f.firebaseapp.com",
+    projectId: "tradelify-30b4f",
+    storageBucket: "tradelify-30b4f.firebasestorage.app",
+    messagingSenderId: "1059346992672",
+    appId: "1:1059346992672:web:8a8adee456a66cba227645"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  let currentUser = null;
+  let currentUserPlan = 'free';
+
+  // ---------- Centralized Academy entitlements (mirrors the main app's pattern) ----------
+  const ACADEMY_ENTITLEMENTS = {
+    free: ['category_candlestick_intro'],
+    pro: ['category_candlestick_intro', 'category_candlestick_full', 'category_technical_analysis', 'category_market_structure', 'category_risk_management', 'practice_lab', 'tools_lab'],
+    elite: ['category_candlestick_intro', 'category_candlestick_full', 'category_technical_analysis', 'category_market_structure', 'category_risk_management', 'category_psychology', 'category_strategy', 'category_advanced', 'practice_lab', 'tools_lab', 'gann_tool']
+  };
+  function planKey(){ return (currentUserPlan === 'pro' || currentUserPlan === 'elite') ? currentUserPlan : 'free'; }
+  function hasAcademyAccess(feature){ return ACADEMY_ENTITLEMENTS[planKey()].includes(feature); }
+
+  // ---------- Category definitions (Phase 1: structure + locking; content arrives in later phases) ----------
+  const categories = [
+    { id:'candlestick', icon:'🕯️', title:'Candlestick Mastery', desc:'Anatomy, bullish & bearish patterns, multi-candle setups.', feature:'category_candlestick_full', lessons: 11 },
+    { id:'technical', icon:'📊', title:'Technical Analysis', desc:'Price action, support & resistance, trend, indicators.', feature:'category_technical_analysis', lessons: 12 },
+    { id:'structure', icon:'🧩', title:'Market Structure', desc:'Break of structure, change of character, supply & demand.', feature:'category_market_structure', lessons: 8 },
+    { id:'risk', icon:'🛡️', title:'Risk Management', desc:'Position sizing, risk/reward, capital preservation.', feature:'category_risk_management', lessons: 7 },
+    { id:'psychology', icon:'🧠', title:'Trading Psychology', desc:'Discipline, emotional control, decision-making under risk.', feature:'category_psychology', lessons: 8 },
+    { id:'strategy', icon:'♟️', title:'Strategy Development', desc:'Building, testing, and refining a trading approach.', feature:'category_strategy', lessons: 9 },
+  ];
+
+  function renderCategories(){
+    const grid = document.getElementById('aca-category-grid');
+    grid.innerHTML = categories.map(c => {
+      const unlocked = hasAcademyAccess(c.feature);
+      return `
+        <div class="aca-cat-card ${unlocked ? '' : 'locked'}" onclick="openCategory('${c.id}', ${unlocked})">
+          ${!unlocked ? '<div class="aca-lock-badge">🔒 Pro</div>' : ''}
+          <div class="cc-icon">${c.icon}</div>
+          <h3>${c.title}</h3>
+          <p>${c.desc}</p>
+          <div class="cc-progress-row"><span>0/${c.lessons} lessons</span><span>0%</span></div>
+          <div class="aca-bar"><div class="aca-bar-fill" style="width:0%;"></div></div>
+        </div>`;
+    }).join('');
+  }
+
+  function openCategory(id, unlocked){
+    if(!unlocked){
+      alert('This category is part of Pro. Lesson content for every category arrives in the next build phases — this screen already enforces the real access rule that will apply once content ships.');
+      return;
+    }
+    alert('Lesson content for this category is coming in the next phase. The category structure and access rules are live now.');
+  }
+
+  function renderNavForUser(user){
+    const actions = document.getElementById('aca-nav-actions');
+    if(user){
+      const initials = (user.displayName || 'T').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      actions.innerHTML = `
+        <a href="index.html" class="aca-back-link">← Tradelify Platform</a>
+        <div class="aca-user-chip"><div class="aca-avatar">${initials}</div></div>`;
+    } else {
+      actions.innerHTML = `
+        <a href="index.html" class="aca-back-link">← Tradelify Platform</a>
+        <a href="index.html"><button class="aca-btn aca-btn-primary">Log In</button></a>`;
+    }
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    try {
+      if(user){
+        const doc = await db.collection('users').doc(user.uid).get();
+        const data = doc.exists ? doc.data() : {};
+        currentUserPlan = data.plan || 'free';
+      } else {
+        currentUserPlan = 'free';
+      }
+    } catch(e){ currentUserPlan = 'free'; }
+    renderNavForUser(user);
+    renderCategories();
+    document.getElementById('aca-loader').classList.add('hide');
+  });
+</script>
+</body>
+</html>
