@@ -83,6 +83,42 @@
   .aca-loader{position:fixed; inset:0; background:var(--ink); display:flex; align-items:center; justify-content:center; z-index:999;}
   .aca-loader .mark{width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--mint),var(--mint-dim)); display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-family:'Space Grotesk'; animation:pulse 1.4s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.5;}}
+
+  /* ---- Course / module / lesson views ---- */
+  .aca-view{display:none;}
+  .aca-view.active{display:block;}
+  .aca-back-crumb{font-size:12.5px; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin-bottom:20px;}
+  .aca-back-crumb:hover{color:var(--mint);}
+  .aca-course-head{text-align:center; padding:36px 0 28px;}
+  .aca-course-head h1{font-family:'Space Grotesk'; font-size:clamp(24px,4vw,32px); margin-bottom:10px;}
+  .aca-course-head p{color:var(--muted); font-size:13.5px; max-width:460px; margin:0 auto;}
+  .aca-module-block{margin-bottom:32px;}
+  .aca-module-title{font-size:11.5px; color:var(--muted); font-family:'JetBrains Mono'; letter-spacing:.06em; margin-bottom:12px; text-transform:uppercase;}
+  .aca-lesson-row{display:flex; align-items:center; gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:8px; cursor:pointer;}
+  .aca-lesson-row:active{transform:scale(.99);}
+  .aca-lesson-row .lr-num{width:28px; height:28px; border-radius:50%; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-family:'JetBrains Mono'; color:var(--muted); flex-shrink:0;}
+  .aca-lesson-row.done .lr-num{background:rgba(61,214,140,.15); color:var(--mint);}
+  .aca-lesson-row .lr-title{flex:1; font-size:14px;}
+  .aca-lesson-row .lr-arrow{color:var(--muted); font-size:14px;}
+  .aca-lesson-row.locked{opacity:.55;}
+
+  .aca-lesson-body{max-width:640px; margin:0 auto; padding:30px 0 60px;}
+  .aca-lesson-body h1{font-family:'Space Grotesk'; font-size:clamp(22px,4vw,28px); margin-bottom:6px;}
+  .aca-lesson-body .lb-meta{color:var(--muted); font-size:12px; font-family:'JetBrains Mono'; margin-bottom:28px;}
+  .aca-lesson-sec{margin-bottom:22px;}
+  .aca-lesson-sec h3{font-size:13px; color:var(--mint); font-family:'JetBrains Mono'; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;}
+  .aca-lesson-sec p{font-size:14.5px; line-height:1.7; color:var(--text);}
+  .aca-caution-box{background:var(--panel); border-left:3px solid var(--amber); border-radius:6px; padding:14px 16px; font-size:13.5px; margin:22px 0;}
+
+  .aca-check-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px; margin-top:32px;}
+  .aca-check-box h3{font-size:13px; color:var(--muted); font-family:'JetBrains Mono'; text-transform:uppercase; margin-bottom:14px;}
+  .aca-check-q{font-size:14.5px; margin-bottom:16px; font-weight:600;}
+  .aca-check-opt{display:block; width:100%; text-align:left; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:8px; color:var(--text); font-size:13.5px; cursor:pointer; font-family:inherit;}
+  .aca-check-opt.correct{border-color:var(--mint); background:rgba(61,214,140,.1);}
+  .aca-check-opt.wrong{border-color:var(--red); background:rgba(229,72,77,.1);}
+  .aca-check-explain{font-size:13px; color:var(--muted); margin-top:12px; line-height:1.6; display:none;}
+  .aca-check-explain.show{display:block;}
+  .aca-lesson-nav{display:flex; justify-content:space-between; margin-top:32px;}
 </style>
 </head>
 <body>
@@ -98,6 +134,7 @@
   </div>
 </nav>
 
+<div id="view-home" class="aca-view active">
 <section class="aca-hero wrap">
   <div class="aca-eyebrow"><span class="dot"></span> TRADELIFY ACADEMY</div>
   <h1>Learn. Practice. Understand. Improve.</h1>
@@ -146,6 +183,21 @@
     <a href="index.html"><button class="aca-btn aca-btn-primary">Open Tradelify Trading Platform</button></a>
   </div>
 </section>
+</div>
+
+<div id="view-course" class="aca-view wrap">
+  <div class="aca-back-crumb" onclick="goHome()">← Back to Academy</div>
+  <div class="aca-course-head">
+    <h1 id="course-title">Candlestick Mastery</h1>
+    <p id="course-desc"></p>
+  </div>
+  <div id="course-modules"></div>
+</div>
+
+<div id="view-lesson" class="aca-view wrap">
+  <div class="aca-back-crumb" onclick="backToCourse()">← Back to Candlestick Mastery</div>
+  <div class="aca-lesson-body" id="lesson-body"></div>
+</div>
 
 <footer class="aca-footer wrap">
   Tradelify Academy — part of the Tradelify ecosystem. Educational content only, not financial advice.
@@ -192,24 +244,323 @@
     const grid = document.getElementById('aca-category-grid');
     grid.innerHTML = categories.map(c => {
       const unlocked = hasAcademyAccess(c.feature);
+      let done = 0, total = c.lessons;
+      if(c.id === 'candlestick'){ done = completedCandlestickCount(); total = totalCandlestickLessons(); }
+      const pct = total ? Math.round((done/total)*100) : 0;
       return `
         <div class="aca-cat-card ${unlocked ? '' : 'locked'}" onclick="openCategory('${c.id}', ${unlocked})">
           ${!unlocked ? '<div class="aca-lock-badge">🔒 Pro</div>' : ''}
           <div class="cc-icon">${c.icon}</div>
           <h3>${c.title}</h3>
           <p>${c.desc}</p>
-          <div class="cc-progress-row"><span>0/${c.lessons} lessons</span><span>0%</span></div>
-          <div class="aca-bar"><div class="aca-bar-fill" style="width:0%;"></div></div>
+          <div class="cc-progress-row"><span>${done}/${total} lessons</span><span>${pct}%</span></div>
+          <div class="aca-bar"><div class="aca-bar-fill" style="width:${pct}%;"></div></div>
         </div>`;
     }).join('');
   }
 
-  function openCategory(id, unlocked){
+  // ---------- CANDLESTICK MASTERY — real, original curriculum ----------
+  const candlestickModules = [
+    { id:'intro', title:'Introduction', lessons:[
+      { id:'what-is', title:'What Is a Candlestick?',
+        body:{
+          what:"A candlestick is a way of showing price movement over a set period — a minute, an hour, a day — using one shape that captures four numbers: the open, close, high, and low.",
+          why:"Unlike a simple line chart, a candlestick shows the full range of a struggle between buyers and sellers during that period, not just where price ended up.",
+          formed:"Each candle is built from the opening price, the highest price reached, the lowest price reached, and the closing price, all within one time period.",
+          signals:"On its own, a single candlestick tells you who was in control during that period — buyers, sellers, or neither.",
+          context:"Candlesticks only become genuinely useful once you can read several of them together, in the context of the broader trend — which is what the rest of this course builds toward."
+        },
+        check:{ q:"What four prices does a single candlestick represent?", options:["Open, close, high, low","Volume, open, close, spread","High, low, volume, time","Open, close, volume, trend"], correct:0,
+          explain:"A candlestick is built from exactly four prices within its time period: the open, the close, the high, and the low." } },
+      { id:'why-matter', title:'Why Candlesticks Matter',
+        body:{
+          what:"Candlestick patterns are a way of reading the psychology behind price movement — not a guarantee of what happens next.",
+          why:"They help you see when control is shifting between buyers and sellers, often before that shift is obvious from price alone.",
+          formed:"Patterns form from the shape and sequence of one or more candles, built from real buying and selling pressure in that period.",
+          signals:"A pattern signals a possible shift or continuation in control — it's a clue, not a certainty.",
+          context:"The same pattern can mean different things depending on where it appears: near a key support/resistance level, it carries far more weight than in the middle of a range with no context."
+        },
+        check:{ q:"What do candlestick patterns actually represent?", options:["Guaranteed future price","The psychology and pressure between buyers and sellers","A fixed mathematical formula for profit","A replacement for risk management"], correct:1,
+          explain:"Patterns reflect real buying/selling pressure — they're a read on psychology and momentum, not a guarantee of what price does next." } }
+    ]},
+    { id:'anatomy', title:'Anatomy of a Candlestick', lessons:[
+      { id:'anatomy', title:'Body, Wicks, and What They Mean',
+        body:{
+          what:"Every candlestick has a 'body' (the thick part, between open and close) and 'wicks' or 'shadows' (the thin lines showing the high and low reached).",
+          why:"Understanding the body and wicks separately is the foundation for reading every pattern in this course — they tell different parts of the story.",
+          formed:"A green/white body usually means the close was higher than the open (buyers won that period); a red/black body means the close was lower than the open (sellers won).",
+          signals:"A long body shows strong conviction in one direction. Long wicks show that price was pushed one way, then rejected and pulled back — a sign of a fight, not a clean win.",
+          context:"A small body with long wicks on both sides (indecision) means something very different from a long body with almost no wicks (strong conviction) — size and shape matter as much as color."
+        },
+        check:{ q:"What does a long upper wick with a small body typically suggest?", options:["Buyers pushed price up and held it there with ease","Price was pushed higher, then rejected back down","The candle has no meaningful information","It always means the trend is reversing"], correct:1,
+          explain:"A long upper wick shows price reached higher but was pushed back down before the close — a sign of rejection at that level." } }
+    ]},
+    { id:'bullish', title:'Bullish Patterns', lessons:[
+      { id:'hammer', title:'Hammer', body:{
+          what:"A Hammer is a single candle with a small body near the top of its range and a long lower wick, at least twice the length of the body.",
+          why:"It's one of the most recognized signs of potential buying pressure stepping in after a decline.",
+          formed:"Price falls during the period, then buyers push it back up near the open before the close — leaving a long lower wick and a small body up top.",
+          signals:"It suggests sellers pushed price down, but buyers stepped in and rejected those lower prices — a possible early sign of a shift.",
+          context:"A Hammer means far more after a clear downtrend than in the middle of a sideways range, and is stronger when the next candle confirms by closing higher."
+        }, check:{ q:"Where does a Hammer's long wick appear?", options:["On the upper side","On the lower side","On both sides equally","Hammers have no wick"], correct:1,
+          explain:"A Hammer has a long lower wick, showing price was pushed down and then rejected back up before the close." } },
+      { id:'inverted-hammer', title:'Inverted Hammer', body:{
+          what:"An Inverted Hammer looks like an upside-down Hammer — a small body near the bottom of its range with a long upper wick.",
+          why:"It can signal early buying pressure after a downtrend, though it's generally considered a weaker signal than a standard Hammer.",
+          formed:"Price pushes higher during the period, then pulls back toward the open before the close, leaving a long upper wick.",
+          signals:"It shows buyers attempted to push price up, even though sellers pulled it back down by the close — a sign that buying interest exists.",
+          context:"Like the Hammer, it carries more weight after a clear downtrend and is best read alongside the next candle's confirmation."
+        }, check:{ q:"An Inverted Hammer is generally considered what, compared to a standard Hammer?", options:["A stronger signal","An identical signal","A weaker signal that needs confirmation","Not a real pattern"], correct:2,
+          explain:"The Inverted Hammer is typically read as a weaker, more tentative signal than a standard Hammer, and benefits more from confirmation." } },
+      { id:'bullish-engulfing', title:'Bullish Engulfing', body:{
+          what:"A two-candle pattern where a small red (down) candle is immediately followed by a larger green (up) candle that fully 'engulfs' the body of the first.",
+          why:"It's one of the clearer two-candle signs that buying pressure has decisively overwhelmed the prior selling.",
+          formed:"The first candle closes down; the second opens lower or similar, then closes above the first candle's open — covering its entire body.",
+          signals:"It suggests a strong shift in control from sellers to buyers within a short space of time.",
+          context:"It's considered more significant after a clear downtrend, and more significant still on higher volume, which this course covers later."
+        }, check:{ q:"In a Bullish Engulfing pattern, what does the second candle do?", options:["Fully covers the body of the prior down candle","Has the same close as the first candle","Is always a Doji","Appears before the down candle"], correct:0,
+          explain:"The second (up) candle's body fully engulfs the first (down) candle's body, closing above the first candle's open." } },
+      { id:'morning-star', title:'Morning Star', body:{
+          what:"A three-candle pattern: a long red candle, a small-bodied candle (the 'star'), then a long green candle that closes well into the first candle's body.",
+          why:"It's a well-known multi-candle reversal signal, showing a gradual shift from selling to buying pressure over three periods.",
+          formed:"Candle one shows strong selling; candle two shows indecision (often gapping away from candle one); candle three shows strong buying, closing back into candle one's range.",
+          signals:"The 'star' candle represents a pause where sellers lose momentum, before buyers take clear control in the third candle.",
+          context:"Like other reversal patterns, it matters most after an established downtrend, not in a sideways market."
+        }, check:{ q:"How many candles make up a Morning Star pattern?", options:["One","Two","Three","Five"], correct:2,
+          explain:"A Morning Star is a three-candle pattern: a strong down candle, a small indecisive candle, then a strong up candle." } },
+      { id:'piercing-line', title:'Piercing Line', body:{
+          what:"A two-candle pattern where a red candle is followed by a green candle that opens below the prior low, then closes above the midpoint of the first candle's body.",
+          why:"It shows a meaningful intraday reversal in buying pressure, even though it doesn't fully engulf the first candle like a Bullish Engulfing does.",
+          formed:"Candle one closes down. Candle two opens with a gap down, then buyers push price back up through more than half of candle one's body.",
+          signals:"It's a sign that sellers were initially in control at the open, but buyers reclaimed significant ground by the close.",
+          context:"The deeper the second candle closes into the first candle's body, the stronger the signal is generally considered."
+        }, check:{ q:"A Piercing Line's second candle must close above what point of the first candle's body?", options:["The very top","The very bottom","The midpoint","It doesn't matter where it closes"], correct:2,
+          explain:"To qualify as a Piercing Line, the second candle must close above the midpoint of the first candle's body." } },
+      { id:'three-white-soldiers', title:'Three White Soldiers', body:{
+          what:"Three consecutive long green candles, each opening within the prior candle's body and closing at or near a new high.",
+          why:"It represents sustained, steady buying pressure across three full periods, rather than one sudden move.",
+          formed:"Each candle opens inside the previous candle's body and pushes to a higher close, with relatively small wicks throughout.",
+          signals:"It suggests consistent control by buyers, often following a downtrend or a period of consolidation.",
+          context:"Very long bodies with no real wicks across all three candles can sometimes suggest an overextended move, worth watching for exhaustion rather than assuming the move continues indefinitely."
+        }, check:{ q:"What is the key feature of Three White Soldiers?", options:["Three long green candles with steadily higher closes","Three small Doji candles in a row","One large green candle followed by two red ones","Three candles with identical closes"], correct:0,
+          explain:"Three White Soldiers is three consecutive long green candles, each closing higher than the last, showing sustained buying." } },
+      { id:'dragonfly-doji', title:'Dragonfly Doji', body:{
+          what:"A Doji where the open, close, and high are all at or near the same price, with a long lower wick — forming a 'T' shape.",
+          why:"It shows sellers pushed price sharply lower during the period, but buyers fully reclaimed that ground by the close.",
+          formed:"Price opens, falls significantly, then recovers all the way back to the open (and high) by the close.",
+          signals:"It's read as a sign of strong rejection of lower prices, similar in spirit to a Hammer but with an even tighter open/close relationship.",
+          context:"Like other reversal signals, it carries more weight after a clear downtrend, and benefits from confirmation on the next candle."
+        }, check:{ q:"A Dragonfly Doji is characterized by what shape?", options:["A long upper wick with no lower wick","A long lower wick with almost no upper wick, forming a 'T'","Two equal wicks on both sides","No wicks at all"], correct:1,
+          explain:"A Dragonfly Doji has a long lower wick and almost no upper wick, with open, close, and high clustered together — forming a 'T' shape." } }
+    ]},
+    { id:'bearish', title:'Bearish Patterns', lessons:[
+      { id:'shooting-star', title:'Shooting Star', body:{
+          what:"A single candle with a small body near the bottom of its range and a long upper wick, at least twice the length of the body — the mirror image of a Hammer.",
+          why:"It's a widely recognized sign of potential selling pressure stepping in after a rally.",
+          formed:"Price rises during the period, then sellers push it back down near the open before the close, leaving a long upper wick.",
+          signals:"It suggests buyers pushed price up, but sellers rejected those higher prices by the close — a possible early sign of a top forming.",
+          context:"It means far more after a clear uptrend than in a sideways range, and is stronger when the next candle confirms by closing lower."
+        }, check:{ q:"A Shooting Star is essentially the mirror image of which pattern?", options:["Doji","Hammer","Engulfing","Spinning Top"], correct:1,
+          explain:"A Shooting Star is the bearish mirror image of a Hammer — small body near the bottom, long upper wick instead of lower." } },
+      { id:'hanging-man', title:'Hanging Man', body:{
+          what:"A Hanging Man looks identical to a Hammer — small body, long lower wick — but appears after an uptrend instead of a downtrend.",
+          why:"Despite looking bullish in shape, its position after a rally changes what it can suggest about the trend.",
+          formed:"Price falls sharply during the period before recovering back near the open, leaving a long lower wick, after a prior uptrend.",
+          signals:"It shows that sellers were able to push price down significantly during the period, even though buyers recovered it by the close — a hint that selling pressure is building.",
+          context:"Context is everything here: the exact same shape is a Hammer in a downtrend and a Hanging Man in an uptrend — it benefits strongly from confirmation on the next candle."
+        }, check:{ q:"What makes a Hanging Man different from a Hammer, given they look identical?", options:["The body color","Nothing, they are the same pattern in every way","Where it appears — a Hanging Man forms after an uptrend","The length of the wick"], correct:2,
+          explain:"A Hanging Man and a Hammer have the identical shape; what differs is the context — a Hanging Man appears after an uptrend." } },
+      { id:'bearish-engulfing', title:'Bearish Engulfing', body:{
+          what:"A two-candle pattern where a small green (up) candle is immediately followed by a larger red (down) candle that fully engulfs the first candle's body.",
+          why:"It's one of the clearer two-candle signs that selling pressure has decisively overwhelmed prior buying.",
+          formed:"The first candle closes up; the second opens higher or similar, then closes below the first candle's open — covering its entire body.",
+          signals:"It suggests a strong shift in control from buyers to sellers within a short space of time.",
+          context:"It's considered more significant after a clear uptrend, and more significant still on higher volume."
+        }, check:{ q:"A Bearish Engulfing pattern typically appears after what?", options:["A downtrend","An uptrend","A completely flat market only","It cannot appear after a trend"], correct:1,
+          explain:"A Bearish Engulfing carries the most weight when it appears after an established uptrend, signaling a possible shift." } },
+      { id:'evening-star', title:'Evening Star', body:{
+          what:"A three-candle pattern: a long green candle, a small-bodied candle (the 'star'), then a long red candle that closes well into the first candle's body.",
+          why:"It's the bearish mirror of the Morning Star, showing a gradual shift from buying to selling pressure over three periods.",
+          formed:"Candle one shows strong buying; candle two shows indecision; candle three shows strong selling, closing back into candle one's range.",
+          signals:"The 'star' candle represents a pause where buyers lose momentum, before sellers take clear control in the third candle.",
+          context:"It matters most after an established uptrend, and is considered stronger when the third candle closes deep into the first candle's body."
+        }, check:{ q:"The Evening Star is the bearish mirror of which pattern?", options:["Hammer","Morning Star","Doji","Piercing Line"], correct:1,
+          explain:"The Evening Star is the bearish three-candle mirror of the bullish Morning Star pattern." } },
+      { id:'dark-cloud-cover', title:'Dark Cloud Cover', body:{
+          what:"A two-candle pattern where a green candle is followed by a red candle that opens above the prior high, then closes below the midpoint of the first candle's body.",
+          why:"It shows a meaningful intraday reversal in selling pressure, the bearish counterpart to a Piercing Line.",
+          formed:"Candle one closes up. Candle two opens with a gap up, then sellers push price back down through more than half of candle one's body.",
+          signals:"It's a sign that buyers were initially in control at the open, but sellers reclaimed significant ground by the close.",
+          context:"The deeper the second candle closes into the first candle's body, the stronger the signal is generally considered."
+        }, check:{ q:"Dark Cloud Cover is the bearish counterpart to which pattern?", options:["Piercing Line","Hammer","Three White Soldiers","Dragonfly Doji"], correct:0,
+          explain:"Dark Cloud Cover mirrors the Piercing Line — same two-candle structure, opposite direction." } },
+      { id:'three-black-crows', title:'Three Black Crows', body:{
+          what:"Three consecutive long red candles, each opening within the prior candle's body and closing at or near a new low.",
+          why:"It represents sustained, steady selling pressure across three full periods, the bearish mirror of Three White Soldiers.",
+          formed:"Each candle opens inside the previous candle's body and pushes to a lower close, with relatively small wicks throughout.",
+          signals:"It suggests consistent control by sellers, often following an uptrend or a period of consolidation.",
+          context:"As with its bullish counterpart, an overly long, wick-free run can sometimes suggest an overextended move worth watching for exhaustion."
+        }, check:{ q:"Three Black Crows is the bearish mirror of which pattern?", options:["Three White Soldiers","Morning Star","Hammer","Spinning Top"], correct:0,
+          explain:"Three Black Crows mirrors Three White Soldiers — three consecutive candles showing sustained control, in the opposite direction." } },
+      { id:'gravestone-doji', title:'Gravestone Doji', body:{
+          what:"A Doji where the open, close, and low are all at or near the same price, with a long upper wick — the mirror image of a Dragonfly Doji.",
+          why:"It shows buyers pushed price sharply higher during the period, but sellers fully reclaimed that ground by the close.",
+          formed:"Price opens, rises significantly, then falls all the way back to the open (and low) by the close.",
+          signals:"It's read as a sign of strong rejection of higher prices, similar in spirit to a Shooting Star.",
+          context:"It carries more weight after a clear uptrend, and benefits from confirmation on the next candle."
+        }, check:{ q:"A Gravestone Doji is the mirror image of which pattern?", options:["Dragonfly Doji","Hammer","Bullish Engulfing","Morning Star"], correct:0,
+          explain:"A Gravestone Doji is the bearish mirror of a Dragonfly Doji — long upper wick instead of lower, same tight open/close clustering." } }
+    ]},
+    { id:'neutral', title:'Neutral Patterns', lessons:[
+      { id:'doji', title:'Doji', body:{
+          what:"A Doji forms when the open and close of a period are at or very nearly the same price, regardless of how long the wicks are.",
+          why:"It's one of the clearest single-candle signs of indecision — neither buyers nor sellers won control of that period.",
+          formed:"Price may move significantly during the period in either direction, but ends up closing almost exactly where it opened.",
+          signals:"On its own, a Doji signals a pause or balance of power — it does not, by itself, predict a reversal.",
+          context:"A Doji after a strong, extended trend is often read as a sign that momentum may be fading; the same Doji in a quiet, range-bound market may mean very little."
+        }, check:{ q:"What defines a Doji candle?", options:["A very long body","The open and close are at or near the same price","It always appears at market tops","It has no wicks"], correct:1,
+          explain:"A Doji is defined by its open and close being at or very near the same price — the body is extremely small, regardless of wick length." } },
+      { id:'spinning-top', title:'Spinning Top', body:{
+          what:"A candle with a small body and roughly equal-length upper and lower wicks, showing meaningful movement in both directions that ultimately balanced out.",
+          why:"Like a Doji, it signals indecision — but with a slightly larger body, showing a real tug-of-war rather than a near-perfect standoff.",
+          formed:"Price pushes up and down meaningfully during the period, with neither side able to hold a decisive advantage by the close.",
+          signals:"It suggests uncertainty about direction, often appearing at turning points or pauses within a trend.",
+          context:"A Spinning Top after a strong directional move is worth paying attention to; one in a quiet, sideways market is far less meaningful."
+        }, check:{ q:"What distinguishes a Spinning Top from a Doji?", options:["A Spinning Top has no wicks at all","A Spinning Top has a small but visible body, not a near-zero one","A Spinning Top only appears in uptrends","There is no real difference"], correct:1,
+          explain:"A Spinning Top has a small, visible body (unlike a Doji's near-zero body), with roughly balanced wicks on both sides." } }
+    ]},
+    { id:'context', title:'Pattern Context', lessons:[
+      { id:'reading-in-context', title:'Reading Patterns in Context', body:{
+          what:"No candlestick pattern should be read in isolation — the same shape can mean different things depending on the trend, the level it forms at, and what happens next.",
+          why:"This is the single most common mistake in candlestick trading: treating a pattern as a standalone signal rather than one piece of evidence.",
+          formed:"Context comes from the broader trend, nearby support/resistance levels, and ideally volume (covered in Technical Analysis), not from the candle shape alone.",
+          signals:"A pattern that lines up with a key level and the next candle's confirmation carries far more weight than the same pattern appearing randomly mid-range.",
+          context:"Treat every pattern in this course as a question it raises about control shifting between buyers and sellers — not an answer on its own."
+        }, check:{ q:"What is the most common mistake when trading candlestick patterns?", options:["Using too many patterns at once","Treating a single pattern as a standalone, guaranteed signal","Only trading bullish patterns","Ignoring candle color"], correct:1,
+          explain:"The most common mistake is reading a pattern in isolation, without considering trend, level, and confirmation." } }
+    ]}
+  ];
+
+  async function openCategory(id, unlocked){
     if(!unlocked){
       alert('This category is part of Pro. Lesson content for every category arrives in the next build phases — this screen already enforces the real access rule that will apply once content ships.');
       return;
     }
-    alert('Lesson content for this category is coming in the next phase. The category structure and access rules are live now.');
+    if(id !== 'candlestick'){
+      alert('Lesson content for this category is coming in a later phase. Candlestick Mastery is live now.');
+      return;
+    }
+    await loadCandlestickProgress();
+    renderCourseView();
+    switchView('course');
+  }
+
+  // ---------- View navigation ----------
+  let candlestickProgress = {}; // { lessonId: true }
+  let currentLessonCtx = null;
+
+  function switchView(view){
+    document.querySelectorAll('.aca-view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-'+view).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function goHome(){ switchView('home'); renderCategories(); }
+  function backToCourse(){ renderCourseView(); switchView('course'); }
+
+  function totalCandlestickLessons(){
+    return candlestickModules.reduce((sum,m) => sum + m.lessons.length, 0);
+  }
+  function completedCandlestickCount(){
+    return Object.keys(candlestickProgress).length;
+  }
+
+  function renderCourseView(){
+    document.getElementById('course-title').innerText = 'Candlestick Mastery';
+    document.getElementById('course-desc').innerText = 'Anatomy, bullish & bearish patterns, and how to read them in context.';
+    const container = document.getElementById('course-modules');
+    container.innerHTML = candlestickModules.map(mod => `
+      <div class="aca-module-block">
+        <div class="aca-module-title">${mod.title}</div>
+        ${mod.lessons.map(l => {
+          const done = !!candlestickProgress[l.id];
+          return `<div class="aca-lesson-row ${done?'done':''}" onclick="openLesson('${mod.id}','${l.id}')">
+            <div class="lr-num">${done?'✓':'○'}</div>
+            <div class="lr-title">${l.title}</div>
+            <div class="lr-arrow">→</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `).join('');
+  }
+
+  function findLesson(moduleId, lessonId){
+    const mod = candlestickModules.find(m => m.id === moduleId);
+    const lesson = mod.lessons.find(l => l.id === lessonId);
+    return { mod, lesson };
+  }
+
+  function openLesson(moduleId, lessonId){
+    const { mod, lesson } = findLesson(moduleId, lessonId);
+    currentLessonCtx = { moduleId, lessonId };
+    const b = lesson.body;
+    document.getElementById('lesson-body').innerHTML = `
+      <h1>${lesson.title}</h1>
+      <div class="lb-meta">${mod.title.toUpperCase()}</div>
+
+      <div class="aca-lesson-sec"><h3>What Is It?</h3><p>${b.what}</p></div>
+      <div class="aca-lesson-sec"><h3>Why It Matters</h3><p>${b.why}</p></div>
+      <div class="aca-lesson-sec"><h3>How It Forms</h3><p>${b.formed}</p></div>
+      <div class="aca-lesson-sec"><h3>What It Signals</h3><p>${b.signals}</p></div>
+      <div class="aca-caution-box">⚠️ <strong>Context matters:</strong> ${b.context}</div>
+
+      <div class="aca-check-box" id="check-box">
+        <h3>Knowledge Check</h3>
+        <div class="aca-check-q">${lesson.check.q}</div>
+        <div id="check-options"></div>
+        <div class="aca-check-explain" id="check-explain">${lesson.check.explain}</div>
+      </div>
+
+      <div class="aca-lesson-nav">
+        <button class="aca-btn" onclick="backToCourse()">All Lessons</button>
+        <button class="aca-btn aca-btn-primary" onclick="markLessonDone('${lessonId}')">Mark Complete</button>
+      </div>
+    `;
+    renderCheckOptions(lesson.check);
+    switchView('lesson');
+  }
+
+  function renderCheckOptions(check){
+    const wrap = document.getElementById('check-options');
+    wrap.innerHTML = check.options.map((opt,i) =>
+      `<button class="aca-check-opt" onclick="answerCheck(${i}, ${check.correct})">${opt}</button>`
+    ).join('');
+  }
+  function answerCheck(chosen, correct){
+    const buttons = document.querySelectorAll('#check-options .aca-check-opt');
+    buttons.forEach((btn,i) => {
+      btn.onclick = null;
+      if(i === correct) btn.classList.add('correct');
+      else if(i === chosen) btn.classList.add('wrong');
+    });
+    document.getElementById('check-explain').classList.add('show');
+  }
+
+  async function markLessonDone(lessonId){
+    candlestickProgress[lessonId] = true;
+    if(currentUser){
+      try {
+        await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc('candlestick').set(candlestickProgress, { merge:true });
+      } catch(e){}
+    }
+    backToCourse();
+  }
+
+  async function loadCandlestickProgress(){
+    if(!currentUser){ candlestickProgress = {}; return; }
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc('candlestick').get();
+      candlestickProgress = doc.exists ? doc.data() : {};
+    } catch(e){ candlestickProgress = {}; }
   }
 
   function renderNavForUser(user){
@@ -237,10 +588,27 @@
         currentUserPlan = 'free';
       }
     } catch(e){ currentUserPlan = 'free'; }
+    await loadCandlestickProgress();
     renderNavForUser(user);
     renderCategories();
+    updateContinueStrip();
     document.getElementById('aca-loader').classList.add('hide');
   });
+
+  function updateContinueStrip(){
+    const strip = document.getElementById('aca-continue-strip');
+    const done = completedCandlestickCount();
+    if(done === 0 || done >= totalCandlestickLessons()){ strip.classList.add('hide'); return; }
+    for(const mod of candlestickModules){
+      const next = mod.lessons.find(l => !candlestickProgress[l.id]);
+      if(next){
+        document.getElementById('aca-continue-title').innerText = next.title;
+        strip.classList.remove('hide');
+        strip.querySelector('button').setAttribute('onclick', `openCategory('candlestick', true).then(()=>openLesson('${mod.id}','${next.id}'))`);
+        return;
+      }
+    }
+  }
 </script>
 </body>
 </html>
