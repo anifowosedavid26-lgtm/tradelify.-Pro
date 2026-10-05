@@ -246,7 +246,7 @@
     grid.innerHTML = categories.map(c => {
       const unlocked = hasAcademyAccess(c.feature);
       let done = 0, total = c.lessons;
-      if(c.id === 'candlestick'){ done = completedCandlestickCount(); total = totalCandlestickLessons(); }
+      if(courseRegistry[c.id]){ done = completedCountFor(c.id); total = totalLessonsFor(c.id); }
       const pct = total ? Math.round((done/total)*100) : 0;
       return `
         <div class="aca-cat-card ${unlocked ? '' : 'locked'}" onclick="openCategory('${c.id}', ${unlocked})">
@@ -444,22 +444,214 @@
     ]}
   ];
 
+  // ---------- TECHNICAL ANALYSIS CENTER — real, original curriculum ----------
+  const technicalAnalysisModules = [
+    { id:'ta-foundations', title:'Foundations', lessons:[
+      { id:'what-is-ta', title:'What Is Technical Analysis?',
+        chart:{ points:[{x:0,y:70},{x:20,y:55},{x:40,y:60},{x:60,y:35},{x:80,y:42},{x:100,y:20}], refLines:[] },
+        body:{
+          what:"Technical analysis is the study of price and chart behavior to understand what's happening in a market right now, rather than why.",
+          why:"It gives traders a shared, visual language for reading market behavior, built from the same price data everyone else is seeing.",
+          formed:"It's built from historical price (and often volume) data, organized into charts, patterns, levels, and indicators.",
+          signals:"On its own, technical analysis describes what has happened and what's happening — it doesn't promise what happens next.",
+          context:"Technical analysis works best combined with solid risk management, not as a standalone predictor."
+        }, check:{ q:"What does technical analysis primarily study?", options:["Company earnings reports","Price and chart behavior","Interest rate decisions","Social media sentiment only"], correct:1,
+          explain:"Technical analysis focuses on price and chart behavior itself, not underlying financial or economic data." } },
+      { id:'price-action', title:'Price Action',
+        chart:{ points:[{x:0,y:60},{x:15,y:45},{x:30,y:50},{x:45,y:30},{x:60,y:38},{x:75,y:22},{x:100,y:28}], refLines:[] },
+        body:{
+          what:"Price action is the practice of reading raw price movement — candle shapes, swings, and levels — without relying heavily on indicators.",
+          why:"It's considered foundational because indicators are themselves built from price; reading price directly builds a deeper intuition.",
+          formed:"It's read from the sequence of highs, lows, and closes over time, and from how price reacts at specific levels.",
+          signals:"Clean, decisive price action tends to carry more weight than choppy, indecisive movement.",
+          context:"Price action is a skill, not a formula — it takes deliberate practice to read well."
+        }, check:{ q:"Price action primarily focuses on reading what?", options:["Indicator crossovers only","Raw price movement itself","Company fundamentals","News headlines"], correct:1,
+          explain:"Price action means reading the raw movement of price directly — candle shapes, swings, and levels." } }
+    ]},
+    { id:'ta-structure', title:'Structure & Levels', lessons:[
+      { id:'support-resistance', title:'Support and Resistance',
+        chart:{ points:[{x:0,y:30},{x:15,y:70},{x:30,y:32},{x:45,y:68},{x:60,y:28},{x:75,y:65},{x:100,y:30}], refLines:[{y:30,label:'Resistance',color:'red'},{y:68,label:'Support',color:'green'}] },
+        body:{
+          what:"Support is a price level where buying pressure has repeatedly stepped in; resistance is a level where selling pressure has repeatedly capped price.",
+          why:"These levels represent where meaningful decisions have been made before — widely watched reference points on any chart.",
+          formed:"They form from prior swing highs and lows, where price reversed more than once.",
+          signals:"Price reacting again at a known level suggests that level still matters to the market.",
+          context:"A level isn't a precise line — it's closer to a zone, and once broken convincingly, old resistance can become new support."
+        }, check:{ q:"What typically happens to resistance once it is convincingly broken?", options:["It disappears completely and never matters again","It can become new support","Price always crashes afterward","It becomes a guaranteed reversal point"], correct:1,
+          explain:"Once resistance is broken, it often becomes new support, and vice versa." } },
+      { id:'trend-analysis', title:'Trend Analysis',
+        chart:{ points:[{x:0,y:80},{x:20,y:65},{x:40,y:68},{x:60,y:45},{x:80,y:50},{x:100,y:25}], refLines:[] },
+        body:{
+          what:"A trend describes the general direction price is moving over time — up, down, or sideways.",
+          why:"Trading with the trend, rather than against it, aligns you with the dominant pressure in the market.",
+          formed:"An uptrend forms from higher highs and higher lows; a downtrend from lower highs and lower lows.",
+          signals:"A trend remains intact as long as that structure continues.",
+          context:"Trends exist across multiple timeframes simultaneously — a chart can show an uptrend daily and a downtrend hourly at the same time."
+        }, check:{ q:"An uptrend is defined by a series of what?", options:["Lower highs and lower lows","Higher highs and higher lows","Equal highs and equal lows","Random price movement"], correct:1,
+          explain:"An uptrend is defined by a sequence of higher highs and higher lows over time." } },
+      { id:'market-structure', title:'Market Structure',
+        chart:{ points:[{x:0,y:70},{x:15,y:55},{x:30,y:58},{x:45,y:40},{x:60,y:44},{x:75,y:25},{x:100,y:30}], refLines:[] },
+        body:{
+          what:"Market structure is the framework of how swing highs and swing lows connect to describe the state of a trend.",
+          why:"It gives a more precise vocabulary than 'uptrend' or 'downtrend' alone.",
+          formed:"It's mapped by labeling each swing point as a higher high (HH), higher low (HL), lower high (LH), or lower low (LL).",
+          signals:"As long as the expected sequence continues, structure is intact; when it breaks, structure is said to shift.",
+          context:"Market structure is the foundation the next two lessons — Break of Structure and Change of Character — are built directly on."
+        }, check:{ q:"In an uptrend, what sequence of swing points would you expect?", options:["Lower highs and lower lows","Higher highs and higher lows","Only higher highs, no lows needed","Random, unlabeled swings"], correct:1,
+          explain:"A healthy uptrend's structure is defined by a repeating sequence of higher highs and higher lows." } },
+      { id:'break-of-structure', title:'Break of Structure',
+        chart:{ points:[{x:0,y:70},{x:20,y:50},{x:40,y:55},{x:60,y:30},{x:80,y:35},{x:100,y:15}], refLines:[{y:30,label:'Prior High',color:'amber'}] },
+        body:{
+          what:"A Break of Structure (BOS) occurs when price moves beyond a prior swing high (in an uptrend) or swing low (in a downtrend), confirming the existing trend continues.",
+          why:"It's used as confirmation that the current trend remains in control, not a sign of reversal.",
+          formed:"Price pushes past the most recent relevant swing point in the direction of the existing trend.",
+          signals:"A BOS tells you the trend's structure is still intact and extending.",
+          context:"Don't confuse a Break of Structure with a Change of Character — they look similar but mean opposite things."
+        }, check:{ q:"A Break of Structure generally confirms what?", options:["A trend reversal","The existing trend is continuing","That the market is closed","Nothing meaningful"], correct:1,
+          explain:"A Break of Structure confirms continuation — price extending in the direction of the existing trend." } },
+      { id:'change-of-character', title:'Change of Character',
+        chart:{ points:[{x:0,y:70},{x:20,y:50},{x:40,y:55},{x:60,y:35},{x:80,y:60},{x:100,y:45}], refLines:[{y:35,label:'Prior Low',color:'amber'}] },
+        body:{
+          what:"A Change of Character (CHoCH) occurs when price breaks structure opposite to the current trend — the first real hint control may be shifting.",
+          why:"It's typically the earliest structural clue that a trend could be ending.",
+          formed:"In an uptrend, this means price breaks below a recent higher low instead of making a new higher high.",
+          signals:"A single CHoCH is a caution flag, not proof of a full reversal.",
+          context:"CHoCH and BOS are read together: BOS confirms the current trend, CHoCH questions it."
+        }, check:{ q:"A Change of Character is typically read as what?", options:["Confirmation the trend is accelerating","An early, unconfirmed hint the trend may be shifting","A guarantee of reversal","Something to ignore completely"], correct:1,
+          explain:"A CHoCH is an early warning sign of a possible shift in control — not a guarantee." } },
+      { id:'supply-demand', title:'Supply and Demand',
+        chart:{ points:[{x:0,y:65},{x:20,y:68},{x:40,y:30},{x:60,y:34},{x:80,y:70},{x:100,y:66}], refLines:[{y:30,label:'Supply Zone',color:'red'},{y:68,label:'Demand Zone',color:'green'}] },
+        body:{
+          what:"Supply and demand zones are areas where a strong, decisive price move originated — suggesting a significant imbalance between buyers and sellers.",
+          why:"Unfilled orders may remain at these zones, making price more likely to react there again.",
+          formed:"A demand zone forms where price based sideways, then rallied sharply; a supply zone forms where price based sideways, then dropped sharply.",
+          signals:"Price returning to a strong, untested zone is watched closely for a reaction.",
+          context:"Supply and demand zones are closely related to support and resistance, usually drawn as a zone rather than a single line."
+        }, check:{ q:"How is a demand zone typically identified?", options:["Where price consolidated, then rallied sharply away","Where the most news articles were published","Where volume was always zero","A fixed distance from the current price"], correct:0,
+          explain:"A demand zone forms where price consolidated and then moved up sharply, suggesting strong buying interest." } }
+    ]},
+    { id:'ta-indicators', title:'Indicators', lessons:[
+      { id:'intro-indicators', title:'Introduction to Indicators',
+        chart:{ points:[{x:0,y:60},{x:20,y:50},{x:40,y:55},{x:60,y:40},{x:80,y:45},{x:100,y:30}], refLines:[] },
+        body:{
+          what:"Indicators are mathematical calculations applied to price (and sometimes volume) data, displayed on or below a chart.",
+          why:"They can make certain conditions — momentum, trend direction, volatility — easier to see than from price alone.",
+          formed:"Each indicator is built from a specific formula applied to recent price data, recalculated as new data comes in.",
+          signals:"Different indicators highlight different things: trend-following, momentum, volatility, and volume are the major categories.",
+          context:"No indicator sees the future — every indicator is a different way of summarizing price that has already happened."
+        }, check:{ q:"What are indicators fundamentally built from?", options:["Random number generation","Mathematical calculations applied to price/volume data","Company announcements","Nothing — they are pure guesses"], correct:1,
+          explain:"Indicators are mathematical calculations derived from historical price and/or volume data." } },
+      { id:'moving-averages', title:'Moving Averages',
+        chart:{ points:[{x:0,y:65},{x:20,y:45},{x:40,y:58},{x:60,y:35},{x:80,y:50},{x:100,y:30}], refLines:[], maLine:[{x:0,y:58},{x:20,y:53},{x:40,y:52},{x:60,y:44},{x:80,y:44},{x:100,y:38}] },
+        body:{
+          what:"A moving average smooths out price by plotting the average closing price over a set number of recent periods.",
+          why:"It filters out short-term noise, making the broader trend direction easier to see at a glance.",
+          formed:"It's recalculated continuously as new candles close, moving forward along with price.",
+          signals:"Price holding above a rising moving average is often read as trend strength; crossing below can hint at weakening momentum.",
+          context:"Shorter moving averages react faster but are noisier; longer ones are smoother but slower to respond."
+        }, check:{ q:"What does a moving average do to price data?", options:["Predicts the exact future price","Smooths it out by averaging recent closes","Removes all volatility permanently","Replaces the need for a chart entirely"], correct:1,
+          explain:"A moving average smooths price by averaging closes over a set number of recent periods." } },
+      { id:'rsi', title:'RSI (Relative Strength Index)',
+        chart:{ points:[{x:0,y:50},{x:20,y:25},{x:40,y:45},{x:60,y:75},{x:80,y:55},{x:100,y:30}], refLines:[{y:25,label:'Overbought (70)',color:'red'},{y:75,label:'Oversold (30)',color:'green'}] },
+        body:{
+          what:"RSI is a momentum oscillator, scaled from 0 to 100, that measures the speed and size of recent price changes.",
+          why:"It's one of the most widely used tools for gauging whether a move may be overextended in the short term.",
+          formed:"It's calculated from the average size of recent gains versus recent losses, typically over 14 periods.",
+          signals:"Readings above 70 are often described as 'overbought,' and below 30 as 'oversold' — zones to watch, not automatic signals.",
+          context:"In a strong trend, RSI can stay overbought or oversold for a long time without reversing — using it alone is a common beginner mistake."
+        }, check:{ q:"RSI is scaled across what range?", options:["0 to 10","0 to 100","-100 to 100","1 to 5"], correct:1,
+          explain:"RSI is a momentum oscillator scaled from 0 to 100, with 70 and 30 commonly used as reference levels." } },
+      { id:'macd', title:'MACD',
+        chart:{ points:[{x:0,y:55},{x:20,y:50},{x:40,y:58},{x:60,y:40},{x:80,y:48},{x:100,y:32}], refLines:[{y:50,label:'Zero Line',color:'amber'}] },
+        body:{
+          what:"MACD (Moving Average Convergence Divergence) is a trend-following momentum indicator built from two moving averages.",
+          why:"It combines trend and momentum information in one tool, making shifts in momentum easier to spot.",
+          formed:"It's built from the difference between a faster and slower moving average, plotted alongside a signal line.",
+          signals:"The MACD line crossing its signal line, or crossing the zero line, are the most commonly watched events.",
+          context:"Like RSI, MACD works best alongside structure and trend context, not alone."
+        }, check:{ q:"MACD is built from the relationship between what?", options:["Two moving averages","Trading volume only","Candle wick length","News sentiment scores"], correct:0,
+          explain:"MACD is built from the relationship between a faster and a slower moving average." } },
+      { id:'volume', title:'Volume',
+        chart:{ points:[{x:0,y:60},{x:20,y:45},{x:40,y:55},{x:60,y:30},{x:80,y:48},{x:100,y:25}], refLines:[], volumeBars:[30,55,40,80,35,70] },
+        body:{
+          what:"Volume measures how much of an asset was traded during a given period — a count of activity, separate from price itself.",
+          why:"Price movement on high volume generally carries more conviction than the same move on very low volume.",
+          formed:"It's typically displayed as vertical bars below the price chart, one per candle.",
+          signals:"A strong price move with rising volume is read as more significant than a quiet move on thin volume.",
+          context:"Volume is especially useful for judging the strength of a breakout — heavy volume is taken far more seriously than light volume."
+        }, check:{ q:"What does volume measure?", options:["How much an asset was traded in a period","The exact future price","Only the closing price","The number of indicators used"], correct:0,
+          explain:"Volume measures the amount of trading activity during a given period, independent of price direction." } },
+      { id:'volatility', title:'Volatility',
+        chart:{ points:[{x:0,y:50},{x:15,y:48},{x:30,y:52},{x:45,y:20},{x:60,y:75},{x:75,y:30},{x:100,y:55}], refLines:[] },
+        body:{
+          what:"Volatility measures how much and how quickly price moves over a given period — it says nothing about direction, only magnitude.",
+          why:"Understanding volatility affects position sizing and how wide a stop-loss realistically needs to be.",
+          formed:"It can be read visually from candle size and swing speed, or measured with dedicated indicators.",
+          signals:"Rising volatility often appears around major news or breakouts; falling volatility often appears during quiet, range-bound periods.",
+          context:"High volatility isn't inherently good or bad — it changes what risk management is appropriate."
+        }, check:{ q:"What does volatility specifically measure?", options:["Price direction only","How much and how fast price moves, regardless of direction","Trading volume only","Whether a trade will be profitable"], correct:1,
+          explain:"Volatility measures the magnitude and speed of price movement, independent of direction." } }
+    ]},
+    { id:'ta-patterns-time', title:'Patterns & Timeframes', lessons:[
+      { id:'chart-patterns', title:'Chart Patterns',
+        chart:{ points:[{x:0,y:70},{x:20,y:40},{x:40,y:60},{x:60,y:42},{x:80,y:58},{x:100,y:25}], refLines:[{y:40,label:'Neckline',color:'amber'}] },
+        body:{
+          what:"Chart patterns are recognizable shapes formed by price over time — triangles, ranges, double tops, head-and-shoulders — built from multiple swing points.",
+          why:"They summarize a larger story about how buyers and sellers have contested a level over an extended period.",
+          formed:"They form gradually, over many candles, from repeated swing highs and lows settling into a shape.",
+          signals:"A confirmed break out of a pattern, ideally with supporting volume, is what traders generally watch for.",
+          context:"Chart patterns are a probability tool, not a certainty — the same shape can fail to play out as expected."
+        }, check:{ q:"Chart patterns are generally built from what?", options:["A single candle","Multiple swing points over an extended period","Random noise with no structure","Only volume data"], correct:1,
+          explain:"Chart patterns form gradually from multiple swing highs and lows settling into a recognizable shape." } },
+      { id:'multi-timeframe', title:'Multi-Timeframe Analysis',
+        chart:{ points:[{x:0,y:60},{x:25,y:45},{x:50,y:50},{x:75,y:30},{x:100,y:35}], refLines:[] },
+        body:{
+          what:"Multi-timeframe analysis means examining the same market across more than one timeframe — a daily chart for trend, a 15-minute chart for timing.",
+          why:"A chart can look different depending on the timeframe — a downtrend on a 5-minute chart might just be a pullback within a daily uptrend.",
+          formed:"It's done by zooming between timeframes on the same symbol, using a higher one for context and a lower one for precision.",
+          signals:"The strongest setups are often where multiple timeframes broadly agree.",
+          context:"There's no single correct timeframe — the right one depends on your own trading style and holding period."
+        }, check:{ q:"What is the core idea behind multi-timeframe analysis?", options:["Only ever look at one timeframe","Examining the same market across more than one timeframe for context and precision","Timeframes never relate to each other","Higher timeframes are always wrong"], correct:1,
+          explain:"Multi-timeframe analysis means using a higher timeframe for context and a lower one for precise timing." } }
+    ]},
+    { id:'ta-advanced', title:'Advanced Technical Analysis', lessons:[
+      { id:'bringing-together', title:'Bringing It Together',
+        chart:{ points:[{x:0,y:68},{x:20,y:50},{x:40,y:55},{x:60,y:32},{x:80,y:40},{x:100,y:18}], refLines:[{y:32,label:'Key Level',color:'amber'}] },
+        body:{
+          what:"Advanced technical analysis isn't a new set of tools — it's combining everything in this course: structure, levels, trend, indicators, and timeframe, into one coherent read.",
+          why:"Any single tool in isolation is weak evidence; several tools agreeing at the same point on a chart is much stronger.",
+          formed:"It's built by layering: establish trend and structure, mark key levels, check indicators, then zoom out for timeframe context.",
+          signals:"The clearest setups are where structure, a key level, and at least one indicator all point the same direction at once.",
+          context:"This is also where this course connects back to the rest of Tradelify: a well-reasoned chart read still needs proper risk management and a logged decision."
+        }, check:{ q:"What is the core idea of 'advanced' technical analysis, per this lesson?", options:["Using one single indicator perfectly","Combining structure, levels, trend, and indicators into one coherent read","Ignoring everything taught earlier in the course","Predicting price with certainty"], correct:1,
+          explain:"Advanced technical analysis means combining multiple tools and timeframes into one coherent read." } }
+    ]}
+  ];
+
+  // ---------- Generalized multi-course registry ----------
+  const courseRegistry = {
+    candlestick: { title:'Candlestick Mastery', desc:'Anatomy, bullish & bearish patterns, and how to read them in context.', modules: candlestickModules, progressDoc:'candlestick' },
+    technical: { title:'Technical Analysis Center', desc:'Structure, levels, indicators, and how to combine them into one coherent read.', modules: technicalAnalysisModules, progressDoc:'technical' }
+  };
+  let currentCourseId = 'candlestick';
+
   async function openCategory(id, unlocked){
     if(!unlocked){
       alert('This category is part of Pro. Lesson content for every category arrives in the next build phases — this screen already enforces the real access rule that will apply once content ships.');
       return;
     }
-    if(id !== 'candlestick'){
-      alert('Lesson content for this category is coming in a later phase. Candlestick Mastery is live now.');
+    if(!courseRegistry[id]){
+      alert('Lesson content for this category is coming in a later phase.');
       return;
     }
-    await loadCandlestickProgress();
+    currentCourseId = id;
+    await loadCourseProgress(id);
     renderCourseView();
     switchView('course');
   }
 
   // ---------- View navigation ----------
-  let candlestickProgress = {}; // { lessonId: true }
+  let courseProgress = {}; // { candlestick: {lessonId:true}, technical: {lessonId:true} }
   let currentLessonCtx = null;
 
   function switchView(view){
@@ -470,22 +662,25 @@
   function goHome(){ switchView('home'); renderCategories(); }
   function backToCourse(){ renderCourseView(); switchView('course'); }
 
-  function totalCandlestickLessons(){
-    return candlestickModules.reduce((sum,m) => sum + m.lessons.length, 0);
+  function totalLessonsFor(courseId){
+    const course = courseRegistry[courseId];
+    return course ? course.modules.reduce((sum,m) => sum + m.lessons.length, 0) : 0;
   }
-  function completedCandlestickCount(){
-    return Object.keys(candlestickProgress).length;
+  function completedCountFor(courseId){
+    return Object.keys(courseProgress[courseId] || {}).length;
   }
 
   function renderCourseView(){
-    document.getElementById('course-title').innerText = 'Candlestick Mastery';
-    document.getElementById('course-desc').innerText = 'Anatomy, bullish & bearish patterns, and how to read them in context.';
+    const course = courseRegistry[currentCourseId];
+    const progress = courseProgress[currentCourseId] || {};
+    document.getElementById('course-title').textContent = course.title;
+    document.getElementById('course-desc').textContent = course.desc;
     const container = document.getElementById('course-modules');
-    container.innerHTML = candlestickModules.map(mod => `
+    container.innerHTML = course.modules.map(mod => `
       <div class="aca-module-block">
         <div class="aca-module-title">${mod.title}</div>
         ${mod.lessons.map(l => {
-          const done = !!candlestickProgress[l.id];
+          const done = !!progress[l.id];
           return `<div class="aca-lesson-row ${done?'done':''}" onclick="openLesson('${mod.id}','${l.id}')">
             <div class="lr-num">${done?'✓':'○'}</div>
             <div class="lr-title">${l.title}</div>
@@ -497,7 +692,7 @@
   }
 
   function findLesson(moduleId, lessonId){
-    const mod = candlestickModules.find(m => m.id === moduleId);
+    const mod = courseRegistry[currentCourseId].modules.find(m => m.id === moduleId);
     const lesson = mod.lessons.find(l => l.id === lessonId);
     return { mod, lesson };
   }
@@ -533,7 +728,9 @@
     const { mod, lesson } = findLesson(moduleId, lessonId);
     currentLessonCtx = { moduleId, lessonId };
     const b = lesson.body;
-    const diagramHTML = lesson.diagram ? `<div class="aca-diagram-box">${renderPatternSVG(lesson.diagram)}</div>` : '';
+    let diagramHTML = '';
+    if(lesson.diagram){ diagramHTML = `<div class="aca-diagram-box">${renderPatternSVG(lesson.diagram)}</div>`; }
+    else if(lesson.chart){ diagramHTML = `<div class="aca-diagram-box">${renderChartSVG(lesson.chart)}</div>`; }
     document.getElementById('lesson-body').innerHTML = `
       <h1>${lesson.title}</h1>
       <div class="lb-meta">${mod.title.toUpperCase()}</div>
@@ -578,21 +775,29 @@
   }
 
   async function markLessonDone(lessonId){
-    candlestickProgress[lessonId] = true;
+    if(!courseProgress[currentCourseId]) courseProgress[currentCourseId] = {};
+    courseProgress[currentCourseId][lessonId] = true;
     if(currentUser){
       try {
-        await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc('candlestick').set(candlestickProgress, { merge:true });
+        const progressDoc = courseRegistry[currentCourseId].progressDoc;
+        await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc(progressDoc).set(courseProgress[currentCourseId], { merge:true });
       } catch(e){}
     }
     backToCourse();
   }
 
-  async function loadCandlestickProgress(){
-    if(!currentUser){ candlestickProgress = {}; return; }
+  async function loadCourseProgress(courseId){
+    if(!currentUser){ courseProgress[courseId] = {}; return; }
     try {
-      const doc = await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc('candlestick').get();
-      candlestickProgress = doc.exists ? doc.data() : {};
-    } catch(e){ candlestickProgress = {}; }
+      const progressDoc = courseRegistry[courseId].progressDoc;
+      const doc = await db.collection('users').doc(currentUser.uid).collection('academyProgress2').doc(progressDoc).get();
+      courseProgress[courseId] = doc.exists ? doc.data() : {};
+    } catch(e){ courseProgress[courseId] = {}; }
+  }
+  async function loadAllCourseProgress(){
+    for(const courseId of Object.keys(courseRegistry)){
+      await loadCourseProgress(courseId);
+    }
   }
 
   function renderNavForUser(user){
@@ -609,6 +814,40 @@
     }
   }
 
+  // ---------- Chart-style diagram renderer for Technical Analysis lessons (levels, trend lines, oscillators) ----------
+  function renderChartSVG(chart){
+    const W = 320, H = 160, padTop = 14, padBot = 14;
+    const usableH = H - padTop - padBot;
+    const toY = v => padTop + (v / 100) * usableH;
+    const toX = v => (v / 100) * W;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:380px; display:block; margin:0 auto 8px;">`;
+    (chart.refLines || []).forEach(rl => {
+      const colorMap = { red:'#E5484D', green:'#3DD68C', amber:'#F5A623' };
+      const y = toY(rl.y);
+      svg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${colorMap[rl.color]||'#8891A5'}" stroke-width="2" stroke-dasharray="5,4"/>`;
+      svg += `<text x="4" y="${y-5}" fill="${colorMap[rl.color]||'#8891A5'}" font-size="10" font-family="monospace">${rl.label}</text>`;
+    });
+    if(chart.volumeBars){
+      const barW = W / chart.volumeBars.length;
+      chart.volumeBars.forEach((v,i) => {
+        const bh = (v/100) * 24;
+        svg += `<rect x="${i*barW+4}" y="${H-bh}" width="${barW-8}" height="${bh}" fill="#8891A5" opacity="0.5" rx="1"/>`;
+      });
+    }
+    const pathD = chart.points.map((p,i) => `${i===0?'M':'L'} ${toX(p.x)} ${toY(p.y)}`).join(' ');
+    svg += `<path d="${pathD}" fill="none" stroke="#3DD68C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if(chart.maLine){
+      const maD = chart.maLine.map((p,i) => `${i===0?'M':'L'} ${toX(p.x)} ${toY(p.y)}`).join(' ');
+      svg += `<path d="${maD}" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4,3"/>`;
+    }
+    (chart.markers || []).forEach(m => {
+      svg += `<circle cx="${toX(m.x)}" cy="${toY(m.y)}" r="3.5" fill="#F2F4F8"/>`;
+      svg += `<text x="${toX(m.x)+6}" y="${toY(m.y)-6}" fill="#8891A5" font-size="9" font-family="monospace">${m.label}</text>`;
+    });
+    svg += `</svg>`;
+    return svg;
+  }
+
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     try {
@@ -620,7 +859,7 @@
         currentUserPlan = 'free';
       }
     } catch(e){ currentUserPlan = 'free'; }
-    await loadCandlestickProgress();
+    await loadAllCourseProgress();
     renderNavForUser(user);
     renderCategories();
     updateContinueStrip();
@@ -629,17 +868,23 @@
 
   function updateContinueStrip(){
     const strip = document.getElementById('aca-continue-strip');
-    const done = completedCandlestickCount();
-    if(done === 0 || done >= totalCandlestickLessons()){ strip.classList.add('hide'); return; }
-    for(const mod of candlestickModules){
-      const next = mod.lessons.find(l => !candlestickProgress[l.id]);
-      if(next){
-        document.getElementById('aca-continue-title').innerText = next.title;
-        strip.classList.remove('hide');
-        strip.querySelector('button').setAttribute('onclick', `openCategory('candlestick', true).then(()=>openLesson('${mod.id}','${next.id}'))`);
-        return;
+    for(const courseId of Object.keys(courseRegistry)){
+      const done = completedCountFor(courseId);
+      const total = totalLessonsFor(courseId);
+      if(done === 0 || done >= total) continue;
+      const course = courseRegistry[courseId];
+      const progress = courseProgress[courseId] || {};
+      for(const mod of course.modules){
+        const next = mod.lessons.find(l => !progress[l.id]);
+        if(next){
+          document.getElementById('aca-continue-title').innerText = next.title;
+          strip.classList.remove('hide');
+          strip.querySelector('button').setAttribute('onclick', `openCategory('${courseId}', true).then(()=>openLesson('${mod.id}','${next.id}'))`);
+          return;
+        }
       }
     }
+    strip.classList.add('hide');
   }
 </script>
 </body>
