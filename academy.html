@@ -230,15 +230,19 @@
   };
   function planKey(){ return (currentUserPlan === 'pro' || currentUserPlan === 'elite') ? currentUserPlan : 'free'; }
   function hasAcademyAccess(feature){ return ACADEMY_ENTITLEMENTS[planKey()].includes(feature); }
+  function academyPlanRequiredFor(feature){
+    if(ACADEMY_ENTITLEMENTS.free.includes(feature)) return 'Free';
+    if(ACADEMY_ENTITLEMENTS.pro.includes(feature)) return 'Pro';
+    return 'Elite';
+  }
 
   // ---------- Category definitions (Phase 1: structure + locking; content arrives in later phases) ----------
   const categories = [
-    { id:'candlestick', icon:'🕯️', title:'Candlestick Mastery', desc:'Anatomy, bullish & bearish patterns, multi-candle setups.', feature:'category_candlestick_full', lessons: 11 },
-    { id:'technical', icon:'📊', title:'Technical Analysis', desc:'Price action, support & resistance, trend, indicators.', feature:'category_technical_analysis', lessons: 12 },
-    { id:'structure', icon:'🧩', title:'Market Structure', desc:'Break of structure, change of character, supply & demand.', feature:'category_market_structure', lessons: 8 },
-    { id:'risk', icon:'🛡️', title:'Risk Management', desc:'Position sizing, risk/reward, capital preservation.', feature:'category_risk_management', lessons: 7 },
-    { id:'psychology', icon:'🧠', title:'Trading Psychology', desc:'Discipline, emotional control, decision-making under risk.', feature:'category_psychology', lessons: 8 },
-    { id:'strategy', icon:'♟️', title:'Strategy Development', desc:'Building, testing, and refining a trading approach.', feature:'category_strategy', lessons: 9 },
+    { id:'candlestick', icon:'🕯️', title:'Candlestick Mastery', desc:'Anatomy, bullish & bearish patterns, multi-candle setups.', feature:'category_candlestick_full', lessons: 20 },
+    { id:'technical', icon:'📊', title:'Technical Analysis', desc:'Price action, support & resistance, structure, indicators.', feature:'category_technical_analysis', lessons: 17 },
+    { id:'risk', icon:'🛡️', title:'Risk Management', desc:'Position sizing, risk/reward, capital preservation.', feature:'category_risk_management', lessons: 6 },
+    { id:'psychology', icon:'🧠', title:'Trading Psychology', desc:'Discipline, emotional control, decision-making under risk.', feature:'category_psychology', lessons: 6 },
+    { id:'strategy', icon:'♟️', title:'Strategy Development', desc:'Building, testing, and refining a trading approach.', feature:'category_strategy', lessons: 5 },
   ];
 
   function renderCategories(){
@@ -250,7 +254,7 @@
       const pct = total ? Math.round((done/total)*100) : 0;
       return `
         <div class="aca-cat-card ${unlocked ? '' : 'locked'}" onclick="openCategory('${c.id}', ${unlocked})">
-          ${!unlocked ? '<div class="aca-lock-badge">🔒 Pro</div>' : ''}
+          ${!unlocked ? `<div class="aca-lock-badge">🔒 ${academyPlanRequiredFor(c.feature)}</div>` : ''}
           <div class="cc-icon">${c.icon}</div>
           <h3>${c.title}</h3>
           <p>${c.desc}</p>
@@ -628,16 +632,203 @@
     ]}
   ];
 
+  // ---------- RISK MANAGEMENT — real, original curriculum ----------
+  const riskManagementModules = [
+    { id:'risk-core', title:'Core Concepts', lessons:[
+      { id:'position-sizing', title:'Position Sizing',
+        body:{
+          what:"Position sizing is deciding how much of an asset to buy or sell in a single trade, based on your account size and the distance to your stop-loss.",
+          why:"It's arguably the single highest-leverage skill in trading — the same win rate with the wrong position size can still blow up an account.",
+          formed:"It's calculated from three numbers: your account size, the percentage you're willing to risk, and the distance between your entry and your stop-loss.",
+          signals:"A correctly sized position means a stopped-out trade costs you a small, pre-decided amount — not a surprise.",
+          context:"This is exactly what Tradelify's Risk Calculator automates — the formula matters less than consistently applying it before every trade."
+        }, check:{ q:"What three inputs does position sizing depend on?", options:["Account size, risk percentage, stop distance","Candle color, volume, time of day","Only the asset's price","News sentiment"], correct:0,
+          explain:"Position sizing is calculated from account size, the percentage you're willing to risk, and the distance to your stop-loss." } },
+      { id:'risk-reward', title:'Risk/Reward Ratio',
+        chart:{ points:[{x:0,y:55},{x:30,y:55},{x:30,y:75},{x:70,y:25},{x:70,y:55},{x:100,y:55}], refLines:[{y:25,label:'Target',color:'green'},{y:55,label:'Entry',color:'amber'},{y:75,label:'Stop-Loss',color:'red'}] },
+        body:{
+          what:"The risk/reward ratio compares how much you stand to lose if a trade fails against how much you stand to gain if it succeeds.",
+          why:"It lets you stay profitable overall even without a high win rate, as long as your winners are meaningfully bigger than your losers.",
+          formed:"It's calculated by measuring the distance from entry to stop-loss (risk) against the distance from entry to target (reward).",
+          signals:"A 1:2 risk/reward ratio means you stand to make twice what you're risking — a trade worth considering even at a 40% win rate.",
+          context:"A great risk/reward ratio on a trade that never gets taken (or sized correctly) does nothing — it has to work together with position sizing, not replace it."
+        }, check:{ q:"A 1:3 risk/reward ratio means what?", options:["You risk 3 times what you could gain","You stand to gain 3 times what you're risking","It guarantees a win","It has nothing to do with the stop-loss"], correct:1,
+          explain:"A 1:3 risk/reward ratio means the potential reward is three times the amount being risked." } },
+      { id:'stop-loss-placement', title:'Stop-Loss Placement',
+        body:{
+          what:"A stop-loss is a predetermined price level where you exit a trade to limit further loss if it moves against you.",
+          why:"It converts an open-ended, emotional decision ('when do I get out?') into one made calmly, before the trade is even live.",
+          formed:"It's placed based on a logical invalidation point for the trade idea — often just beyond a relevant support/resistance or structure level, not an arbitrary dollar amount.",
+          signals:"A stop placed too tight gets triggered by normal market noise; one placed too wide risks far more than intended.",
+          context:"The stop-loss should be decided by where the trade idea is proven wrong — then position size is adjusted to fit that distance, not the other way around."
+        }, check:{ q:"Where should a stop-loss ideally be placed?", options:["At a random fixed dollar amount","At the point where the trade idea is logically invalidated","As far away as possible to avoid being triggered","It doesn't matter where it's placed"], correct:1,
+          explain:"A stop-loss should sit at the point where the original trade idea is proven wrong — a logical invalidation level, not an arbitrary number." } }
+    ]},
+    { id:'risk-protection', title:'Protecting Capital', lessons:[
+      { id:'risk-per-trade', title:'Risk Per Trade',
+        body:{
+          what:"Risk per trade is the percentage of your total account you're willing to lose on any single trade — commonly 1-2% among disciplined traders.",
+          why:"It's the single rule that most directly determines how many consecutive losses your account can survive.",
+          formed:"It's set as a fixed percentage before trading begins, and applied consistently regardless of how confident you feel about a particular trade.",
+          signals:"Risking a consistent, small percentage means no single trade — or even a losing streak — can seriously damage your account.",
+          context:"The temptation to risk more 'just this once' on a high-conviction trade is exactly what separates disciplined risk management from gambling."
+        }, check:{ q:"Why do many disciplined traders risk only 1-2% per trade?", options:["It guarantees profit","It limits how much damage any single losing streak can do","It's a government requirement","It makes trades execute faster"], correct:1,
+          explain:"A small, consistent risk-per-trade percentage limits the damage a losing streak can do to the overall account." } },
+      { id:'drawdown-recovery', title:'Drawdown and Recovery',
+        chart:{ points:[{x:0,y:30},{x:25,y:75},{x:50,y:85},{x:75,y:60},{x:100,y:30}], refLines:[] },
+        body:{
+          what:"A drawdown is the decline from an account's peak value to a subsequent low point, usually expressed as a percentage.",
+          why:"Recovering from a drawdown requires a disproportionately larger gain — a lesson many traders learn too late.",
+          formed:"It builds up through a sequence of losing trades (or losses outweighing wins) without a matching recovery in between.",
+          signals:"A 20% drawdown requires a 25% gain just to recover; a 50% drawdown requires a 100% gain — the math gets punishing quickly.",
+          context:"This asymmetry is exactly why risk per trade (the previous lesson) matters so much — it's far easier to avoid a large drawdown than to recover from one."
+        }, check:{ q:"If an account suffers a 50% drawdown, what size gain is needed to fully recover?", options:["50%","75%","100%","10%"], correct:2,
+          explain:"A 50% loss requires a 100% gain to recover — the deeper the drawdown, the more disproportionate the recovery needed." } },
+      { id:'capital-preservation', title:'Capital Preservation Mindset',
+        body:{
+          what:"Capital preservation means treating 'don't lose the money I need to keep trading' as a higher priority than any single trade's potential profit.",
+          why:"A trader with capital left can always wait for the next good opportunity; a trader without capital has no opportunities left at all.",
+          formed:"It shows up as a consistent willingness to take a small, planned loss rather than hope a bad trade turns around.",
+          signals:"Traders with this mindset size positions conservatively, honor their stop-losses without hesitation, and rarely risk a large share of their account on one idea.",
+          context:"This mindset is the thread connecting everything in this course — position sizing, risk/reward, stop-loss placement, and risk-per-trade all exist in service of preserving capital first."
+        }, check:{ q:"What is the core idea behind a capital preservation mindset?", options:["Maximizing the size of every single trade","Protecting your ability to keep trading over protecting any one trade's profit","Avoiding stop-losses entirely","Trading as often as possible"], correct:1,
+          explain:"Capital preservation prioritizes staying able to trade over squeezing maximum profit from any single trade." } }
+    ]}
+  ];
+
+  // ---------- TRADING PSYCHOLOGY — real, original curriculum ----------
+  const psychologyModules = [
+    { id:'psych-emotions', title:'Understanding Emotion', lessons:[
+      { id:'fear-greed', title:'Fear and Greed',
+        chart:{ points:[{x:0,y:55},{x:15,y:30},{x:30,y:15},{x:45,y:40},{x:60,y:75},{x:75,y:90},{x:100,y:60}], refLines:[{y:20,label:'Greed / Euphoria',color:'amber'},{y:80,label:'Fear / Panic',color:'red'}] },
+        body:{
+          what:"Fear and greed are the two dominant emotions behind most undisciplined trading decisions — greed pushing for more than planned, fear pushing to exit or avoid too early.",
+          why:"Markets are, in large part, a reflection of collective fear and greed — recognizing these emotions in yourself is a prerequisite to recognizing them in price.",
+          formed:"Greed often shows up after a string of wins, as overconfidence; fear often shows up after a loss, as hesitation or panic.",
+          signals:"Noticing you're deviating from your plan because of excitement or anxiety, rather than your original analysis, is a clear signal either emotion is driving the decision.",
+          context:"The goal isn't to eliminate these emotions entirely — that's unrealistic — but to notice them before they override your process."
+        }, check:{ q:"What are the two emotions most associated with undisciplined trading decisions?", options:["Boredom and excitement","Fear and greed","Confidence and curiosity","Patience and discipline"], correct:1,
+          explain:"Fear and greed are the two dominant emotions widely associated with poor trading decisions." } },
+      { id:'discipline', title:'Discipline',
+        body:{
+          what:"Discipline in trading means following your predetermined plan and rules, especially in moments when emotion is pushing you to deviate from them.",
+          why:"A good plan followed inconsistently often performs worse than a mediocre plan followed consistently — discipline is what makes any plan actually testable.",
+          formed:"It's built through repetition: making the same type of decision the same way, trade after trade, until it becomes the default rather than the exception.",
+          signals:"A disciplined trader can describe, in advance, exactly what would make them enter, exit, or skip a trade — and then actually does it.",
+          context:"Discipline is a skill, not a personality trait — it can be deliberately built through journaling, review, and small, consistent rule-following."
+        }, check:{ q:"What does trading discipline fundamentally mean?", options:["Never losing a trade","Following your predetermined plan, especially under emotional pressure","Trading as frequently as possible","Avoiding a trading plan altogether"], correct:1,
+          explain:"Discipline means sticking to your predetermined rules, particularly in moments when emotion pushes you to deviate." } },
+      { id:'revenge-trading', title:'Revenge Trading',
+        body:{
+          what:"Revenge trading is taking an impulsive, often oversized trade shortly after a loss, driven by a desire to immediately 'win it back.'",
+          why:"It's one of the most common ways a single manageable loss turns into a much larger, account-threatening one.",
+          formed:"It forms in the moments right after a loss, when frustration overrides the original plan and risk rules.",
+          signals:"A trade taken without the usual analysis, sized larger than normal, right after a loss, is a strong sign of revenge trading in progress.",
+          context:"Recognizing the urge in the moment — and stepping away rather than acting on it — is one of the most protective habits a trader can build."
+        }, check:{ q:"Revenge trading is typically triggered by what?", options:["A string of wins","A recent loss and the urge to immediately win it back","Careful, planned analysis","A new piece of fundamental news"], correct:1,
+          explain:"Revenge trading is driven by the urge to immediately recover a recent loss, usually with an impulsive, oversized trade." } },
+      { id:'fomo', title:'FOMO (Fear of Missing Out)',
+        body:{
+          what:"FOMO is the anxious feeling of needing to enter a trade that's already moved significantly, out of fear of missing further gains.",
+          why:"It frequently leads to entries at poor prices, right as a move may be running out of steam — the opposite of a well-planned entry.",
+          formed:"It builds from watching a price move happen without you, often amplified by seeing others discuss gains in real time.",
+          signals:"An entry made because 'it's already moving and I don't want to miss it,' without reference to your actual plan or levels, is a sign of FOMO.",
+          context:"A missed trade costs you nothing; a bad trade taken out of FOMO can cost you real capital — the two are not equally risky."
+        }, check:{ q:"FOMO typically leads to what kind of entries?", options:["Carefully planned entries at key levels","Late entries after a move has already happened, often at poor prices","No entries at all","Entries only after thorough backtesting"], correct:1,
+          explain:"FOMO tends to produce late entries, chasing a move that has already happened, often at a poor price." } }
+    ]},
+    { id:'psych-process', title:'Process Over Outcome', lessons:[
+      { id:'patience-process', title:'Patience and Process',
+        body:{
+          what:"Valuing process over outcome means judging a trade by whether you followed your plan well, not simply by whether it was profitable.",
+          why:"Even a good process will sometimes lose, and a bad process will sometimes win — judging only by outcome teaches the wrong lessons over time.",
+          formed:"It's built by reviewing trades against your own rules and reasoning, not just the resulting profit or loss.",
+          signals:"A trader focused on process can explain why a losing trade was still a 'good' trade, or why a winning trade was still a mistake.",
+          context:"This is exactly why Tradelify's Trading Journal records your reasoning, not just your results — the process is what you can actually control and improve."
+        }, check:{ q:"Why might a losing trade still be considered a 'good' trade?", options:["It never can be","If it followed the trader's plan and rules correctly, regardless of outcome","If it made the biggest loss of the month","Only if it was a lucky guess"], correct:1,
+          explain:"A trade that correctly follows a sound process is a 'good' trade regardless of its outcome — process and outcome are judged separately." } },
+      { id:'losing-streaks', title:'Managing Losing Streaks',
+        chart:{ points:[{x:0,y:40},{x:20,y:55},{x:40,y:68},{x:60,y:78},{x:80,y:70},{x:100,y:55}], refLines:[] },
+        body:{
+          what:"A losing streak is a sequence of consecutive losing trades — a normal, expected part of trading, even with a sound strategy.",
+          why:"How a trader responds to a losing streak — staying disciplined versus abandoning their plan — often matters more than the streak itself.",
+          formed:"Even a strategy with a genuine statistical edge will still produce streaks of losses purely due to normal variance.",
+          signals:"A losing streak becomes dangerous when it triggers oversized 'revenge' trades or abandoning risk rules altogether, rather than a calm review.",
+          context:"A well-sized losing streak, properly risk-managed, is simply a cost of doing business — the real risk is an emotional reaction that compounds it."
+        }, check:{ q:"What makes a losing streak genuinely dangerous?", options:["The streak itself always guarantees ruin","An emotional reaction that leads to abandoning risk rules or revenge trading","Any strategy with a losing streak has no edge","Losing streaks never happen to good traders"], correct:1,
+          explain:"A losing streak itself is normal; it becomes dangerous mainly through an emotional reaction like revenge trading or abandoning risk rules." } }
+    ]}
+  ];
+
+  // ---------- STRATEGY DEVELOPMENT — real, original curriculum (Elite) ----------
+  const strategyModules = [
+    { id:'strategy-build', title:'Building a Strategy', lessons:[
+      { id:'trading-plan', title:'Building a Trading Plan',
+        body:{
+          what:"A trading plan is a written set of rules covering what you trade, when you enter and exit, how you size positions, and how you manage risk.",
+          why:"It turns trading from a series of in-the-moment reactions into a repeatable, testable process you can actually improve over time.",
+          formed:"It's built by clearly defining your entry criteria, exit criteria, position sizing rules, and the markets/timeframes you focus on, in writing, before trading live.",
+          signals:"A complete plan should let someone else follow your exact rules and arrive at broadly the same trade decisions you would.",
+          context:"A plan isn't meant to be permanent — it's meant to be followed consistently long enough to generate real data, then deliberately refined."
+        }, check:{ q:"What is the core purpose of a written trading plan?", options:["To guarantee profits","To turn trading into a repeatable, testable process rather than in-the-moment reactions","To replace the need for risk management","To predict exact future prices"], correct:1,
+          explain:"A trading plan's purpose is to make trading repeatable and testable, rather than a series of improvised, emotional decisions." } },
+      { id:'backtesting', title:'Backtesting Basics',
+        chart:{ points:[{x:0,y:70},{x:15,y:62},{x:30,y:66},{x:45,y:50},{x:60,y:54},{x:75,y:38},{x:100,y:30}], refLines:[] },
+        body:{
+          what:"Backtesting means applying your trading plan's rules to historical price data to see how it would have performed, without risking real capital.",
+          why:"It gives an early, rough read on whether a strategy's logic holds up across many past examples, before committing real time and money to it live.",
+          formed:"It's done by manually or systematically applying your exact entry/exit rules to past charts and recording the hypothetical results.",
+          signals:"A strategy that performs reasonably across many different historical examples, not just one favorable period, is a better sign than a single good result.",
+          context:"Backtested results are not a guarantee — markets change, and past data can't fully capture real-time execution, emotion, or slippage."
+        }, check:{ q:"What is backtesting used for?", options:["Executing real trades automatically","Testing a strategy's rules against historical data before trading it live","Replacing a trading plan entirely","Predicting the next candle with certainty"], correct:1,
+          explain:"Backtesting applies a strategy's rules to historical data to get an early read on its logic, without risking real capital." } }
+    ]},
+    { id:'strategy-refine', title:'Testing & Refining', lessons:[
+      { id:'forward-testing', title:'Forward Testing (Demo)',
+        body:{
+          what:"Forward testing means trading your strategy in real time, using simulated funds, before committing real capital — exactly what Tradelify's Demo Trading is built for.",
+          why:"It exposes a strategy to real, live market conditions and your own real-time decision-making, which backtesting on historical data can't fully capture.",
+          formed:"It's done by applying the exact same written rules from your trading plan, in real time, in a demo account, and recording every decision.",
+          signals:"Consistent, plan-following performance over enough demo trades is a healthier sign of readiness than a handful of lucky results.",
+          context:"Demo trading only forward-tests your strategy's logic — it doesn't fully replicate the psychological pressure of real capital, which is worth remembering before going live."
+        }, check:{ q:"What does forward testing add that backtesting on historical data cannot?", options:["Nothing, they are identical","Real-time market conditions and real-time decision-making", "A guarantee of future profit","Removal of all risk forever"], correct:1,
+          explain:"Forward testing exposes a strategy to live, real-time conditions and real-time decisions, which backtesting alone can't capture." } },
+      { id:'refining-data', title:'Refining With Data',
+        body:{
+          what:"Refining a strategy means using your own recorded results — not guesses or impressions — to decide what to change.",
+          why:"Without real data, 'this isn't working' or 'this is working great' are just feelings, not evidence.",
+          formed:"It's done by reviewing your Journal for patterns: which setups perform best, which times or sessions underperform, which mistakes repeat.",
+          signals:"A genuine pattern across many trades (not just one or two) is a much stronger signal to act on than a single standout result.",
+          context:"This is exactly why Tradelify's Trading Journal and Performance Analytics exist — refining a strategy is only possible with a real, honest record to refine it from."
+        }, check:{ q:"What should primarily drive refining a trading strategy?", options:["A single lucky trade","Your own recorded, real trading data over many trades","Random guessing","Ignoring past results entirely"], correct:1,
+          explain:"Strategy refinement should be driven by patterns in your own recorded data across many trades, not a single result or a guess." } },
+      { id:'consistency-complexity', title:'Consistency Over Complexity',
+        body:{
+          what:"This principle holds that a simple strategy followed consistently tends to outperform a complex one followed inconsistently.",
+          why:"Complexity is tempting because it feels more sophisticated, but every added rule or indicator is another place discipline can break down.",
+          formed:"It shows up as a preference for fewer, well-understood rules that are actually followed every time, over many rules that are only sometimes applied.",
+          signals:"If you can't clearly explain your own strategy's rules in a few sentences, it may be more complex than it needs to be.",
+          context:"This closes the loop on the whole course: a plan, tested and refined with real data, followed with discipline, is worth more than any single clever idea."
+        }, check:{ q:"According to this principle, what tends to outperform a complex strategy followed inconsistently?", options:["An even more complex strategy","A simple strategy followed consistently","No strategy at all","Randomly switching strategies often"], correct:1,
+          explain:"A simple, well-understood strategy that is actually followed consistently tends to outperform a complex one applied inconsistently." } }
+    ]}
+  ];
+
   // ---------- Generalized multi-course registry ----------
   const courseRegistry = {
     candlestick: { title:'Candlestick Mastery', desc:'Anatomy, bullish & bearish patterns, and how to read them in context.', modules: candlestickModules, progressDoc:'candlestick' },
-    technical: { title:'Technical Analysis Center', desc:'Structure, levels, indicators, and how to combine them into one coherent read.', modules: technicalAnalysisModules, progressDoc:'technical' }
+    technical: { title:'Technical Analysis Center', desc:'Structure, levels, indicators, and how to combine them into one coherent read.', modules: technicalAnalysisModules, progressDoc:'technical' },
+    risk: { title:'Risk Management', desc:'Position sizing, risk/reward, and the mindset that protects your capital.', modules: riskManagementModules, progressDoc:'risk' },
+    psychology: { title:'Trading Psychology', desc:'Discipline, emotional control, and decision-making under risk.', modules: psychologyModules, progressDoc:'psychology' },
+    strategy: { title:'Strategy Development', desc:'Building, testing, and refining a trading approach with real data.', modules: strategyModules, progressDoc:'strategy' }
   };
   let currentCourseId = 'candlestick';
 
   async function openCategory(id, unlocked){
     if(!unlocked){
-      alert('This category is part of Pro. Lesson content for every category arrives in the next build phases — this screen already enforces the real access rule that will apply once content ships.');
+      const cat = categories.find(c => c.id === id);
+      const tier = cat ? academyPlanRequiredFor(cat.feature) : 'Pro';
+      alert(`This category is part of ${tier}. Upgrade to unlock it from the Tradelify Platform's Billing page.`);
       return;
     }
     if(!courseRegistry[id]){
@@ -886,6 +1077,4 @@
     }
     strip.classList.add('hide');
   }
-</script>
-</body>
-</html>
+</scr
