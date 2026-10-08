@@ -1039,6 +1039,25 @@
     return svg;
   }
 
+  let acaInitTimeoutId = null;
+  function startAcaInitTimeout(){
+    clearTimeout(acaInitTimeoutId);
+    acaInitTimeoutId = setTimeout(()=>{
+      if(!document.getElementById('aca-loader').classList.contains('hide')){ showAcaLoaderError(); }
+    }, 12000);
+  }
+  function showAcaLoaderError(){
+    const loader = document.getElementById('aca-loader');
+    loader.innerHTML = `
+      <div style="text-align:center; max-width:300px; padding:0 20px;">
+        <div class="mark" style="background:var(--red); margin:0 auto 16px;">!</div>
+        <div style="font-size:15px; font-weight:600; margin-bottom:8px;">We're having trouble loading Academy</div>
+        <div style="color:var(--muted); font-size:13px; margin-bottom:20px;">Please check your connection and try again.</div>
+        <button class="aca-btn aca-btn-primary" style="width:100%; margin-bottom:10px;" onclick="location.reload()">Retry</button>
+      </div>`;
+  }
+
+  startAcaInitTimeout();
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     try {
@@ -1049,32 +1068,8 @@
       } else {
         currentUserPlan = 'free';
       }
-    } catch(e){ currentUserPlan = 'free'; }
-    await loadAllCourseProgress();
-    renderNavForUser(user);
-    renderCategories();
-    updateContinueStrip();
-    document.getElementById('aca-loader').classList.add('hide');
-  });
-
-  function updateContinueStrip(){
-    const strip = document.getElementById('aca-continue-strip');
-    for(const courseId of Object.keys(courseRegistry)){
-      const done = completedCountFor(courseId);
-      const total = totalLessonsFor(courseId);
-      if(done === 0 || done >= total) continue;
-      const course = courseRegistry[courseId];
-      const progress = courseProgress[courseId] || {};
-      for(const mod of course.modules){
-        const next = mod.lessons.find(l => !progress[l.id]);
-        if(next){
-          document.getElementById('aca-continue-title').innerText = next.title;
-          strip.classList.remove('hide');
-          strip.querySelector('button').setAttribute('onclick', `openCategory('${courseId}', true).then(()=>openLesson('${mod.id}','${next.id}'))`);
-          return;
-        }
-      }
-    }
-    strip.classList.add('hide');
-  }
-</scr
+      await loadAllCourseProgress();
+      renderNavForUser(user);
+      renderCategories();
+      updateContinueStrip();
+      clearTimeout(acaInitTim
